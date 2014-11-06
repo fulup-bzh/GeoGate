@@ -1,0 +1,25 @@
+{
+  "name"        : "ggencoder",
+  "description" : "GEOGATE-encoder handles AIS/NMEA encoding/decoding for GEOgate GPS/AIS/GTS framework",
+  "version"     : "0.1.2",
+  "author"      : {
+         "name"   : "Fulup Ar Foll",
+         "email"  : "fulup@fridu.net",
+         "url"    : "http://www.fridu.org/fulup"
+         },
+  "keywords" : [ "GTS", "opengts", "GPS", "tracker", "AIS", "GeoJSON", "nmea", "gpx", "gps103", "tk102", "simulator", "gprmc" ],
+
+  "main"         : "ApiExport.js",
+  "home"         : "http://www.geotobe.org/geogate",
+  "dependencies" : {  },
+  "repository" : {
+         "type" : "git",
+         "url"  : "git://github.com/fulup-bzh/GeoGate.git"
+         },
+  "bugs"      : {
+         "url" : "http://github.com/fulup-bzh/GeoGate/issues"
+  },
+  "license" : {
+       "type" : "apache20"
+  }
+}
