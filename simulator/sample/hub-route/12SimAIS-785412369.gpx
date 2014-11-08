@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml version="1.0" encoding="utf-8" ?>
+
+<gpx version="1.1">
+<name>GpsTracking File-Backend IMEI=123456789 Date=2014-09-24T20:32:44.118Z</name>
+<author>Fulup Ar Foll (GpsdTracking)</author>
+
+<trk><name>GpsTrack-1-- utc=2014-09-24 20:32:44</name><number>1</number>
+<trkseg>
+  <trkpt lat="47.54278064799999" lon="-2.896743643">
+     <speed>41.15555555555556</speed>
+     <course>243.44</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:32:49.120Z</time>
+     <name>trackpts-1</name>
+     <desc>lat.=47.54278064799999,lon.=-2.896743643,Alt.=0m. Speed=41.15555555555556m/s. Course=243.44</desc>
+  </trkpt>
+  <trkpt lat="47.540632678458344" lon="-2.9031087979231907">
+     <speed>41.15555555555556</speed>
+     <course>243.44</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:32:59.126Z</time>
+     <name>trackpts-2</name>
+     <desc>lat.=47.540632678458344,lon.=-2.9031087979231907,Alt.=0m. Speed=41.15555555555556m/s. Course=243.44</desc>
+  </trkpt>
+  <trkpt lat="47.536335683" lon="-2.915837543">
+     <speed>41.15555555555556</speed>
+     <course>206.16</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:33:09.135Z</time>
+     <name>trackpts-3</name>
+     <desc>lat.=47.536335683,lon.=-2.915837543,Alt.=0m. Speed=41.15555555555556m/s. Course=206.16</desc>
+  </trkpt>
+  <trkpt lat="47.53232772092244" lon="-2.9187528003560095">
+     <speed>41.15555555555556</speed>
+     <course>206.15</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:33:19.146Z</time>
+     <name>trackpts-4</name>
+     <desc>lat.=47.53232772092244,lon.=-2.9187528003560095,Alt.=0m. Speed=41.15555555555556m/s. Course=206.15</desc>
+  </trkpt>
+  <trkpt lat="47.52431157519542" lon="-2.9245819784735594">
+     <speed>41.15555555555556</speed>
+     <course>206.15</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:33:29.156Z</time>
+     <name>trackpts-5</name>
+     <desc>lat.=47.52431157519542,lon.=-2.9245819784735594,Alt.=0m. Speed=41.15555555555556m/s. Course=206.15</desc>
+  </trkpt>
+  <trkpt lat="47.51228680300001" lon="-2.9333224059999994">
+     <speed>41.15555555555556</speed>
+     <course>223.44</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:33:39.166Z</time>
+     <name>trackpts-6</name>
+     <desc>lat.=47.51228680300001,lon.=-2.9333224059999994,Alt.=0m. Speed=41.15555555555556m/s. Course=223.44</desc>
+  </trkpt>
+  <trkpt lat="47.5095031488102" lon="-2.937224604497003">
+     <speed>41.15555555555556</speed>
+     <course>223.44</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:33:49.175Z</time>
+     <name>trackpts-7</name>
+     <desc>lat.=47.5095031488102,lon.=-2.937224604497003,Alt.=0m. Speed=41.15555555555556m/s. Course=223.44</desc>
+  </trkpt>
+  <trkpt lat="47.50393544338222" lon="-2.9450277598097965">
+     <speed>41.15555555555556</speed>
+     <course>223.43</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:33:59.182Z</time>
+     <name>trackpts-8</name>
+     <desc>lat.=47.50393544338222,lon.=-2.9450277598097965,Alt.=0m. Speed=41.15555555555556m/s. Course=223.43</desc>
+  </trkpt>
+  <trkpt lat="47.49836720873606" lon="-2.9528292599782673">
+     <speed>41.15555555555556</speed>
+     <course>223.42</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:34:09.187Z</time>
+     <name>trackpts-9</name>
+     <desc>lat.=47.49836720873606,lon.=-2.9528292599782673,Alt.=0m. Speed=41.15555555555556m/s. Course=223.42</desc>
+  </trkpt>
+  <trkpt lat="47.492798445087224" lon="-2.9606291055190903">
+     <speed>41.15555555555556</speed>
+     <course>223.42</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:34:19.197Z</time>
+     <name>trackpts-10</name>
+     <desc>lat.=47.492798445087224,lon.=-2.9606291055190903,Alt.=0m. Speed=41.15555555555556m/s. Course=223.42</desc>
+  </trkpt>
+  <trkpt lat="47.487229152651054" lon="-2.9684272969488488">
+     <speed>41.15555555555556</speed>
+     <course>223.41</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:34:29.208Z</time>
+     <name>trackpts-11</name>
+     <desc>lat.=47.487229152651054,lon.=-2.9684272969488488,Alt.=0m. Speed=41.15555555555556m/s. Course=223.41</desc>
+  </trkpt>
+  <trkpt lat="47.48165933164285" lon="-2.9762238347840357">
+     <speed>41.15555555555556</speed>
+     <course>223.41</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:34:39.212Z</time>
+     <name>trackpts-12</name>
+     <desc>lat.=47.48165933164285,lon.=-2.9762238347840357,Alt.=0m. Speed=41.15555555555556m/s. Course=223.41</desc>
+  </trkpt>
+  <trkpt lat="47.476088982277844" lon="-2.9840187195410466">
+     <speed>41.15555555555556</speed>
+     <course>223.40</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:34:49.224Z</time>
+     <name>trackpts-13</name>
+     <desc>lat.=47.476088982277844,lon.=-2.9840187195410466,Alt.=0m. Speed=41.15555555555556m/s. Course=223.40</desc>
+  </trkpt>
+  <trkpt lat="47.47051810477108" lon="-2.99181195173619">
+     <speed>41.15555555555556</speed>
+     <course>223.39</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:34:59.230Z</time>
+     <name>trackpts-14</name>
+     <desc>lat.=47.47051810477108,lon.=-2.99181195173619,Alt.=0m. Speed=41.15555555555556m/s. Course=223.39</desc>
+  </trkpt>
+  <trkpt lat="47.46494669933765" lon="-2.999603531885677">
+     <speed>41.15555555555556</speed>
+     <course>223.39</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:35:09.236Z</time>
+     <name>trackpts-15</name>
+     <desc>lat.=47.46494669933765,lon.=-2.999603531885677,Alt.=0m. Speed=41.15555555555556m/s. Course=223.39</desc>
+  </trkpt>
+  <trkpt lat="47.45937476619244" lon="-3.007393460505631">
+     <speed>41.15555555555556</speed>
+     <course>223.38</course>
+     <ele>0</ele>
+     <time>2014-09-24T20:35:19.244Z</time>
+     <name>trackpts-16</name>
+     <desc>lat.=47.45937476619244,lon.=-3.007393460505631,Alt.=0m. Speed=41.15555555555556m/s. Course=223.38</desc>
+  </trkpt>
+</trkseg>
+</trk>
+</gpx>
+

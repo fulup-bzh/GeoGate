@@ -1,0 +1,12 @@
+
+AIS SimulatorHub scan this directory and extract minimum information to run fake AIS target
+ 
+Files should be a valid GPX routes. They should respect following naming patern
+  Shipname-MMSI-SPEED-WhatEverYouWant.gpx
+  MMSI=0000 will your boat, any other will be AIS target.
+
+See ./Lib/GpsdSimulator for complete set of options.
+
+Have Fun
+
+Fulup

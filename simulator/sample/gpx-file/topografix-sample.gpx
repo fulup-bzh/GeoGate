@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="EditGPX">
+  <trk>
+    <name>2014-09-23T08:23:46Z</name>
+    <trkseg>
+      <trkpt lat="47.646437559805904" lon="-2.7807403557242507">
+        <ele>10</ele>
+      </trkpt>
+      <trkpt lat="47.71116079539159" lon="-2.707955931906265">
+        <ele>99</ele>
+      </trkpt>
+      <trkpt lat="47.72963840190354" lon="-2.5912261955943996">
+        <ele>100</ele>
+      </trkpt>
+      <trkpt lat="47.7970260560252" lon="-2.4497772210047537">
+        <ele>59</ele>
+      </trkpt>
+      <trkpt lat="47.93337975335003" lon="-2.425057982726885">
+        <ele>32</ele>
+      </trkpt>
+      <trkpt lat="47.95361792705674" lon="-2.5720001213782986">
+        <ele>35</ele>
+      </trkpt>
+      <trkpt lat="47.89472123596038" lon="-2.8590179436040053">
+        <ele>130</ele>
+      </trkpt>
+      <trkpt lat="47.883670640313305" lon="-3.0293060295178464">
+        <ele>129</ele>
+      </trkpt>
+      <trkpt lat="47.832991905477634" lon="-2.975747679915871">
+        <ele>113</ele>
+      </trkpt>
+      <trkpt lat="47.7619584447356" lon="-2.8892303459435533">
+        <ele>87</ele>
+      </trkpt>
+      <trkpt lat="47.732409477651174" lon="-2.835671996341668">
+        <ele>63</ele>
+      </trkpt>
+      <trkpt lat="47.64551236043288" lon="-2.7862335197860197">
+        <ele>18</ele>
+      </trkpt>
+      <trkpt lat="47.644587144672755" lon="-2.7862335197860197">
+        <ele>16</ele>
+      </trkpt>
+      <trkpt lat="47.64273666398859" lon="-2.7807403557242507">
+        <ele>21</ele>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

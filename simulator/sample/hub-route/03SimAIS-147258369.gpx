@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<gpx version="1.1" creator="OpenCPN" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" xmlns:opencpn="http://www.opencpn.org">
+    <rte>
+        <name>Crouesty-BelleIle</name>
+        <extensions>
+            <opencpn:start></opencpn:start>
+            <opencpn:end></opencpn:end>
+            <opencpn:viz>1</opencpn:viz>
+            <opencpn:guid>689086d4-5336-4cc2-b8eb-5966716a5793</opencpn:guid>
+        </extensions>
+        <rtept lat="47.542780648" lon="-2.896743643">
+            <time>2014-09-16T21:55:19Z</time>
+            <name>001</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>408c309c-6a8c-411d-815b-0c0054646d45</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+        <rtept lat="47.535611481" lon="-2.914013968">
+            <time>2014-09-16T21:56:11Z</time>
+            <name>011</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>46a8daa3-4523-4dbe-95ca-379d0712d264</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+        <rtept lat="47.405635003" lon="-2.999758665">
+            <time>2014-10-01T14:12:50Z</time>
+            <name>003</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>5f351a48-4a23-4476-8ca5-2cf170432a97</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+        <rtept lat="47.347123152" lon="-3.149399058">
+            <time>2014-10-01T14:06:57Z</time>
+            <name>003</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>3adad7f8-9d5b-43bc-8381-a3a66ce468e9</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+        <rtept lat="47.348395049" lon="-2.955027451">
+            <time>2014-10-01T14:13:06Z</time>
+            <name>005</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>79a851a3-20e0-44a8-9795-f4d1474a35b0</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+        <rtept lat="47.363946056" lon="-2.893133181">
+            <time>2014-10-01T14:13:18Z</time>
+            <name>006</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>5b6b8d8b-81a1-4739-b3be-c951337f5a9e</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+        <rtept lat="47.536008282" lon="-2.914694270">
+            <time>2014-10-01T14:13:33Z</time>
+            <name>007</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>14c532a6-716e-4fbc-a21b-9aea10fcacd2</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+        <rtept lat="47.542780648" lon="-2.896743643">
+            <time>2014-09-16T21:55:19Z</time>
+            <name>001</name>
+            <sym>diamond</sym>
+            <type>WPT</type>
+            <extensions>
+                <opencpn:guid>408c309c-6a8c-411d-815b-0c0054646d45</opencpn:guid>
+                <opencpn:viz>1</opencpn:viz>
+                <opencpn:viz_name>0</opencpn:viz_name>
+                <opencpn:auto_name>1</opencpn:auto_name>
+            </extensions>
+        </rtept>
+    </rte>
+</gpx>

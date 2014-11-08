@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="OpenCPN" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" xmlns:opencpn="http://www.opencpn.org">
+  <rte>
+    <name>circulaire1</name>
+    <extensions>
+      <opencpn:guid>2a475df3-4d79-471a-8ab5-db434c42f083</opencpn:guid>
+      <opencpn:viz>1</opencpn:viz>
+      <opencpn:time_display>PC</opencpn:time_display>
+    </extensions>
+    <rtept lat="47.379761303" lon="-2.688848818">
+      <time>2014-10-04T10:09:48Z</time>
+      <name>001</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>076127e9-9a2a-473b-9ec4-133e37ad5959</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.407065276" lon="-2.706011874">
+      <time>2014-10-04T10:09:49Z</time>
+      <name>002</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>4dc945ea-22a6-4d42-add2-e3815867fb48</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.405032489" lon="-2.769944257">
+      <time>2014-10-04T10:09:50Z</time>
+      <name>003</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>54f3d1d9-a758-4b1c-81c7-b6471afbbe67</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.423615051" lon="-2.785820083">
+      <time>2014-10-04T10:09:51Z</time>
+      <name>004</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>7393a400-1794-4706-bb65-9e2042eb691a</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.441610654" lon="-2.832160334">
+      <time>2014-10-04T10:09:52Z</time>
+      <name>005</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>0d738072-7965-4e5d-a913-55970476b1b9</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.442191055" lon="-2.888369342">
+      <time>2014-10-04T10:09:54Z</time>
+      <name>006</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>6c57288a-68d6-4848-b48b-458b3152758e</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.472653110" lon="-2.906390550">
+      <time>2014-10-04T10:09:55Z</time>
+      <name>007</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>2f1c4ab3-290c-4375-88d0-de90248b4070</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.478453405" lon="-2.972897391">
+      <time>2014-10-04T10:09:56Z</time>
+      <name>008</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>4bf979c6-94d8-4f0d-bfac-26145d681fbb</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.512662115" lon="-2.997783822">
+      <time>2014-10-04T10:09:57Z</time>
+      <name>009</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>08bcfad5-c434-40a7-ac3d-5f032b0523a2</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.481063329" lon="-3.016234107">
+      <time>2014-10-04T10:09:59Z</time>
+      <name>010</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>28956ff3-b49b-4ef7-aa1d-d73f4f0d06f4</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.439579201" lon="-3.012372420">
+      <time>2014-10-04T10:10:00Z</time>
+      <name>011</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>5476bc64-1cca-40bf-8746-143407a323a6</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.429711025" lon="-2.961741405">
+      <time>2014-10-04T10:10:00Z</time>
+      <name>012</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>0b1d9c7e-f2c4-485c-ad87-d76a16a4340d</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.433774616" lon="-2.926128064">
+      <time>2014-10-04T10:10:02Z</time>
+      <name>013</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>1a0538b4-fd7e-4818-85c1-28c038f2aed1</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.402128371" lon="-2.902099786">
+      <time>2014-10-04T10:10:03Z</time>
+      <name>014</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>7fa75ebc-87c3-47ef-903c-26e73d29672f</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.389929329" lon="-2.840741862">
+      <time>2014-10-04T10:10:05Z</time>
+      <name>015</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>2ce85cf3-fe26-486d-831b-192c04f22071</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.355640715" lon="-2.840312786">
+      <time>2014-10-04T10:10:06Z</time>
+      <name>016</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>30642ef9-2d60-492a-b720-71871298e1bd</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.336161833" lon="-2.782387472">
+      <time>2014-10-04T10:10:07Z</time>
+      <name>017</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>53e143d9-48f2-427a-9b46-3a9310a8b017</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.354768680" lon="-2.729611076">
+      <time>2014-10-04T10:10:09Z</time>
+      <name>018</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>0412a850-6352-4336-87ea-5b262bf6d5bd</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+    <rtept lat="47.380051845" lon="-2.686274360">
+      <time>2014-10-04T10:10:11Z</time>
+      <name>019</name>
+      <sym>diamond</sym>
+      <type>WPT</type>
+      <extensions>
+        <opencpn:guid>13ba89ee-820d-4240-8180-eaac42020039</opencpn:guid>
+        <opencpn:auto_name>1</opencpn:auto_name>
+      </extensions>
+    </rtept>
+  </rte>
+</gpx>
