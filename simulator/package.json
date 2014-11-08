@@ -1,0 +1,32 @@
+{
+  "name"        : "ggsimulator",
+  "description" : "GEOGATE-Simulator simulate one/many GPS/AIS receiver/transpondeur",
+  "version"     : "0.1.1",
+  "author"      :
+      { "name"   : "Fulup Ar Foll"
+      , "email"  : "fulup@fridu.net"
+      , "url"    : "http://www.fridu.org/fulup"
+      },
+  "keywords" : [ "GTS", "opengts", "GPS", "tracker", "AIS", "GeoJSON", "nmea", "gpx", "gps103", "tk102", "simulator", "gprmc" ],
+
+  "main"         : "ApiExport.js",
+  "home"         : "http://www.geotobe.org/geogate",
+  "dependencies" :
+      { "async" : "*"
+      ,"traceback" : "*"
+      ,"jison" : "*"
+      ,"sgeo" : "*"
+      ,"xml2js" : "*"
+      },
+  "bin": { "DevSimulator" : "./bin/DevSimulator.js" },
+  "repository" : {
+         "type" : "git",
+         "url"  : "git://github.com/fulup-bzh/GeoGate.git"
+         },
+  "bugs"      : {
+         "url" : "http://github.com/fulup-bzh/GeoGate/issues"
+  },
+  "license" : {
+       "type" : "apache20"
+  }
+}
