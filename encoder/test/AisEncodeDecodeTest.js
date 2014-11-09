@@ -24,7 +24,7 @@
 /*
  * Basic Test for Encoding/Decoding of AIS packet
  */
-
+'use strict';
 
 var AisEncode= require ('../ApiExport').AisEncode;
 var AisDecode= require ('../ApiExport').AisDecode;
@@ -36,7 +36,7 @@ function AisEncodeDecodeTest (args) {
     if (args !== undefined) this.testSet = args;
     else this.testSet = {
     msg24a: {// class B static info
-        msgtype    : 24,
+        aistype    : 24,
         part       : 0,
         nmea       : "!AIVDM,1,1,,A,H42O55i18tMET00000000000000,0*6F",
         cargo      : 60,
@@ -46,7 +46,7 @@ function AisEncodeDecodeTest (args) {
     }
 
     ,msg24b: {// class AB static info
-        msgtype    : 24,
+        aistype    : 24,
         part       : 1,
         nmea       : "!AIVDM,1,1,,A,H42O55lt0000000D3nink000?0500,0*70",
         mmsi       : 271041815,
@@ -58,7 +58,7 @@ function AisEncodeDecodeTest (args) {
         dimD       : 5
     }
     ,msg18: { // standard class B Position report
-        msgtype    : 18,
+        aistype    : 18,
         nmea       : '!AIVDM,1,1,,A,B69>7mh0?B<:>05B0`0e8TN000000,0*72',
         cog        : 72.2,
         sog        : 6.1000000000000005,
@@ -71,7 +71,7 @@ function AisEncodeDecodeTest (args) {
         mmsi       : 412321751
     }
     ,msg5: { // class A static info
-        msgtype    : 5,
+        aistype    : 5,
         nmea       : "!AIVDM,1,1,,A,55?MbV42;H;s<HtKR20EHE:0@T4@Dn2222222216L961O0000i000000000000000000000,0*2D",
         // ,"!AIVDM,2,2,1,A,88888888880,2*25"], [extentions for destination not implemented]
         mmsi       : 351759000,
@@ -83,7 +83,7 @@ function AisEncodeDecodeTest (args) {
         dimB       : 70,
         dimC       :  1,
         dimD       : 31,
-        fixmsgtype    :  1,
+        fixaistype    :  1,
         etamn      :  0,
         etaho      : 16,
         etaday     : 15,
@@ -91,7 +91,7 @@ function AisEncodeDecodeTest (args) {
         draught    : 12.2
         //destination: "NEW YORK  " Extention message not implemented
     }
-}};
+}}
 
 // compare input with decoded outputs
 AisEncodeDecodeTest.prototype.CheckResult = function (test, aisin, aisout, controls) {
@@ -127,7 +127,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
         if (aisDecoded.valid !== true) {
             console.log ("[%s] invalid AIS payload", test);
         } else {
-            switch (aisTest.msgtype) {
+            switch (aisTest.aistype) {
                 case 18:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog"]);
                     break;
@@ -192,7 +192,7 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
                 console.log ("line[%d]=%s", count,  line);
 
                 var ais= new AisDecode (line);
-                switch (ais.msgtype) {
+                switch (ais.aistype) {
                     case 1:
                     case 2:
                     case 3:
@@ -209,7 +209,7 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
                             , ais.mmsi,ais.shipname, ais.callsign, ais.cargo, ais.GetVesselType(),ais.draught, ais.length, ais.width);
                         break;
                     default:
-                        console.log (" ### hoop Testing msg-%d ==> [%s] not implemented", ais.msgtype, ais.GetMsgType());
+                        console.log (" ### hoop Testing msg-%d ==> [%s] not implemented", ais.aistype, ais.Getaistype());
                 }
 
                 line='';

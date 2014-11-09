@@ -19,6 +19,7 @@
  *  http://fossies.org/linux/misc/gpsd-3.11.tar.gz/gpsd-3.11/test/sample.aivdm
  *  online AIS decoder http://www.maritec.co.za/aisvdmvdodecoding/
  */
+'use strict';
 
 
 var MSG_TYPE = {
@@ -190,8 +191,8 @@ function AisDecode (input) {
         var byte = payload[i];
 
         // check byte is not out of range
-        if ((byte < 0x30) || (byte > 0x77))  return -1;
-        if ((0x57 < byte) && (byte < 0x60))  return -1;
+        if ((byte < 0x30) || (byte > 0x77))  return;
+        if ((0x57 < byte) && (byte < 0x60))  return;
 
         // move from printable char to wacky AIS/IEC 6 bit representation
         byte += 0x28;
@@ -200,12 +201,12 @@ function AisDecode (input) {
         this.bitarray[i]=byte;
     }
 
-    this.msgtype   = this.GetInt (0,6);
+    this.aistype   = this.GetInt (0,6);
     this.repeat    = this.GetInt (6,2);
     this.mmsi      = this.GetInt (8,30);
 
 
-    switch (this.msgtype) {
+    switch (this.aistype) {
         case 1:
         case 2:
         case 3: // class A position report
@@ -226,8 +227,8 @@ function AisDecode (input) {
             } else this.valid = false;
 
             this.sog = parseFloat (0.1 * this.GetInt(  50, 10 )); //speed over ground
-            this.cog = parseFloat (0.1 * this.GetInt( 116, 12)); //course over ground
-            this.hdg = parseFloat (1.0 * this.GetInt( 128,  9)); //magnetic heading
+            this.cog = parseFloat (0.1 * this.GetInt( 116, 12));  //course over ground
+            this.hdg = parseFloat (this.GetInt( 128,  9));        //magnetic heading
             this.utc = this.GetInt( 137, 6 );
 
             break;
@@ -250,7 +251,7 @@ function AisDecode (input) {
 
             this.sog = parseFloat (0.1 * this.GetInt( 46, 10 )); //speed over ground
             this.cog = parseFloat (0.1 * this.GetInt( 112, 12)); //course over ground
-            this.hdg = parseFloat (1.0 * this.GetInt( 124,  9)); //magnetic heading
+            this.hdg = parseFloat (this.GetInt( 124,  9));       //magnetic heading
             this.utc = this.GetInt( 134, 6 );
 
             break;
@@ -301,10 +302,10 @@ function AisDecode (input) {
             break;
         default:
     }
-};
+}
 
 // Extract an integer sign or unsigned from payload
-AisDecode.prototype.GetInt= function (start, len, signed) {
+AisDecode.prototype.GetInt= function (start, len) {
     var acc = 0;
     var cp, cx,c0, cs;
 
@@ -324,7 +325,7 @@ AisDecode.prototype.GetInt= function (start, len, signed) {
     }
     //console.log ('---- start=%d len=%d acc=%s acc=%d', start, len ,  acc.toString(2), acc);
     return acc;
-},
+}
 
 // Extract a string from payload [1st bits is index 0]
 AisDecode.prototype.GetStr= function(start, len) {
@@ -367,8 +368,8 @@ AisDecode.prototype.GetNavStatus =function () {
     return (NAV_STATUS [this.navstatus]);
 };
 
-AisDecode.prototype.GetMsgType =function () {
-    return (MSG_TYPE [this.msgtype]);
+AisDecode.prototype.Getaistype =function () {
+    return (MSG_TYPE [this.aistype]);
 };
 
 AisDecode.prototype.GetVesselType =function () {

@@ -71,7 +71,6 @@ var GGsimulator; // if GeoGate development tree uses local modules
 if  (process.env.HOSTNAME !== 'fulup-desktop') GGsimulator = require('ggsimulator');
                                           else GGsimulator = require("../ApiExport");
 
-
 ParseArgs = function (command, args) {
    var cmdgrammar = {  
     "lex": {
@@ -94,6 +93,7 @@ ParseArgs = function (command, args) {
             ,['--underway=' , "return 'WAY';"]
             ,['--srvmod='   , "return 'SRC';"]
             ,['--srvmod'    , "return 'SRV';"]
+            ,['--verbose'   , "return 'VER';"]
             ,['--testparser', "return 'PAR';"]
             ,['--dumpfile=' , "return 'DUM';"]
             ,['--help'      , "return 'HLP';"]
@@ -135,6 +135,7 @@ ParseArgs = function (command, args) {
            ,['SRC TEX'  ,"this.srvmod=JSON.parse($2)"]
            ,['LOP TEX'  ,"this.loopwait=parseInt($2*1000)"] // millisecond
            ,['RAN TEX'  ,"this.randomize=$2"]
+           ,['VER'      ,"this.verbose=true"]
            ,['SRV'      ,"this.srvmod=true"]
            ,['PAR'      ,"this.testpar=true"]
            ,['HLP'      ,"this.help=true"]
@@ -195,10 +196,10 @@ ParseArgs = function (command, args) {
     if (! parsing.opts.help) {
 
         // note: depending on module they only use a subset of opts
-        var formatter  = new GGsimulator.Formatter (parsing.opts);  // handle output message format
         var simulator  = new GGsimulator.Simulator (parsing.opts);  // parse GPX route and compute position
         if (! simulator.valid) return;                              // if simulator fail exit now
+
         var dispatcher = new GGsimulator.Dispatcher(parsing.opts);  // dispatch message to tcp clients
-        dispatcher.SetFormatter (formatter);   // declare presentation encoders registry
+        dispatcher.SetEncoder   (GGsimulator.NmeaAisEncoder);
         dispatcher.SetListener  (simulator);   // ask dispatcher to handle simulator position events
     }

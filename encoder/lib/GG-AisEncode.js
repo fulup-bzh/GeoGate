@@ -21,6 +21,8 @@
  *  Danish Maritime Authority https://github.com/dma-ais/AisLib (dma/ais/message)
  */
 
+'use strict';
+
 
 /* Ais payload is represented in a 6bits encoded string !(
  * This method is a direct transcription in nodejs of C++ ais-decoder code
@@ -32,12 +34,12 @@ function AisEncode (msg) {
     this.payloadSize =0;            // Payload size depend on messages
     this.nmea =[];
 
-    this.PutInt (msg.msgtype  ,0,6);
+    this.PutInt (msg.aistype  ,0,6);
     this.PutInt (msg.repeat   ,6,2);
     this.PutInt (msg.mmsi     ,8,30);
     var lat; var lon; var sog; var hdg;
     
-    switch (msg.msgtype) {
+    switch (msg.aistype) {
         case 1:
         case 2:
         case 3: // class A position report
@@ -115,7 +117,7 @@ function AisEncode (msg) {
             var draught = parseInt (msg.draught*10);
             this.PutInt((parseInt(draught*10)), 294, 8);
             this.PutStr(msg.destination,302,120);
-             this.payloadSize=422
+             this.payloadSize=422;
             break;
         case 24:  // Vesel static information
             this.class='B';
@@ -153,7 +155,7 @@ function AisEncode (msg) {
         } else {
             this.payload[i] = chr +56;
         }
-    };
+    }
    
     // Finish nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
     // this.fragcnt = nmea[1];  // fragment total count for this message
@@ -174,10 +176,10 @@ function AisEncode (msg) {
     for(var i = 1; i < paquet.length; i++) {
         checksum = checksum ^ paquet.charCodeAt(i);
     }
-    var trailer= "*" + checksum.toString(16).toUpperCase() + "\r\n";
+    var trailer= "*" + checksum.toString(16).toUpperCase();
     this.nmea =  paquet + trailer;
     this.valid=  true;
-};
+}
 
 
 // Warning: a bug remaims, if you invert order of placing in between
@@ -202,7 +204,7 @@ AisEncode.prototype.PutInt = function (number, start, len) {
             t0 = 1 << ts;                                // shift bit to the right destination
             this.payload[tp] |= t0;                            // update output target
         }
-    };
+    }
 };
    
 // Extract a string from payload [1st bits is index 0]
@@ -239,7 +241,7 @@ AisEncode.prototype.PutStr = function (string, start, len) {
             }
             bitidx++; // next bit possition in target 
         }
-    };
+    }
 };
 
 
@@ -247,8 +249,8 @@ AisEncode.prototype.GetNavStatus =function () {
     return (NAV_STATUS [this.navstatus]);
 };
 
-AisEncode.prototype.GetMsgType =function () {
-    return (MSG_TYPE [this.msgtype]);
+AisEncode.prototype.Getaistype =function () {
+    return (MSG_TYPE [this.aistype]);
 };
 
 AisEncode.prototype.GetVesselType =function () {

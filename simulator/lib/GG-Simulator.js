@@ -93,11 +93,12 @@ function JobQueuePost (job, callback) {
 
 function GGsimulator (opts) {
     this.valid=true; // in code we trust :)
-    
+    var random = parseInt (Math.random() * 1000000000);
+
     // provide some default values
     this.opts= {
             gpxfile    : opts.gpxfile  || null,           // no default for gpxfile
-            mmsi       : opts.mmsi     || 123456789,      // default fake mmsi
+            mmsi       : opts.mmsi     || random,         // default fake mmsi
             sog        : opts.sog      || 12,             // m/s = 8knts
             tic        : opts.tic      || 10,             // 10s
             debug      : opts.debug    || 3,              // default no debug
@@ -108,8 +109,8 @@ function GGsimulator (opts) {
             draught    : opts.draught  || 3,              // Ship width
             loopwait   : opts.loopwait || 0,              // Sleep time before restating route
             dumpfile   : opts.dumpfile || null,           // filename for log file or NMEA generated commands
-            shipname   : opts.shipname || "GG"+ opts.mmsi,
-            callsign   : opts.callsign || "FX"+ opts.port,
+            shipname   : opts.shipname || "GG"+ random,
+            callsign   : opts.callsign || "FX"+ random,
             class      : opts.class    || "B", // AIS class A|B
             randomize  : opts.randomize|| 0    // +-Math.Random/opts.randomize to Longitude/Latitude
     };
@@ -129,6 +130,8 @@ function GGsimulator (opts) {
             this.valid=false;
         }
     }
+
+    if (opts.mmsi === 0) this.opts.mmsi = 0; // special case for GPRMC formating
             
     // openfile and read store it in a buffer string
     try {
@@ -179,7 +182,7 @@ function GGsimulator (opts) {
     this.queue.drain     = JobQueueEmpty;        // empty queue callback
 
     // 1st segment is activate here, JobQueueEmpty will activate next ones
-    this.Debug (1,"Simulation Started");
+    this.Debug (1,"Simulation Started mmsi=%s shipname=%s", this.opts.mmsi, this.opts.shipname);
     this.ProcessSegment();
 
 }
@@ -218,7 +221,7 @@ GGsimulator.prototype.ProcessSegment = function () {
         this.Debug (5, "segment %d -- from:%s to:%s distance=%dnm midsegment=%d", this.segment, segstart.name, segstop.name, distance/1.852, inter);
 
         var statics =  // statics report
-            { type       : 0
+            { type       : 1
             , mmsi       : this.opts.mmsi
             , shipname   : this.opts.shipname
             , class      : this.opts.class
@@ -228,7 +231,7 @@ GGsimulator.prototype.ProcessSegment = function () {
             , length     : this.opts.len
             , width      : this.opts.wid
         };
-        this.Debug (4,"Emit Static=%j", statics)
+        this.Debug (4,"Emit Static=%j", statics);
         this.event.emit ("statics", statics);
 
         // calculate intermediary waypoint and push them onto NMEA job queue
@@ -247,7 +250,7 @@ GGsimulator.prototype.ProcessSegment = function () {
             this.queue.push (job, JobCallback);
             inter1 = interpolated[inter];
             inter ++;
-        };
+        }
         this.segment ++; // next time process next segment
     } else {
         this.Debug (6, "All [%d] segment from [%s] processed  [loop in %ss]", this.segment, this.opts.basename, this.opts.loopwait/1000);
@@ -277,7 +280,7 @@ GGsimulator.prototype.NewPosition  = function (job) {
 };
 
 // import Debug helper
-GGsimulator.prototype.Debug = require('./_Debug');;
+GGsimulator.prototype.Debug = require('./_Debug');
 
 
 // Process GPX file parse and send NMEA paquet
@@ -310,7 +313,7 @@ GGsimulator.prototype.ProcessGPX= function () {
                 name    : result['gpx']["trk"][0].name,
                 segment : result['gpx']["trk"][0]["trkseg"][0]['trkpt']
             };
-        };
+        }
         // search for route tag
         if (result['gpx']["rte"] !== undefined) {
             //console.log ("route=%s", JSON.stringify(result['gpx']["rte"]));
@@ -319,7 +322,7 @@ GGsimulator.prototype.ProcessGPX= function () {
                 name    :result['gpx']["rte"][0].name,
                 segment :result['gpx']["rte"][0]["rtept"]
             };
-        };
+        }
         if (data.mode === undefined) {
            console.log ("Fatal Not a valid GPX route/track file <trk>|<rte> tag");
            return (-1);
@@ -368,7 +371,7 @@ GGsimulator.prototype.ProcessGPX= function () {
                 route.count++;
             }
             break;
-        };
+        }
     };
 
     // Create GPX parser and send file for parsing
@@ -378,7 +381,7 @@ GGsimulator.prototype.ProcessGPX= function () {
     } catch (e) {
         this.Debug (0, 'Hoops GpxFile=[%s] err=[%s]', this.opts.gpxfile, e);
         return (null);
-    };
+    }
     this.Debug (8,"XML parsed route=%s", route.name);
     return (route);
 };

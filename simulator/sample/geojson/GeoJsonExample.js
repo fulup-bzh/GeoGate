@@ -104,22 +104,12 @@ var MyBoat1 = // check http://catb.org/gpsd/AIVDM.html Ship/Status table codes
   */
 var MyDispatcher =
       { debug   : 4                      // debug 0-9
+      , verbose : true                   // provide a copy of outgoing message on console
       , srvmod  : true                   // move to false for client connect mode
       , host    : 'localhost'            // only useful in client connect mode
       , port    : 1234                   // tcp port for client to connect
       , dumpfile: "/tmp/simulator.dump"  // send a copy of outgoing packet to a dumpfile
-      , proto   : 'MyGeoJsonFormat'      // chosen label in GGencoder registry for my method
       };
-
-/*
- * Formatter is the encoder registry for positions output format methods.
- * User may add new encoder to builtin formatter existing encoders.
- */
-var MyFormatter = { debug: 4 };
-
- // get geojson presenter registry and add myGeoJson method to existing defaults
- var formatter   = new GGsimulator.Formatter (MyFormatter);        // handle output message format
- formatter.AddEncoder   ('MyGeoJsonFormat', GeoJsonEncoder); // registry is a simple array label/method
 
  // instanciate one or multiple simulators to process one/many gpxfile(s)
  var simu1  = new GGsimulator.Simulator(MyBoat1);  // parse GPX route and compute position
@@ -127,9 +117,9 @@ var MyFormatter = { debug: 4 };
   // simu3  = new GGsimulator.Simulator(MyBoat3);
 
  // Dispatcher serve positions messages to connected clients
- var dispatcher  = new GGsimulator.Dispatcher (MyDispatcher);  // dispatch message to tcp clients
-     dispatcher.SetFormatter  (formatter);   // declare presentation encoders registry
-     dispatcher.SetListener  (simu1);        // ask dispatcher to handle simulator position events
+ var dispatcher  = new GGsimulator.Dispatcher (MyDispatcher);     // dispatch message to tcp clients
+     dispatcher.SetEncoder   (GeoJsonEncoder);                    // register presentation encoder
+     dispatcher.SetListener  (simu1);                             // register simulator position/statics events
      //dispatcher.SetListener(simu2);
      //dispatcher.SetListener(simu3);
 

@@ -18,7 +18,10 @@
       ,"sgeo" : "*"
       ,"xml2js" : "*"
       },
-  "bin": { "DevSimulator" : "./bin/DevSimulator.js" },
+  "bin":
+      { "DevSimulator" : "./bin/DevSimulator.js"
+      , "HubSimulator" : "./bin/HubSimulator.js"
+      },
   "repository" : {
          "type" : "git",
          "url"  : "git://github.com/fulup-bzh/GeoGate.git"

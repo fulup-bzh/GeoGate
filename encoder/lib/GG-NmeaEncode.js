@@ -23,6 +23,8 @@
  * http://rietman.wordpress.com/2008/09/25/how-to-calculate-the-nmea-checksum/
  * 
  */
+'use strict';
+
 
 var util= require('util');
 
@@ -45,7 +47,7 @@ function NmeaEncode (msg) {
             for(var i = 1; i < packet.length; i++) {
                 checksum = checksum ^ packet.charCodeAt(i);
             }
-            var trailer=util.format ("*%s\r\n", checksum.toString(16)).toUpperCase();
+            var trailer=util.format ("*%s", checksum.toString(16)).toUpperCase();
             this.nmea= packet + trailer;
             this.valid=true;
             break;
@@ -56,7 +58,7 @@ function NmeaEncode (msg) {
             break;
     }
 
-};
+}
 
 // move from decimal notation to NMEA formating
 NmeaEncode.prototype.Dec2Min = function(cardinal){

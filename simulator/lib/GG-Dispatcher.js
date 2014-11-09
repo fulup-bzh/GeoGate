@@ -36,7 +36,7 @@ var QJhandle;             // push data to client 0.5s sleep time in between mess
 var CLsockid=0;           // provide a unique id to socket for cleaning ActiveClients
 var DumpFD;               // file handler to write a copy of sent packet in dumpfile
 var SCK_PSE=50;           // minimum pause time in between two packet [in ms]
-
+var Verbose=false;        // display a copy of outgoing packet on console
 /*
  *  As soon as GG-Dispatcherer receives an event from a simulator it pushes received
  *  position/statics in QJqueue with no transformation.
@@ -67,7 +67,10 @@ function QJpost (job, callback) {
     if (DumpFD !== undefined) {
       fs.writeSync (DumpFD, packet + '\n');
     }
-    
+
+    // display a copy of outgoing packet on console
+    if (Verbose) console.log ("-%s:%d- %s", job.msg.mmsi, job.evtcount, packet);
+
     for (var sock in ActiveClients) {           
         ActiveClients [sock].write (packet + '\r\n');
     }
@@ -82,17 +85,19 @@ function QJpost (job, callback) {
  * it also create QJob queue and register for listening to simulator position/statics events.
  */
 function Dispatcher (opts) {
-    // provide some default values
+    // provide some default value
     this.opts=
         { debug      : opts.debug    || 3              // default no debug
         , dumpfile   : opts.dumpfile || null           // filename for log file or NMEA generated commands
         , hostname   : opts.hostname || 'localhost'    // default localhost for client connect host
         , srvmod     : opts.srvmod   || false          // default is client mode
-        , proto      : opts.proto    || 'json'         // default formatting proto
         , port       : opts.port     || 1234           // no default for port
         , cltmod     : opts.cltmod   || true           // default mode is client connect
         , timeout    : opts.timeout*1000  || 180000    // reconnect timeout default 180s
     };
+
+    // verbose flag is global
+    if (opts.verbose) Verbose = true;
 
     // if needed check dumpfile can be create
     if (this.opts.dumpfile !== null) {
@@ -106,7 +111,6 @@ function Dispatcher (opts) {
     // if needed start a Tcp server
     if (this.opts.srvmod) {
         this.opts.cltmod=false;    // when server cannot be a client
-        this.clientCount= 0;       // index tcp clients socket
         this.TcpServer (); // start a server waiting on --port/localhost
     }
 
@@ -122,25 +126,25 @@ function Dispatcher (opts) {
 // import Debug helper
 Dispatcher.prototype.Debug = require('./_Debug');
 
-// Insert formatter registry and request encoder
-Dispatcher.prototype.SetFormatter = function (ggformatter) {
+// Register Encoder callback
+Dispatcher.prototype.SetEncoder = function (encoder) {
 
-    this.encoder = ggformatter.GetEncoder (this.opts.proto);
-    if (this.encoder === undefined) {
-        this.Debug (0, "HOOPs requested proto=[%s] encoder does not exist should be: %j", this.opts.proto,ggformatter.ListEncoder());
-    }
+    this.encoder = encoder;
+
 };
 
 // Collect event send by simulator objects
 Dispatcher.prototype.SetListener = function (simulator) {
 
     var self= this; // hugly NodeJS hack to pass simulator object to job queue
+    this.evtcount=0;
 
     // Events successful process by tracker adapter
     function EventStatics (msg){
+
         var job =
-                { type: 1
-                , dispatcher: self
+                { dispatcher: self
+                , evtcount: self.evtcount ++
                 , msg : msg
                 };
         QJhandle.push (job, QJcallback);
@@ -148,8 +152,8 @@ Dispatcher.prototype.SetListener = function (simulator) {
     // Events on action refused by tracker adapter
     function EventPosition (msg){
         var job =
-            { type: 2
-            , dispatcher: self
+            { dispatcher: self
+            , evtcount: self.evtcount ++
             , msg : msg
             };
         QJhandle.push (job, QJcallback);
@@ -168,10 +172,11 @@ Dispatcher.prototype.TcpServer = function () {
         var simulator= this.simulator;
 
         socket.uid = "Socket://" + socket.remoteAddress +":" + socket.remotePort;
-        simulator.Debug(3, "New Client Id-%d Server=[%s] Client: [%s]",CLsockid++,this.uid,socket.uid);
+        socket.num = CLsockid ++;
+        simulator.Debug(3, "New Client Id-%d Server=[%s] Client: [%s]",CLsockid,this.uid,socket.uid);
 
         // keep track of active clients inside TCP server
-        ActiveClients[socket] = socket;
+        ActiveClients[socket.num] = socket;
 
         // Normaly gpsd client does not talk to server
         socket.on("data", function(buffer) {
@@ -188,7 +193,7 @@ Dispatcher.prototype.TcpServer = function () {
         // Remove the device from daemon active device list and notify adapter for eventual cleanup
         socket.on('end', function () {
             simulator.Debug(3, "Tcp-Client Quit %s/%d uid=%s", socket.countid, simulator.clientCount, socket.uid);
-            delete ActiveClients[socket];
+            delete ActiveClients[socket.num];
         });
     }
 

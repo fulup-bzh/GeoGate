@@ -21,6 +21,9 @@
  * http://rietman.wordpress.com/2008/09/25/how-to-calculate-the-nmea-checksum/
  * 
  */
+'use strict';
+
+
 function NmeaDecode (inputpaquet) {
     this.nmea = inputpaquet.split(",");
     this.valid= true; 
@@ -30,13 +33,13 @@ function NmeaDecode (inputpaquet) {
             this.cmd="EMPTY";
             this.type=0; // ignore
             break;
-        case "$GPRID":  // fake device mssi login
-            // $GPRID,123456789,DummyRouteName*05
+        case "$FAKID":  // fake device mssi login
+            // $FAKID,123456789,DummyRouteName
             this.cmd="LOGIN"; 
             this.type=1; // login
-            var mmsi = this.nmea[1].split ('*');
+            var mmsi = this.nmea[1];
             this.mmsi=mmsi[0];
-            var name = this.nmea[2].split ('*');
+            var name = this.nmea[2];
             this.name=name[0];
             break;
         case "$GPRMC":  // position with speed and eventually no altitude
@@ -73,14 +76,13 @@ function NmeaDecode (inputpaquet) {
     
     // Standard NMEA paquet need some aditional work
     if (this.type === 2) { // if position cleanup dates and other data
-        try {this.NormalizeData();} catch(err) {};
+        try {this.NormalizeData();} catch(err) {}
         // if OK NormalizeData set valid=true
     }
-};
+}
 
 // Clean up GPS nmeadata to make them device independant
-NmeaDecode.prototype.NormalizeData= function (nmeadata) {
-    var result;
+NmeaDecode.prototype.NormalizeData= function () {
     // Convert gps coordonnates in decimal
     var Minute2Dec = function(lat){
         // TK103 sample 4737.1024,N for 47°37'.1024
@@ -93,7 +95,7 @@ NmeaDecode.prototype.NormalizeData= function (nmeadata) {
     };
     
     // Convert gps altitude in meter [if ever needed]
-    var Altitude2Dec = function(alt,uni){
+    var Altitude2Dec = function(alt){
         if (ori !== "M") return (-1);
         return (alt);
     };

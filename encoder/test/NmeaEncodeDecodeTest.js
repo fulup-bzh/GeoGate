@@ -22,6 +22,7 @@
  * http://rietman.wordpress.com/2008/09/25/how-to-calculate-the-nmea-checksum/
  * http://rl.se/gprmc oneline GPRMC verification
  */
+'use strict';
 
 
 var NmeaEncode= require ('../ApiExport').NmeaEncode;
@@ -37,7 +38,7 @@ function NmeaEncodeDecodeTest (args) {
             msgtype: 1,
             nmea: '$GPRID,123456,This is my Name*05',
             mmsi: 123456,
-            name: "This is my Name",
+            name: "This is my Name"
         },
         Track0: { // GPRMC mapped on Nmea classB position report
             msgtype: 2,
@@ -45,7 +46,7 @@ function NmeaEncodeDecodeTest (args) {
             lon: 145.12266666666667,
             lat: -37.86083333333333,
             cog: 360,
-            sog: 2, // warning m/s and knts in nmea
+            sog: 2  // warning m/s and knts in nmea
         },
         Track1: { // GPRMC mapped on Nmea classB position report
             msgtype: 2,
@@ -53,15 +54,15 @@ function NmeaEncodeDecodeTest (args) {
             lon: -123.18533333333335,
             lat: 49.274166666666666,
             cog: 54.7,
-            sog: 0.2,
-        },
+            sog: 0.2
+        }
 
     }
 }
 
 // Require/Autoload of method NmeaEncode/Decode fail when run from NmeaEncode/Decode themself why ???
-NmeaEncodeDecodeTest.prototype.SetNmeaDecode = function (Method2Test) {NmeaDecode= Method2Test;}
-NmeaEncodeDecodeTest.prototype.SetNmeaEncode = function (Method2Test) {NmeaEncode= Method2Test;}
+NmeaEncodeDecodeTest.prototype.SetNmeaDecode = function (Method2Test) {NmeaDecode= Method2Test;};
+NmeaEncodeDecodeTest.prototype.SetNmeaEncode = function (Method2Test) {NmeaEncode= Method2Test;};
 
 // compare input with decoded outputs
 NmeaEncodeDecodeTest.prototype.CheckResult = function (test, Nmeain, Nmeaout, controls) {

@@ -2,7 +2,7 @@
  * Created by fulup on 06/11/14.
  */
 
-// Main Entry Point for GeoGate encoder Package
+// Main Entry Point for GeoGate geojson Package
 
 var GGencode=
    { AisDecode : require ('./lib/GG-AisDecode')

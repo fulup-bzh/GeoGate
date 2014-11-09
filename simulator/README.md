@@ -11,51 +11,45 @@ GeoGate-Simulator
 ==================
 
 Is the component that support GPS/AIS receiver/transceiver emulation. It can either
-generate a single or multiple devices.
+emulate a single or multiple devices.
 
 Install
 =======
 
-      npm install ggsimulator
+       npm install ggsimulator
 
-Basic Usage
+Command line
+=============
+       # Standalone GPS/AIS device
+       node ./bin/DevSimulator.js --verbose --gpxfile=sample/gpx-file/opencpn-sample.gpx --mmsi=0 --tic=1  # MMSI=0 force GPRMC formatting
+       node ./bin/DevSimulator.js --verbose --gpxfile=sample/gpx-file/opencpn-sample.gpx --mmsi=12312345 --tic=10 --shipname='Youpi' --class='A' --speed=15 --length=150 --width=10
+
+       # One GPS and Multiple AIS targets
+       node ./bin/DevSimulat --verbose --gpxfile=sample/gpx-file/opencpn-sample.gpx  # emulate one ship per GPX file in directory
+
+API Usage
 ============
-   var GGsimulator = require("ggsimulator").Simulator;
-   var config =
-       { gpxfile : "../sample/gpx-file/opencpn-sample.gpx"
-       , mmsi    : 1234    // my prefered fake MMSI
-       , tic     : 1    // send a position every 10s
-       , loopwait: 0    // stop at end of gpxfile
-       , debug   : 5    // 4 allow us to see event emit without officially listening to them
-    };
-    var simulator = new GGsimulator (config);
-    simulator.event.on("position",MyEventHandler4Position);
-    simulator.event.on("static"  ,MyEventHandler4Statics);
+       var GGsimulator = require("ggsimulator").Simulator;
+       var config =
+           { gpxfile : "../sample/gpx-file/opencpn-sample.gpx"
+           , mmsi    : 1234      // my prefered fake MMSI
+           , tic     : 1         // send a position every 10s
+           , loopwait: 0         // stop at end of gpxfile
+           , debug   : 4         // [0-9] 4= see event emit without listening to them
+        };
+        var simulator = new GGsimulator (config);
+        simulator.event.on("position",MyEventHandler4Position);   // GPS position report
+        simulator.event.on("static"  ,MyEventHandler4Statics);    // AIS static data report
 
-Register a custom presentation prototype [ex: CustomGeoJson]
-========================================================
-   opts =
-        { gpxfile : "../sample/gpx-file/opencpn-sample.gpx"
-        , proto   : 'MyProtoName'
-        }
-   var encoder   = new GGencoder   (opts);  // handle output message format
-   var dispatch  = new GGdispatch (opts);  // dispatch message to tcp clients
-   var simulator = new GGsimulator (opts);  // parse GPX route and compute position
-
-   encoder.AddEncoder   ("CustomGeoJson", CustomGeoJsonEncodingMethod);
-   dispatch.SetEncoder  (encoder);    // register encoders
-   dispatch.SetListener (simulator);  // ask dispatcher to handle simulator position events
+        // Check ./sample/geojson for a working solution with a custom message formating
 
 
-Lib
-====
-   lib/GG-Simulator is parse GPX file, generate intemediary points and emit position & statics events
-   lib/GG-Presenter is an interface for supported output format AIVDM,GPRMC,JSON,....
-   lib/GG-EvtHandler receive event from GG-Simulator transform with GG-presenter and send them to GG-dispatch
-   lib/GG-Dispatch is a simple TCP client/server routine to dispatch final result to connected client
+API/lib
+========
+   require("ggsimulator").Simulator      : parses a single GPX file, generates intermediary points and emits position/statics events
+   require("ggsimulator").Dispatch       : supports TCP client/server services. Dispatches outgoing messages to connected clients
+   require("ggsimulator").NmeaAisEncoder : formats outgoing messages to GPRMC/AIVDM standard as requested by chart applications like OpenCPN
 
-   If you write your own Simulator application, you may want only lib/GG-Simulator. Other libs are only helpers that
-   you may or may not be interested in.
-
-   If you only want to add a new format ex: Signal-K, GeoJSON, etc ... Write a simple encoder using CVS or jSON as example
-   and register it within application config file.
+Sample
+======
+   ./sample/geojson/GeoJsonExample.js A small application that leverages a basic custom encoding.

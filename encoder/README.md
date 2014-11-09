@@ -7,8 +7,8 @@ acquisition drivers for typical tracker devices or phone's GPS apps.
 It handle multiple database backend, and support GeoJSON, AIS & NMEA encoding/decoding.
 It embed support for multiple classes of trackers, phone-apps, as well an NMEA & AIS simulator.
 
-GeoGate-Encoder
-===============
+GeoGate-Encoder [ggencoder]
+============================
 
 Is the component that support AIS & NMEA encoding decoding for GeoGate. This component is fully
 independent of GeoGate and can be use without any other references to GeoGate
