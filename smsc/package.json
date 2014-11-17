@@ -1,7 +1,7 @@
 {
   "name" : "ggsmsc",
   "description" : "GTSdtracking is an opensource GPS tracking server framework",
-  "version" : "0.1.0",
+  "version" : "0.1.2",
   "author" : {
     "name" : "Fulup Ar Foll",
     "email" : "fulup@fridu.net",
@@ -12,7 +12,7 @@
     "type" : "apache20"
   },
   "bin" : {
-    "DeviceSimulator" : "./apps/SendRecSms.js"
+    "SendRecSms" : "./bin/SendRecSms.js"
   },
   "dependencies" : 
     {"traceback" : "*"

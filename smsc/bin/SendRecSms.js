@@ -33,7 +33,7 @@
 
 'use strict';
 
-var GammuSms= require('../ApiExport').Gammu;
+var GammuSms= require('../ApiExport').Client;
 var jison   = require("jison").Parser;
 var path    = require('path');
 
@@ -168,7 +168,8 @@ if (! cli.opts.help) {
             gammu.DelById (DisplayResult, this.cli.smsid);  // delete by ID
             break;
         case 'sendto': // --sendto=phonenumber --msg=xxxxxxxx
-            gammu.SendTo (DisplayResult, cli.opts.phone, cli.opts.msg);
+            var sms = {phone:  cli.opts.phone, msg: cli.opts.msg};
+            gammu.SendTo (DisplayResult, sms);
             break;
         default:
              console.log ("\nHoops unknown option=[%s] check --help]", cli.opts.action);
