@@ -1,0 +1,32 @@
+{
+  "name" : "ggsmsc",
+  "description" : "GTSdtracking is an opensource GPS tracking server framework",
+  "version" : "0.1.0",
+  "author" : {
+    "name" : "Fulup Ar Foll",
+    "email" : "fulup@fridu.net",
+    "url" : "http://www.fridu.org/fulup"
+  },
+  "keywords" : [ "GTS", "opengts", "GPS", "tracker", "gps103", "tk102", "sms", "gammu" ],
+  "licenses" : {
+    "type" : "apache20"
+  },
+  "bin" : {
+    "DeviceSimulator" : "./apps/SendRecSms.js"
+  },
+  "dependencies" : 
+    {"traceback" : "*"
+    ,"jison" : "*"
+    ,"mysql" : "*"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "git://github.com/fulup-bzh/GpsdTracking.git"
+  },
+  "bugs" : {
+    "url" : "http://github.com/fulup-bzh/GpsdTracking/issues"
+  },
+  "license" : {
+    "type" : "apache20"
+  }
+}
