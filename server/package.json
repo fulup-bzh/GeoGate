@@ -1,0 +1,37 @@
+{
+  "name" : "ggserver",
+  "description" : "GTSdtracking is an opensource GPS tracking server framework",
+  "version" : "0.1.0",
+  "author" : {
+    "name" : "Fulup Ar Foll",
+    "email" : "fulup@fridu.net",
+    "url" : "http://www.fridu.org/fulup"
+  },
+  "keywords" : [ "GTS", "opengts", "GPS", "tracker", "AIS", "GeoJSON", "nmea", "gpx", "gps103", "tk102", "simulator", "gprmc" ],
+  "licenses" : {
+    "type" : "apache20"
+  },
+  "bin" : {
+    "DeviceSimulator" : "./apps/DeviceSimulator.js"
+  },
+  "dependencies" : 
+    {"async" : "*"
+    ,"traceback" : "*"
+    ,"jison" : "*"
+    ,"mysql" : "*"
+    ,"mongodb": "~2.0"
+    ,"sgeo" : "*"
+    ,"xml2js" : "*"
+    ,"ws"     : "*"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "git://github.com/fulup-bzh/GeoGate.git"
+  },
+  "bugs" : {
+    "url" : "http://github.com/fulup-bzh/GeoGate/issues"
+  },
+  "license" : {
+    "type" : "apache20"
+  }
+}

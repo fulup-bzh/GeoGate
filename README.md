@@ -27,4 +27,24 @@ Is the component that simulate a GPS/AIS receiver/transponder.
 
    npm install ggsimulator
 
+GeoGate-SmsClient
+==================
+
+   SmsClient supports SMS interface with Gammu SMS gateway.
+   It is used for tracker initial configuration by SMS. This module
+   leverage MySQL Gammy backend to exchange with the gateway.
+
+   In order to use this module, you need a working Gammy SMS gateway
+   configure with MySQL backend. For details check http://fr.wammu.eu/smsd/
+
+   npn install ggsmsc
+
+GeoGate-Server
+===============
+   This is the main GeoGate server. It implement Tracker/GPS/AIS/NMEA device adapters
+   as well as MySQL and MongoDB backend to store position/alarm on disk.
+
+   npn install ggserver
+
+
 Note: GeoGate is a modular version of what was used to be GpsdTracking.
