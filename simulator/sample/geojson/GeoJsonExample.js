@@ -37,7 +37,7 @@ else GGsimulator = require("../../ApiExport");
 function GeoJsonEncoder (data) {
     var msg;
 
-    switch (data.type)  {
+    switch (data.cmd)  {
         case 1: // Vessel static info (some value might be undefined)
            msg =
            { type: "Feature"

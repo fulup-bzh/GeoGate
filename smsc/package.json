@@ -21,10 +21,10 @@
   },
   "repository" : {
     "type" : "git",
-    "url" : "git://github.com/fulup-bzh/GpsdTracking.git"
+    "url" : "git://github.com/fulup-bzh/GeoGate.git"
   },
   "bugs" : {
-    "url" : "http://github.com/fulup-bzh/GpsdTracking/issues"
+    "url" : "http://github.com/fulup-bzh/GeoGate/issues"
   },
   "license" : {
     "type" : "apache20"

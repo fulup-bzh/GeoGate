@@ -1,7 +1,7 @@
 {
   "name"        : "ggencoder",
   "description" : "GEOGATE-geojson handles AIS/NMEA encoding/decoding for GEOgate GPS/AIS/GTS framework",
-  "version"     : "0.1.4",
+  "version"     : "0.1.5",
   "author"      : {
          "name"   : "Fulup Ar Foll",
          "email"  : "fulup@fridu.net",
@@ -11,7 +11,11 @@
 
   "main"         : "ApiExport.js",
   "home"         : "http://www.geotobe.org/geogate",
-  "dependencies" : {  },
+  "dependencies" : 
+           { "jison" : "*" 
+           , "async" : "*"
+           },
+  "bin"          : {"Ais2JsonClient": "./bin/Ais2JsonClient.js"},
   "repository" : {
          "type" : "git",
          "url"  : "git://github.com/fulup-bzh/GeoGate.git"

@@ -22,7 +22,7 @@ var util       = require("util");
 // ------- Public Methods --------------
 var Debug = function(level, format) {  //+ arguments
 
-    if (this.opts.debug >= level || this.debug >= level) {
+    if (this.debug >= level || this.opts.debug >= level ) {
 
         var args = [].slice.call(arguments, 1); // copy argument in a real array leaving out level
         var message = util.format.apply(null, args);

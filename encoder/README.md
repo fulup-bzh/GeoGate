@@ -18,8 +18,14 @@ Install
 
       npm install ggencoder
 
-Usage
-======
+      note: ./bin/Ais2JsonClient cli depends on async & jison but encoder/decoder themself do not depend on anything
+
+Cli Usage
+==========
+      node ./node_modules/.bin/Ais2JsonClient --verbose --hostname=localhost --port=5001
+
+API Usage
+==========
 
       // import GeoGate encoding/decoding NMEA/AIS methods
       var AisEncode  = require ("ggencoder").AisEncode;

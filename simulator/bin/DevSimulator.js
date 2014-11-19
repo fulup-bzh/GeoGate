@@ -66,7 +66,6 @@
 
 var jison    = require("jison").Parser;
 
-
 var GGsimulator; // if GeoGate development tree uses local modules
 if  (process.env.HOSTNAME !== 'fulup-desktop') GGsimulator = require('ggsimulator');
                                           else GGsimulator = require("../ApiExport");
@@ -82,7 +81,7 @@ ParseArgs = function (command, args) {
             ,['--hostname=' , "return 'HOS';"]
             ,['--port='     , "return 'PRT';"]
             ,['--mmsi='     , "return 'IME';"]
-            ,['--imei='     , "return 'IME';"]
+            ,['--devid='     , "return 'IME';"]
             ,['--debug='    , "return 'DEB';"]
             ,['--length='   , "return 'LEN';"]
             ,['--width='    , "return 'WID';"]

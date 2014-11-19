@@ -221,7 +221,7 @@ GGsimulator.prototype.ProcessSegment = function () {
         this.Debug (5, "segment %d -- from:%s to:%s distance=%dnm midsegment=%d", this.segment, segstart.name, segstop.name, distance/1.852, inter);
 
         var statics =  // statics report
-            { type       : 1
+            { cmd        : 1
             , mmsi       : this.opts.mmsi
             , shipname   : this.opts.shipname
             , class      : this.opts.class
@@ -266,7 +266,7 @@ GGsimulator.prototype.ProcessSegment = function () {
 // publish new position to listeners
 GGsimulator.prototype.NewPosition  = function (job) {
     var position=
-        { type       : 2  // position report
+        { cmd        : 2  // position report
         , mmsi       : this.opts.mmsi
         , lat        : job.lat
         , lon        : job.lon

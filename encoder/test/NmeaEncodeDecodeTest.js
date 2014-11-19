@@ -35,13 +35,13 @@ function NmeaEncodeDecodeTest (args) {
     if (args !== undefined) this.testSet = args;
     else this.testSet = {
         start: { // Fake Nmea Identification for Simulator
-            msgtype: 1,
+            cmd: 1,
             nmea: '$GPRID,123456,This is my Name*05',
             mmsi: 123456,
             name: "This is my Name"
         },
         Track0: { // GPRMC mapped on Nmea classB position report
-            msgtype: 2,
+            cmd: 2,
             nmea: '$GPRMC,081836,A,3751.65,S,14507.36,E,004.0,360.0,130998,011.3,E*62',
             lon: 145.12266666666667,
             lat: -37.86083333333333,
@@ -49,7 +49,7 @@ function NmeaEncodeDecodeTest (args) {
             sog: 2  // warning m/s and knts in nmea
         },
         Track1: { // GPRMC mapped on Nmea classB position report
-            msgtype: 2,
+            cmd: 2,
             nmea: '$GPRMC,225446.00,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68',
             lon: -123.18533333333335,
             lat: 49.274166666666666,
@@ -89,13 +89,13 @@ NmeaEncodeDecodeTest.prototype.CheckDecode = function () {
 
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
-        var Nmea2Test     = this.testSet [test];
+        var Nmea2Test    =  this.testSet [test];
         var NmeaDecoded  = new NmeaDecode (Nmea2Test.nmea);
 
         if (NmeaDecoded.valid !== true) {
             console.log ("[%s] invalid Nmea payload", test);
         } else {
-            switch (Nmea2Test.msgtype) {
+            switch (Nmea2Test.cmd) {
                 case 1:
                     this.CheckResult(test, Nmea2Test, NmeaDecoded, ["mmsi","name"]); break;
                     break;
@@ -114,7 +114,7 @@ NmeaEncodeDecodeTest.prototype.CheckEncode = function () {
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
         var nmeaIn = this.testSet [test];
-        if (nmeaIn.msgtype !== 1) { // ignore fake NMEA authentication message
+        if (nmeaIn.cmd !== 1) { // ignore fake NMEA authentication message
             var nmeaOut = new NmeaEncode(nmeaIn);
 
             console.log("\nTEST=%s  --> http://rl.se/gprmc", test);

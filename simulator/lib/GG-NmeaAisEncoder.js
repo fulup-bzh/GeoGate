@@ -32,7 +32,7 @@ function NmeaAisEncoder (data) {
     // Use NMEA GRPMC or AIVDM depending on Vessel MMSI
     if (data.mmsi === 0) {
         // this ship has no MMSI let's use GPRMC format
-        switch (data.type) {
+        switch (data.cmd) {
             case 1:
                 msg = { // built a Fake NMEA authentication message
                     valid: true,
@@ -47,7 +47,7 @@ function NmeaAisEncoder (data) {
         }
     } else {
         // we are facing multiple boats use AIS ADVDM
-        switch (data.type) {
+        switch (data.cmd) {
             case 1:
                 if (data.class === 'A') data.aistype = 5; else data.aistype = 24;
                 msg = new GGencode.AisEncode(data);

@@ -135,7 +135,7 @@ GammuSms.prototype.SendTo = function (callback, smscmd) {
         , DeliveryReport: this.opts.report
     };
 
-    // added ALTER TABLE devices ADD UNIQUE INDEX imei (uniqueId);
+    // added ALTER TABLE devices ADD UNIQUE INDEX devid (uniqueId);
     this.Debug (7,"Sending phone=%s message=[%s]", smscmd.phone, smscmd.msg);
     this.base.query(queryString, post, callback);
 };

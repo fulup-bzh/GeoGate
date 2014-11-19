@@ -35,8 +35,7 @@ function NmeaDecode (inputpaquet) {
             break;
         case "$FAKID":  // fake device mssi login
             // $FAKID,123456789,DummyRouteName
-            this.cmd="LOGIN"; 
-            this.type=1; // login
+            this.cmd= 1; // Login
             var mmsi = this.nmea[1];
             this.mmsi=mmsi[0];
             var name = this.nmea[2];
@@ -44,8 +43,7 @@ function NmeaDecode (inputpaquet) {
             break;
         case "$GPRMC":  // position with speed and eventually no altitude
             // $GPRMC,225446.00,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68
-            this.cmd="TRACKER";
-            this.type=2; // position
+            this.cmd= 2;  // Tracker
             this.mssi=0;
             if (this.nmea[2] === 'A') this.valid=1; else  this.valid=0;
             this.time = this.nmea[1];
@@ -58,9 +56,8 @@ function NmeaDecode (inputpaquet) {
             break;
         case "$GPGGA":  // position with altitude and no speed
              // $GPGGA,064036.289,4836.5375,N,00740.9373,E,1,04,3.2,200.2,M,,,,0000*0E
-            this.cmd ="TRACKER";
-            this.type=2;  // position
-            this.mssi=0; 
+            this.cmd = 2; // Tracker
+            this.mssi=0;
             this.time = this.nmea [1];
             this.lat  =[this.nmea[2], this.nmea[3]];
             this.lon  =[this.nmea[4], this.nmea[5]];
@@ -75,7 +72,7 @@ function NmeaDecode (inputpaquet) {
     }
     
     // Standard NMEA paquet need some aditional work
-    if (this.type === 2) { // if position cleanup dates and other data
+    if (this.cmd === 2) { // if position cleanup dates and other data
         try {this.NormalizeData();} catch(err) {}
         // if OK NormalizeData set valid=true
     }
@@ -92,12 +89,6 @@ NmeaDecode.prototype.NormalizeData= function () {
     
         if (lat [1] === 'S' || lat [1] === 'W') dec= dec * -1;
         return (dec);
-    };
-    
-    // Convert gps altitude in meter [if ever needed]
-    var Altitude2Dec = function(alt){
-        if (ori !== "M") return (-1);
-        return (alt);
     };
     
     // we store lon/lat as +-/decimal
