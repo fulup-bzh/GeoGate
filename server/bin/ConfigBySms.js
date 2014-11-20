@@ -123,10 +123,10 @@ function Arguments (command, args) {
         console.log ("## Syntaxe:  %s --list   # return avaliable commands",bin);
         console.log ("##");
         console.log ("## Examples:");
-        console.log ("##     %s --debug=3 --phone=+33123456789 --password=123456  --command=load ",bin);
-        console.log ("##     %s --debug=3 --phone=+33123456789 --password=123456  --batch=sample/SmsCommand-batch.js ",bin);
-        console.log ("##     %s --debug=3 --phone=+33123456789 --password=123456  --command=GPRS_APN --args= 'apn:free'",bin);
-        console.log ("##     %s --debug=3 --phone=+33123456789 --password=123456  --command=GPRS_URI --args='host:xxxxx port:1234' ",bin);
+        console.log ("##     %s --debug=3 --phone=+33xxxxxxxxx --password=123456  --command=load ",bin);
+        console.log ("##     %s --debug=3 --phone=+33xxxxxxxxx --password=123456  --batch=sample/SmsCommand-batch.js ",bin);
+        console.log ("##     %s --debug=3 --phone=+33xxxxxxxxx --password=123456  --command=GPRS_APN --args= 'apn:xxxx'",bin);
+        console.log ("##     %s --debug=3 --phone=+33xxxxxxxxx --password=123456  --command=GPRS_URI --args='host:xxxxx port:xxxx' ",bin);
         console.log ("----------------------------------------------------------------------------------------------------------");
         return(0);
     }

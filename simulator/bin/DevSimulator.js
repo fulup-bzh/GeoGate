@@ -67,7 +67,7 @@
 var jison    = require("jison").Parser;
 
 var GGsimulator; // if GeoGate development tree uses local modules
-if  (process.env.HOSTNAME !== 'fulup-desktop') GGsimulator = require('ggsimulator');
+if  (process.env.GEOGATE !== 'dev') GGsimulator = require('ggsimulator');
                                           else GGsimulator = require("../ApiExport");
 
 ParseArgs = function (command, args) {

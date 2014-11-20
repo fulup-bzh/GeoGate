@@ -47,7 +47,7 @@ var GeoGateConfig =
                   to see event on ignoring data because of distance/speed computation.
         */
         // this controle console, you probably want it hyden behind your firewall
-        { debug    : 1
+        { debug    : 4
         , Telnet   : {info: "Telnet Console"  , adapter: "TelnetConsole" , port: PortBase}
         , Httpd    : {info: "Minimalist HTTPd", adapter: "HttpAjax"      , port:PortBase +80, debug:5}
         , WebSock  : {info: "Websock service" , adapter: "WebSockTraffic", port:PortBase +81, debug:5}
@@ -59,8 +59,8 @@ var GeoGateConfig =
         , Celltrac : {info: "CellTrac Android", adapter: "GtcGprmcDroid" , port:PortBase + 20, debug:5} // OpenGPRMC
 
         // new adapters are clients [probably for test load generation only]
-        //,AisTcp   : {info: "Ais Hub Feed"    , adapter: "AisTcpFeed"    , hostname: "geotobe.net"  , remport:4001, timeout:60, mindist:500}
-        //,RemGps   : {info: "Gps Over Tcp"    , adapter: "NmeaTcpFeed"   , hostname: "geotobe.net"  , remport:4001, timeout:60, mmsi:123456789, mindist:500}
+        ,AisTcp   : {info: "Ais Hub Feed"    , adapter: "AisTcpFeed"    , hostname: "geotobe.net"  , remport:4001, timeout:60, mindist:500}
+        ,RemGps   : {info: "Gps Over Tcp"    , adapter: "NmeaTcpFeed"   , hostname: "geotobe.net"  , remport:4001, timeout:60, mmsi:123456789, mindist:500}
     }
 };
 

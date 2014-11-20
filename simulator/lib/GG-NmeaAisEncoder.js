@@ -22,8 +22,8 @@
 
 // if running GeoGate development tree use local file
 var GGencode;
-if  (process.env.HOSTNAME !== 'fulup-desktop') GGencode = require('ggencoder');
-                                          else GGencode = require("../../encoder/ApiExport");
+if  (process.env.GEOGATE !== 'dev') GGencode = require('ggencoder');
+                               else GGencode = require("../../encoder/ApiExport");
 
 // Encode AIS AIVDM or GPRMC depending on position MMSI
 function NmeaAisEncoder (data) {

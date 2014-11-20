@@ -49,7 +49,7 @@ var fs       = require('fs');
 var path     = require('path');
 
 var GGsimulator; // if GeoGate development tree uses local modules
-if  (process.env.HOSTNAME !== 'fulup-desktop') GGsimulator = require('ggsimulator');
+if  (process.env.GEOGATE !== 'dev') GGsimulator = require('ggsimulator');
 else GGsimulator = require("../ApiExport");
 
 var FakeVesselStatics =  require("../lib/_FakeVesselStatics");

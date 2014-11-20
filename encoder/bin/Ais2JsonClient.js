@@ -40,7 +40,7 @@
 'use strict';
 
 var AisDecode; // if GeoGate development tree uses local modules
-if  (process.env.HOSTNAME !== 'fulup-desktop') AisDecode = require('ggencoder').AisDecode;
+if  (process.env.GEOGATE !== 'dev') AisDecode = require('ggencoder').AisDecode;
                                           else AisDecode = require("../../encoder/ApiExport").AisDecode;
 
 var async    = require("async");

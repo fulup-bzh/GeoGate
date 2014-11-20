@@ -266,6 +266,15 @@ BackendStorage.prototype.LoginDev = function (device) {
     });
 };
 
+// Query are done asynchronously and function will return before result is known
+BackendStorage.prototype.LogoutDev = function (device) {
+    this.Debug(4, "Logout Device:%s", device.uid);
+
+    // change device status to logout
+    device.logged = false;
+};
+
+
 // Query are done asynchronously and function will return before result is knowned
 BackendStorage.prototype.UpdatePosDev = function (device, data) {
     var self=this;

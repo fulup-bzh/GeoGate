@@ -35,7 +35,7 @@ var TrackerCmd  = require("../lib/_TrackerCmd");
 
 // use localdev tree if available
 var NmeaDecode;
-if  (process.env.HOSTNAME !== 'fulup-desktop')
+if  (process.env.GEOGATE !== 'dev')
      NmeaDecode = require('ggencoder').NmeaDecode;
 else NmeaDecode = require("../../encoder/ApiExport").NmeaDecode;
 

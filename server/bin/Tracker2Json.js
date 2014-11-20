@@ -151,6 +151,11 @@ if (cli.opts.verbose) Verbose = true;
 
 // user select --help exit silently
 if (! cli.opts.help) {
+
+    if (cli.opts.adapter === undefined) {
+        console.log ("Hoops missing --adapter=xxxxx");
+        return;
+    }
     var opts =
        { info: 'adapter ' + cli.opts.adapter
        , adapter:  cli.opts.adapter
@@ -161,6 +166,7 @@ if (! cli.opts.help) {
     // we need a minimal fake gateway to support adapters
     var gateway =
         { uid: 'Tracker2Json fake gateway'
+        , opts : {services:[]}
         , controllers  : []
         , activeClients: []
         , debug :  cli.opts.debug

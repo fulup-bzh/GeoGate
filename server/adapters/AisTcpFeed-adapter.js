@@ -24,14 +24,14 @@
 
 'use strict';
 
-var Debug       = require("../_Debug");
-var TcpClient   = require('../_TcpClient');   // make each device a fake devid device
+var Debug       = require("../lib/_Debug");
+var TcpClient   = require('../lib/_TcpClient');   // make each device a fake devid device
 var TrackerCmd  = require("../lib/_TrackerCmd");
 
 
 // use localdev tree if available
 var AisDecode;
-if  (process.env.HOSTNAME !== 'fulup-desktop')
+if  (process.env.GEOGATE !== 'dev')
      AisDecode = require('ggencoder').AisDecode;
 else AisDecode = require("../../encoder/ApiExport").AisDecode;
 
@@ -54,7 +54,8 @@ function DevAdapter (controller) {
     this.debug     = controller.svcopts.debug;    // inherit debug from controller
     this.controller= controller;          // keep a link to device controller and TCP socket
     this.gateway   = controller.gateway;
-    this.Debug (1,"DevAdapter: %s", this.uid);    
+    this.Debug (1,"DevAdapter: %s", this.uid);
+    this.count     =0; // stat counter
 };
 
 // Import debug method 
@@ -107,7 +108,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
     /* we handle static AIS message type 5,24 as authentication request
      * and message 1,2,3,18 and position update resquest
      * check ../GpsdAisDecode for more information on message types  */
-    switch (ais.msgtype) {
+    switch (ais.aistype) {
         case 1:
         case 2:
         case 3:
@@ -121,7 +122,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
             if (device !== undefined && device.logged) {        // device has sent its static info
                     device.ProcessData (data); // update ship position in DB
             } else {
-                this.Debug (5, "Ignoring AIS msg:%s mmsi:%s type:%s [not logged]", this.count, ais.mmsi, ais.msgtype);
+                this.Debug (3, "Ignoring AIS count:%s mmsi:%s type:%s [not logged]", this.count++, ais.mmsi, ais.aistype);
             }
             break;
         
@@ -147,7 +148,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
             }
             break;
         default:
-            // anything else is not supported
+            this.Debug (4,"Hoops: AIS aistype=%s not supported", ais.aistype)
     }
 };
 
