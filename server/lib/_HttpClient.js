@@ -133,6 +133,7 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
 
             // compute distance only update backend is distance is greater than xxxm
             if (this.stamp !== undefined) {
+
                 var moved =  parseInt (this.Distance (this.stamp, data));
                 //console.log ("**** pos= %s,%s Stamp=%s,%s Moved=%s", data.lat, data.lon, this.stamp.lon, this.stamp.lat, moved);
            
@@ -146,7 +147,7 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
                 
                 // if moved less than mindist or faster than maxsog check maxtime value
                 if (moved < this.controller.svcopts.mindist || sogms > controller.svcopts.maxsog) {
-                    this.Debug(2,"%s Dev %s Data %s ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
+                    this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
                     if (elapse <  controller.svcopts.maxtime) update = false;
                 }

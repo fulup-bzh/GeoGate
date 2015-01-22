@@ -186,7 +186,7 @@ TcpClient.prototype.ProcessData = function(data) {
                 
                 // if moved less than mindist or faster than maxspeed check maxtime value
                 if (moved < this.controller.svcopts.mindist || speedms > this.controller.svcopts.maxspeed) {
-                    this.Debug(2,"%s Dev %s Data %s ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
+                    this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
                     if (elapse <  this.controller.svcopts.maxtime) update = false;
                 }
