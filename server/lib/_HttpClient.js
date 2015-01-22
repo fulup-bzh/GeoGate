@@ -146,7 +146,7 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
                 
                 // if moved less than mindist or faster than maxsog check maxtime value
                 if (moved < this.controller.svcopts.mindist || sogms > controller.svcopts.maxsog) {
-                    this.Debug(2,"Data %s/%s ignored moved %dm<%dm ?", this.count, data.count, moved, this.controller.svcopts.mindist);
+                    this.Debug(2,"%s Dev %s Data %s ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
                     if (elapse <  controller.svcopts.maxtime) update = false;
                 }
