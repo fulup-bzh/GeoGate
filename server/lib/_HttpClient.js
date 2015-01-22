@@ -181,7 +181,7 @@ GpsdHttpClient.prototype.RequestAction = function(command,args){
     // send command to adapter & backend
     var status = this.adapter.SendCommand (this,command,args);
     if (status !== 0) {
-        this.gateway.event.emit ("notice", "UNSUP_CMD", command, adapter.uid);
+        this.gateway.event.emit ("notice", "UNSUP_CMD", command, this.adapter.uid);
     }
     return(status);
 };

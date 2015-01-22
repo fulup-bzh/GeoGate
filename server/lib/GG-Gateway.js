@@ -215,26 +215,6 @@ Gateway.prototype.Gateway=function(opts) {
     }
 };
 
-// send a command to a tracker from its DEVID
-Gateway.prototype.CmdToDev = function(devId, timeout, cmd) {
-        
-    job = {
-        gateway    : this,
-        request : this.request++,  // provide access to  Gateway from callback 
-        devId   : devId,           // devid
-        command : cmd,             // command to device
-        timeout : new Date()       // need current time to process timeout
-    };
-  
-    //compute timeout and push job in queue
-    job.timeout.setSeconds(job.timeout.getSeconds() + timeout);
-
-    // Send to devid device or if devid=0 broacast to every active devices.
-    this.queue.push (job, JobCallback); // push to queue 
-
-};
-
-
 // export the class
 module.exports = Gateway; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/
 

@@ -411,7 +411,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
 
 // Method is called each time a client quit
 DevAdapter.prototype.ClientQuit = function (socket) {
-    socket.device.LogoutDev (this.mmsi);
+    socket.device.LogoutDev ();
 };
 
 DevAdapter.prototype.ParseBuffer = function(socket, buffer) {

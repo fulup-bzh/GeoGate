@@ -49,13 +49,14 @@ function DevAdapter (controller) {
     this.control   = 'http';
     this.Debug (1,"%s", this.uid);    
 };
-       
 
 // send a commant to activate GPS tracker
 DevAdapter.prototype.SendCommand = function(httpclient, action, arg1) {
         switch (action) {
         case TrackerCmd.SendTo.WELLCOME: break;
-        case TrackerCmd.SendTo.LOGOUT:   break;  // active client is update at GpsdHttpClient level
+        case TrackerCmd.SendTo.LOGOUT:
+            httpclient.LogoutDev ();
+            break;  // active client is update at HttpClient level
         case TrackerCmd.SendTo.HELP:             // return supported commands by this adapter
                 var listcmd=["LOGOUT", "HELP"];
                 // push a notice HELP action event to gateway
@@ -209,7 +210,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     } else {
         // at this point we need a query ID
         if (query.id === undefined) {
-              this.Debug (4,"Hoops: query:id not found in Http Request");
+              this.Debug (2,"Hoops: query:id not found in Http Request");
               response.writeHeader(400, {"Content-Type": "text/plain"});
               response.write('ERR: Invalid IMEI in Http Request');
               response.end();
