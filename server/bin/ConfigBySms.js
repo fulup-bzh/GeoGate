@@ -216,10 +216,10 @@ if (! cli.opts.help) {
     // process batch file
     if (cli.opts.batch !== undefined) {
         var batch;
-        var dirname = __dirname  + "/../sample/";
+        var dirname = path.dirname (cli.opts.batch);
         var confname=  path.basename (cli.opts.batch, "-batch.js");
         try {
-            batch = require(dirname + confname + "-batch.js");
+            batch = require(process.env.PWD + '/' + dirname + '/' + confname + "-batch.js");
         } catch (e) {
             console.log ("Hoop fail to require [%s] Error=[%s]", cli.opts.batch, e);
             process.exit();

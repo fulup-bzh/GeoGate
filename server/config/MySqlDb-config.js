@@ -43,7 +43,7 @@ var GeoGateConfig = {
         // Tracker devices are TCP servers & wait for clients to connect
         , Gps103   : {info: "Tk102 Gps103"    , adapter: "Gps103Tk102"   , port: PortBase +3}
         , Celltrac : {info: "CellTrac Android", adapter: "GtcGprmcDroid" , port: PortBase +5}
-        ,RemGps    : {info: "Gps Over Tcp"    , adapter: "NmeaTcpFeed"   , hostname: "geotobe.org"  , remport:4001, timeout:60, mmsi:123456789, mindist:500}
+        // ,RemGps    : {info: "Gps Over Tcp"    , adapter: "NmeaTcpFeed"   , hostname: "geotobe.org"  , remport:4001, timeout:60, mmsi:123456789, mindist:500}
     },
 	
   "mysql": { // [should reflect your MySQL configuration]

@@ -30,7 +30,7 @@ Command line
       - telnet localhost 4000
 
     * Debug Tracker adapter
-      - node bin/Tracker2Json.js  --adapter=Gps103Tk102 --port=1234  [wait for tracker incomming packet on localhost:1234]
+      - node bin/Tracker2Json.js  --adapter=Gps103Tk102 --port=1234  [wait for tracker incoming packet on localhost:1234]
 
     * Config Tracker by SMS [impose a working Gammu SMS gateway]
       - node bin/ConfigBySms.js  --phone=xxxxx --password=123456 --list # list all tracker SMS commands
@@ -61,7 +61,7 @@ Api Development
             timeout  : 'reconnection timeout for consumer of remote service [default 120s]'
             devid     : 'as real nmea feed does not provide devid this is where user can provide a fake one'
             maxspeed : 'any thing faster is view as an invalid input [default=55m/s == 200km/h]
-            mindist  : 'dont store data if device move less than xxxm [default 200m]'
+            mindist  : 'don't store data if device move less than xxxm [default 200m]'
             maxtime  : 'force data store every xxxxs even if device did not move [default 3600s]'
             debug    : 'allow to give a specific debug level this adapter default is [gateway.debug]'
         */

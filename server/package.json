@@ -1,7 +1,7 @@
 {
   "name" : "ggserver",
   "description" : "GTSdtracking is an opensource GPS tracking server framework",
-  "version" : "0.1.2",
+  "version" : "0.1.9",
   "author" : {
     "name" : "Fulup Ar Foll",
     "email" : "fulup@fridu.net",
@@ -12,10 +12,11 @@
     "type" : "apache20"
   },
   "bin" : {
-     "DeviceSimulator" : "./bin/ConfigBySms.js"
-    ,"DeviceSimulator" : "./bin/GeoGateServer.js"
-    ,"DeviceSimulator" : "./bin/Tracker2Json.js"
+     "ConfigBySms" : "./bin/ConfigBySms.js"
+    ,"GeoGateServer" : "./bin/GeoGateServer.js"
+    ,"Tracker2Json" : "./bin/Tracker2Json.js"
   },
+  "main"         : "ApiExport.js",
   "dependencies" : 
     {"async" : "*"
     ,"traceback" : "*"

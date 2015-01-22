@@ -293,7 +293,7 @@ BackendStorage.prototype.UpdatePosDev = function (device, data) {
 
 BackendStorage.prototype.UpdateObdDev = function (device, data) {
     var self=this;
-    this.Debug (6,"Updating OBF MySQL devid=%s", device.devid);
+    this.Debug (6,"Updating OBD MySQL devid=%s", device.devid);
 
     // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
     var queryString = "INSERT INTO " + device.obd + " set ?";

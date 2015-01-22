@@ -98,14 +98,20 @@ SmsControl.prototype.ProcessBatch = function (callback, phonenumber, password, s
     // add phone number to each smsrqt
     for (var slot in smscmds) {
         var smscmd = smscmds [slot];
-        smscmd.cmd   = TrackerCmd[smscmd.cmd.toUpperCase()];
-        smscmd.phone = phonenumber;
-        smscmd.args ['pwd'] = password;
-        var smsparsed =  this.ParseCommand(smscmd, callback);
-        if (smsparsed !== null) {
-            smsbatch.push(smsparsed);
-        } else {
+        var cmd   = TrackerCmd[smscmd.cmd.toUpperCase()];
+        if (cmd === undefined) {
+            this.Debug (0, "Unknow command:%s",smscmd.cmd);
             error ++;
+        } else {
+            smscmd.cmd = cmd;
+            smscmd.phone = phonenumber;
+            smscmd.args ['pwd'] = password;
+            var smsparsed = this.ParseCommand(smscmd, callback);
+            if (smsparsed !== null) {
+                smsbatch.push(smsparsed);
+            } else {
+                error++;
+            }
         }
     }
 

@@ -76,7 +76,7 @@ var ToTracker =
 var SmsTracker=
  { FULL_RESET  : [1,'begin%pwd%'              , "WARNING: erase any device's stored config"]
  , ADMIN_PWD   : [1,'adminpassword13142324'   , "WARNING: full reset of device, will break any exiting configuration"]
- , CHECK_DEVID  : [1,'devid%pwd%'               , "return device DEVID"]
+ , CHECK_IMEI  : [1,'imei%pwd%'              , "return device DEVID"]
  , GPRS_APN    : [1,'apn%pwd% %apn%'          , "configure APN ex: APN123456 FREE"]
  , GPRS_URI    : [1,'adminip%pwd% %host% %port%'  , "configure WEB plateform ex: adminip123456 103.10.1.2 1234"]
  , GPRS_MOD    : [1,'gprs%pwd%'               , "Set GPRS Mode"]
@@ -89,7 +89,7 @@ var SmsTracker=
  , ADMIN_SET   : [1,'admin%pwd% %phone%'      , "set admin phone: --cmd=admin_set --args='pwd:123456 phone:0033xxxxxxxxx'"]
  , ADMIN_OFF   : [1,'noadmin%pwd% %phone%'    , "remove phone from admin list"]
 
- , ODB_PROTOCOL: [1,'protocol%pwd% %protocol%', "set 12/18 OBD protocol: --cmd=odb_protocol --args:'pwd:123456 protocol:18'"]
+ , GPRS_PROTO  : [1,'protocol%pwd% %proto%'   , "set 12/18 OBD protocol: --cmd=gprs_proto --args:'pwd:123456 protocol:18'"]
  , OBD_STATUS  : [1,'obdmsg%pwd%'             , " Return ODB status information"]
  , OBD_MOD     : [1,'obdii%pwd% %mod%'        , " 0=no 2=with single tracking 1=with any tracking"]
  , OBD_MILEAGE : [1,'odo%pwd% %km%'           , " set initial mileage"]

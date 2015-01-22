@@ -57,7 +57,7 @@ function DevAdapter (controller) {
     this.uid       = "adapter:httpdajax//" + controller.svcopts.port;
     this.info      = 'HttpdAjax';
     this.debug     = controller.svcopts.debug;  // inherit debug from controller
-    this.controller = controller;  // keep a link to device controller and TCP socket
+    this.controller= controller;  // keep a link to device controller and TCP socket
     this.control   = 'http';
     this.cors      = controller.svcopts.cors || false;
     this.apikey    = parseInt (Math.random()*123456789876);  // should depend on user authentication

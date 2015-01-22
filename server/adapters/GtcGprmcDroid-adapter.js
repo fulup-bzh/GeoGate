@@ -70,15 +70,6 @@ DevAdapter.prototype.SendCommand = function(httpclient, action, arg1) {
     return (0);
 };
 
-/* response list dev sample
-var test={"Account":"fulup-bzh","Account_desc":"Gpsd-fulup-bzh"
-         ,"DeviceList":[
-             {"Device":123456789,"Device_desc":"Fulup-HR37","group":"all"
-             ,"EventData":[{"Device":"123456789","Timestamp":1413548798000,"StatusCode":0,"Speed":7.2,"GPSPoint_lat":47.30628596500001,"GPSPoint_lon":-2.854473555}]}
-             ,{"Device":852963741,"Device_desc":"Erwan-Speedy","group":"all"
-             ,"EventData":[{"Device":"852963741","Timestamp":1413548924876,"StatusCode":0,"Speed":27.400000000000002,"GPSPoint_lat":47.40000666666667,"GPSPoint_lon":-3.12891}]},{"Device":963741852,"Device_desc":"Nanar-Gazelle","group":"all","EventData":[{"Device":"963741852","Timestamp":1413548908156,"StatusCode":0,"Speed":17,"GPSPoint_lat":47.44219,"GPSPoint_lon":-2.888368333333333}]},{"Device":"352519050984577","Device_desc":"Test-Dev-1","group":"all","EventData":[{"Device":"352519050984577","Timestamp":1507983823000,"StatusCode":0,"Speed":0.2,"GPSPoint_lat":47.61851166666667,"GPSPoint_lon":-2.7612799999999997}
-         ]}]} 
- */
 
 // return a json object with device name and position
 DevAdapter.prototype.QueryDevList = function(query, response) {
@@ -196,6 +187,8 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     // parse URL to extract DevId and NMNEA $GPRMC info
     var question=url.parse(request.url, true, true);
     var query=question.query;
+    //query={"id":"123456789012345","altitude":"43.977329","hacc":"65.000000","code":"0xF020","gprmc":"$GPRMC,010341.06,A,0123.4340,N,10350.8960,E,00.00,000.00,220115,0,0,A*69"};
+
     this.Debug (4,"Path=%s [len=%s] Query=%s", question.pathname, question.pathname.length, JSON.stringify(query));
 
     // Debug
@@ -216,6 +209,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     } else {
         // at this point we need a query ID
         if (query.id === undefined) {
+              this.Debug (4,"Hoops: query:id not found in Http Request");
               response.writeHeader(400, {"Content-Type": "text/plain"});
               response.write('ERR: Invalid IMEI in Http Request');
               response.end();
@@ -233,6 +227,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
         // we refuse packet from device until it is not log by DB backend
         if (device.logged !== true) {
             // leave 1s for DB to authenticate device before closing request
+            this.Debug (4,"Device not login: EMEI=%s", query.id);
             setTimeout(function(){response.end()}, 1000);
             return;
         }

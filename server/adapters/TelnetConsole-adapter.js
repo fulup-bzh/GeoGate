@@ -161,7 +161,7 @@ DevAdapter.prototype.HookEventHandler = function(socket, gateway) {
         gateway.event.removeListener("error" ,EventHandlerError);	
     } else {
         // Events from queued jobs
-        message=util.format ("> Hook On [Listening for gateway [queue|acept|error] events\n");
+        message=util.format ("> Hook On [Listening for gateway [queue|accept|notice] events\n");
         socket.write (message);
         // note: in order to make removal of listener dev.stampsible function should have a static name
         gateway.event.on("queue" ,EventHandlerQueue);	

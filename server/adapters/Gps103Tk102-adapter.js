@@ -63,7 +63,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
   }
 
   function CheckArg (arg) {
-        if (arg.length > 1) return (arg)
+        if (arg !== undefined) if (arg.length > 1) return (arg)
         else return 0;
   }
 
@@ -81,22 +81,46 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
             };
             break;
         case 'F':  // Full Gps Date
-            data =
-            { cmd: cmd
-                , gps: true
-                , valid: true
-                , devid: args[1].split(':') [1]
-                , date: this.ProcessDate (args[2])
-                , arg:  args[3]
-                , utc:  args[5]
-                , lat:  ProcessCardinal (args[7], args[8])
-                , lon:  ProcessCardinal (args[9], args[10])
-                , sog:  args[11]
-                , cog:  args[12]
-                , alt:  CheckArg (args[13])
-                , yyy:  args[14]
-                , zzz:  args[15]
-                , kkk:  args[16]
+            console.log ("**** args length %s", args.length);
+            switch (args.length) {
+                case 13: //old protocol [sms protocol 12]
+                    data =
+                    {
+                        cmd: cmd,
+                        gps: true,
+                        valid: true,
+                        devid: args[1].split(':') [1],
+                        date: this.ProcessDate(args[2]),
+                        arg: args[3],
+                        utc: args[5],
+                        lat: ProcessCardinal(args[7], args[8]),
+                        lon: ProcessCardinal(args[9], args[10]),
+                        sog: args[11],
+                        cog: args[12],
+                        alt: -1
+                    }
+                    break;
+                case 19: // new protocol [sms protocol123456 18]
+                    data =
+                    {
+                        cmd: cmd,
+                        gps: true,
+                        valid: true,
+                        devid: args[1].split(':') [1],
+                        date: this.ProcessDate(args[2]),
+                        arg: args[3],
+                        utc: args[5],
+                        lat: ProcessCardinal(args[7], args[8]),
+                        lon: ProcessCardinal(args[9], args[10]),
+                        sog: args[11],
+                        cog: args[12],
+                        alt: CheckArg(args[13]),
+                        yyy: args[14],
+                        zzz: args[15],
+                        kkk: args[16]
+                    };
+                    break;
+                default: data=null;
             };
             break;
         default:
@@ -140,10 +164,10 @@ DevAdapter.prototype.ParseData = function (line) {
 
     // check 1st character of 1st argument
     switch (args [0][0]) {
-        case "#":     // Login "##,devid:359710043551135,A;"
+        case "#":     // Login "##,imei:359710043551135,A;"
             cmd= 0;
             break;
-        case "i":     // Track "devid:865328021048227,...
+        case "i":     // Track "imei:865328021048227,...
             cmd= 3;
             break;
         case undefined:
@@ -156,7 +180,7 @@ DevAdapter.prototype.ParseData = function (line) {
 
 
     switch (cmd)  {
-        case 0:   // Login "##,devid:359710043551135,A;"
+        case 0:   // Login "##,imei:359710043551135,A;"
             if (args[2] !== 'A') return (null);
             //extract devid
             var info = args[1].split(':');
@@ -448,28 +472,29 @@ if (process.argv[1] === __filename)  {
 
     // Add here any paquet you would like to test
     var testParser = { "Start     ":  "##,devid:359710043551135,A"
-        ,"Gps106b   ":  "devid:865328021048227,tracker,141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,"
-        ,"ODBD      ":  "devid:865328021048227,OBD,141112020400,,,0.0,,000,0.0%,+,0.0%,00000,,,,,"
+        ,"Gps106b   ":  "imei:865328021048227,tracker,141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,"
+        ,"ODBD      ":  "imei:865328021048227,OBD,141112020400,,,0.0,,000,0.0%,+,0.0%,00000,,,,,"
+        ,"SPORT     ":  "imei:359710045716587,tracker,141123023317,,F,183317.000,A,4737.1233,N,00245.6569,W,0.00,0"    
         ,"Ping      ":  "359710043551135"
-        ,"Help-GPS1 ":  "devid:359710043551135,help me,1409050559,1234,F,215931.000,A,4737.1058,N,00245.6524,W,0.00,0"
-        ,"Help-GPS2 ":  "devid:359710043551135,help me,1409050559,,F,215931.000,A,4737.1058,N,00245.6524,W,0.00,0"
-        ,"Help-NOGPS":  "devid:359710043551135,help me,1409050559,13554900601,L,"
-        ,"Track1    ":  "devid:359710043551135,tracker,1409060521,,F,212147.000,A,4737.1076,N,00245.6561,W,0.00,0"
-        ,"NOGPS     ":  "devid:359586015829802,low battery,000000000,13554900601,L,"
-        ,"BAT       ":  "devid:359586015829802,low battery,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
-        ,"Stockad   ":  "devid:359586015829802,stockade,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
-        ,"Speed     ":  "devid:359586015829802,speed,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
-        ,"Move      ":  "devid:359586015829802,move,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
-        ,"Sensor    ":  "devid:359710043551135,sensor alarm,1409070008,,F,160844.000,A,4737.0465,N,00245.6099,W,21.21,306.75"
-        ,"Door      ":  "devid:012497000419790,door alarm,1010181112,00420777123456,F,101216.000,A,5004.5502,N,01426.7268,E,0.00,"
-        ,"Acc-On    ":  "devid:012497000419790,acc alarm,1010181112,00420777123456,F,101256.000,A,5004.5485,N,01426.7260,E,0.00,"
-        ,"Resume Eng":  "devid:012497000419790,kt,1010181052,00420777123456,F,095256.000,A,5004.5635,N,01426.7346,E,0.58,"
-        ,"Stop Engin":  "devid:012497000419790,jt,1010181051,00420777123456,F,095123.000,A,5004.5234,N,01426.7295,E,0.00,"
-        ,"Turn Alarm":  "devid:012497000419790,gt,1010181046,00420777123456,F,094657.000,A,5004.5251,N,01426.7298,E,0.00,"
-        ,"Speed On  ":  "devid:012497000419790,ht,1010181032,00420777123456,F,093203.000,A,5004.5378,N,01426.7328,E,0.00,"
-        ,"Park Off  ":  "devid:012497000419790,mt,1010181029,00420777123456,F,092913.000,A,5004.5392,N,01426.7344,E,0.00,"
-        ,"Park On   ":  "devid:012497000419790,lt,1010181025,00420777123456,F,092548.000,A,5004.5399,N,01426.7352,E,0.00,"
-        ,"Stop SOS  ":  "devid:012497000419790,et,1010181049,00420777123456,F,094922.000,A,5004.5335,N,01426.7305,E,0.00,"
+        ,"Help-GPS1 ":  "imei:359710043551135,help me,1409050559,1234,F,215931.000,A,4737.1058,N,00245.6524,W,0.00,0"
+        ,"Help-GPS2 ":  "imei:359710043551135,help me,1409050559,,F,215931.000,A,4737.1058,N,00245.6524,W,0.00,0"
+        ,"Help-NOGPS":  "imei:359710043551135,help me,1409050559,13554900601,L,"
+        ,"Track1    ":  "imei:359710043551135,tracker,1409060521,,F,212147.000,A,4737.1076,N,00245.6561,W,0.00,0"
+        ,"NOGPS     ":  "imei:359586015829802,low battery,000000000,13554900601,L,"
+        ,"BAT       ":  "imei:359586015829802,low battery,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
+        ,"Stockad   ":  "imei:359586015829802,stockade,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
+        ,"Speed     ":  "imei:359586015829802,speed,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
+        ,"Move      ":  "imei:359586015829802,move,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,"
+        ,"Sensor    ":  "imei:359710043551135,sensor alarm,1409070008,,F,160844.000,A,4737.0465,N,00245.6099,W,21.21,306.75"
+        ,"Door      ":  "imei:012497000419790,door alarm,1010181112,00420777123456,F,101216.000,A,5004.5502,N,01426.7268,E,0.00,"
+        ,"Acc-On    ":  "imei:012497000419790,acc alarm,1010181112,00420777123456,F,101256.000,A,5004.5485,N,01426.7260,E,0.00,"
+        ,"Resume Eng":  "imei:012497000419790,kt,1010181052,00420777123456,F,095256.000,A,5004.5635,N,01426.7346,E,0.58,"
+        ,"Stop Engin":  "imei:012497000419790,jt,1010181051,00420777123456,F,095123.000,A,5004.5234,N,01426.7295,E,0.00,"
+        ,"Turn Alarm":  "imei:012497000419790,gt,1010181046,00420777123456,F,094657.000,A,5004.5251,N,01426.7298,E,0.00,"
+        ,"Speed On  ":  "imei:012497000419790,ht,1010181032,00420777123456,F,093203.000,A,5004.5378,N,01426.7328,E,0.00,"
+        ,"Park Off  ":  "imei:012497000419790,mt,1010181029,00420777123456,F,092913.000,A,5004.5392,N,01426.7344,E,0.00,"
+        ,"Park On   ":  "imei:012497000419790,lt,1010181025,00420777123456,F,092548.000,A,5004.5399,N,01426.7352,E,0.00,"
+        ,"Stop SOS  ":  "imei:012497000419790,et,1010181049,00420777123456,F,094922.000,A,5004.5335,N,01426.7305,E,0.00,"
     };
 
 
