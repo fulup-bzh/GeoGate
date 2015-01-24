@@ -45,11 +45,14 @@ function NmeaDecode (inputpaquet) {
             // $GPRMC,225446.00,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68
             this.cmd= 2;  // Tracker
             this.mssi=0;
-            if (this.nmea[2] === 'A') this.valid=1; else  this.valid=0;
+            if (this.nmea[2] !== 'A') {
+                this.valid=false;
+                return;
+            }
             this.time = this.nmea[1];
             this.lat  =[this.nmea[3], this.nmea[4]];
             this.lon  =[this.nmea[5], this.nmea[6]];
-            this.sog= parseFloat (this.nmea[7] || 0);
+            this.sog  = parseFloat (this.nmea[7] || 0);
             this.cog  = parseFloat (this.nmea[8] || 0);
             this.day  = this.nmea[9];
             this.alt  = parseFloat (this.nmea[10] || 0);
@@ -73,7 +76,10 @@ function NmeaDecode (inputpaquet) {
     
     // Standard NMEA paquet need some aditional work
     if (this.cmd === 2) { // if position cleanup dates and other data
-        try {this.NormalizeData();} catch(err) {}
+        try {this.NormalizeData();} catch(err) {
+           this.valid=false;
+           console.log ("**** NmeaDecode NormalizeData Error: %s", err);
+        }
         // if OK NormalizeData set valid=true
     }
 }

@@ -33,7 +33,7 @@ var TrackerCmd  = require("../lib/_TrackerCmd");
 // use localdev tree if available
 var NmeaDecode;
 if  (process.env.GEOGATE !== 'dev')
-     NmeaDecode = require('ggencoder').NmeaEncode;
+     NmeaDecode = require('ggencoder').NmeaDecode;
 else NmeaDecode = require("../../encoder/ApiExport").NmeaDecode;
 
 var util        = require("util");
