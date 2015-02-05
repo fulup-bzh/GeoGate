@@ -45,6 +45,7 @@ function AlarmObj (data) {
     this.arg  = parseInt (data.arg);
     this.lat  = parseFloat(data.lat);
     this.lon  = parseFloat(data.lon);
+
     this.data = new Date();
 }
 
@@ -161,7 +162,7 @@ TcpClient.prototype.ProcessData = function(data) {
         // Standard Alarm Packet
         case TrackerCmd.GetFrom.HELPME:
         case TrackerCmd.GetFrom.BATLOW:
-        case TrackerCmd.GetFrom.SPEED_ON:
+        case TrackerCmd.GetFrom.SPEEDON:
         case TrackerCmd.GetFrom.ALARMDOOR:
         case TrackerCmd.GetFrom.ALARMACC:
             this.gateway.backend.UpdateAlarmDev (this, new AlarmObj (data));

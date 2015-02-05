@@ -144,4 +144,4 @@ if (process.argv[1] === __filename) {
    console.log ("Hoops no unit test for GammuMySql");
 }
 
-module.exports = module.exports = GammuSms;
+module.exports = GammuSms;

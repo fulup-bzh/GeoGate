@@ -32,4 +32,4 @@ var GammuConfig =
     , retry   : 10          // number of retry before refusing removing outgoing sms MySql  queue
     };
 
-module.exports = module.exports = GammuConfig;
+module.exports = GammuConfig;

@@ -11,4 +11,4 @@ var SmsBatch =
  , {cmd: 'TRACK_ANGLE', args: {angle: '030'}}
  ];
 
-module.exports = module.exports = SmsBatch;
+module.exports = SmsBatch;
