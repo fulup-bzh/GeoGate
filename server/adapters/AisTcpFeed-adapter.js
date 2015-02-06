@@ -114,7 +114,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
         case 3:
         case 18:
             var data = new AisPositionObj (ais);
-            data.cmd= TrackerCmd.GetFrom.TRACKER;
+            data.cmd= TrackerCmd.GetFrom.TRACK;
             data.count = socket.count;
             
             // if we exist in active client and we're log then update position now

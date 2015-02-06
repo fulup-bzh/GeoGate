@@ -1,7 +1,7 @@
 {
   "name" : "ggsmsc",
   "description" : "GTSdtracking is an opensource GPS tracking server framework",
-  "version" : "0.1.5",
+  "version" : "0.1.6",
   "author" : {
     "name" : "Fulup Ar Foll",
     "email" : "fulup@fridu.net",
