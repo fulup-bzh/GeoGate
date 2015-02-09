@@ -76,7 +76,7 @@ function JobQueue (job, callback) {
     if (job.retry   === undefined) job.retry  =0;  // retry counter
     if (job.args    === undefined) job.args   =""; // optional arguments
     
-    gateway.Debug (5,"Queue Request=%s DevId=%s Command=%s Retry=%d", job.request, job.devId, job.command, job.retry);
+    gateway.Debug (4,"Queue Request=%s DevId=%s Command=%s Retry=%d", job.request, job.devId, job.command, job.retry);
     
     // broadcast command loop on active device list to split commands
     if (parseInt (job.devId) === 0) {

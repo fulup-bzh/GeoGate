@@ -81,7 +81,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
             };
             break;
         case 'F':  // Full Gps Date
-            console.log ("**** args length %s", args.length);
+            // console.log ("**** args length %s", args.length);
             switch (args.length) {
                 case 13: //old protocol [sms protocol 12]
                     data =
@@ -156,7 +156,7 @@ DevAdapter.prototype.ParseTrackerObd = function (cmd, args) {
 }
 
 DevAdapter.prototype.ParseData = function (line) {
-    var cmd;
+    var packetype;
     var data;
 
     // extract values from line
@@ -165,27 +165,27 @@ DevAdapter.prototype.ParseData = function (line) {
     // check 1st character of 1st argument
     switch (args [0][0]) {
         case "#":     // Login "##,imei:359710043551135,A;"
-            cmd= 0;
+            packetype= 0;
             break;
         case "i":     // Track "imei:865328021048227,...
-            cmd= 3;
+            packetype= 3;
             break;
         case undefined:
             return (null);
 
         default:      // Ping  "359710043551135;"
-            cmd= 2;
+            packetype= 2;
             break;
     }
 
 
-    switch (cmd)  {
+    switch (packetype)  {
         case 0:   // Login "##,imei:359710043551135,A;"
             if (args[2] !== 'A') return (null);
             //extract devid
             var info = args[1].split(':');
             data =
-              { cmd : TrackerCmd.GetFrom["LOGIN"]
+              { cmd : TrackerCmd.GetFrom.LOGIN
               , devid: info[1]
               };
             break;
@@ -391,7 +391,7 @@ DevAdapter.prototype.SendCommand = function(device, action, args) {
              return (-1);
          };
     // return OK status
-    this.Debug (5,"action=[%s] args=[%s] packet=%s", action, args, packet);
+    this.Debug (4,"SendCommand action=[%s] args=[%s] packet=%s", action, args, packet);
     return (0);
 };
 

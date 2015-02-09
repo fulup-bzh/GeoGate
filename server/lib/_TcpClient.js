@@ -35,18 +35,18 @@ function PositionObj (data) {
     this.cog   = parseFloat(data.cog);
     this.alt   = parseFloat(data.alt);
     this.moved = parseInt(data.moved);
-    this.elapse= parseInt(data.elapse);
+    this.elapsed= parseInt(data.elapsed);
     this.valid = parseInt(+data.valid);
-    this.date  = data.date;
+    this.acquired_at  = data.date;
 }
 
 function AlarmObj (data) {
     this.alarm= parseInt (data.cmd);
-    this.arg  = parseInt (data.arg);
+    this.arg  = parseInt (data.arg) || 0;
     this.lat  = parseFloat(data.lat);
     this.lon  = parseFloat(data.lon);
-
-    this.data = new Date();
+    this.sog   = parseFloat(data.sog);
+    this.acquired_at = new Date();
 }
 
 function ObdObj (data) {
@@ -61,7 +61,7 @@ function ObdObj (data) {
     if (data.rpm.length   > 0) this.rpm  = parseInt   (data.rpm);
     if (data.bat.length   > 0) this.bat  = parseFloat (data.bat);
     if (data.diag.length  > 0) this.diag = parseInt   (data.diag);
-    this.date = new Date();
+    this.acquired_at = new Date();
 }
 
 // called from TcpFeed class of adapter
@@ -73,9 +73,9 @@ function TcpClient (socket) {
     this.socket    = socket;
     this.devid     = false;    // devid/mmsi directly from device or adapter
     this.name      = false;
-    this.logged     = false;
-    this.alarm     = 0;        // count alarm messages
-    this.sensor    = 0;
+    this.logged    = false;
+    this.alarmcount= 0;        // count alarm messages
+    this.jobcount  = 0;        // Job commands send to gateway
     this.count     = 0;        // generic counter used by file backend
     
     if (socket.remoteAddress !== undefined) {
@@ -165,6 +165,18 @@ TcpClient.prototype.ProcessData = function(data) {
         case TrackerCmd.GetFrom.SPEEDON:
         case TrackerCmd.GetFrom.ALARMDOOR:
         case TrackerCmd.GetFrom.ALARMACC:
+
+            // after 5 validated Alarm let's clear device
+            if (this.alarmcount ++ > 5) {
+                this.alarmcount = 0;
+                var job={command: TrackerCmd.SendTo.ALARM_OFF
+                    ,gateway: gateway
+                    ,devId  : data.devid
+                    ,request: this.jobcount++
+                };
+                gateway.queue.push (job, JobCallback); // push to queue
+            }
+
             this.gateway.backend.UpdateAlarmDev (this, new AlarmObj (data));
             break;
 
@@ -177,23 +189,23 @@ TcpClient.prototype.ProcessData = function(data) {
             if (this.stamp !== undefined) {
                 var moved =  parseInt (this.Distance (this.stamp, data));
            
-                // compute elapse time since last update
-                var elapse  = parseInt ((data.date.getTime() - this.stamp.date.getTime()) / 1000); // in seconds
-                var speedms = parseInt (moved/elapse);         // NEED TO BE KNOWN: with short tic speed is quicky overestimated by 100% !!!
+                // compute elapsed time since last update
+                var elapsed  = parseInt ((data.date.getTime() - this.stamp.acquired_at.getTime()) / 1000); // in seconds
+                var speedms = parseInt (moved/elapsed);         // NEED TO BE KNOWN: with short tic speed is quicky overestimated by 100% !!!
 
                 // usefull human readable info for control console
                 data.moved   = moved;
-                data.elapse  = elapse;
+                data.elapsed  = elapsed;
                 
                 // if moved less than mindist or faster than maxspeed check maxtime value
                 if (moved < this.controller.svcopts.mindist || speedms > this.controller.svcopts.maxspeed) {
                     this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
-                    if (elapse <  this.controller.svcopts.maxtime) update = false;
+                    if (elapsed <  this.controller.svcopts.maxtime) update = false;
                 }
              } else {
                 data.moved  = 0;
-                data.elapse = 0;
+                data.elapsed = 0;
 
              }
 

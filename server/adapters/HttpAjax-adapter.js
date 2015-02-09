@@ -267,7 +267,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     var question=url.parse(request.url, true, true);
     this.Debug (4,"Path=%s Query=%s", question.path, JSON.stringify(question.query));
     
-    // sign or respond with a specifif servername header
+    // sign or respond with a specific servername header
     response.setHeader("Server", "GeoGate-HttpAjax");
     // provide a default search to index.html
     if (question.pathname === '/') {

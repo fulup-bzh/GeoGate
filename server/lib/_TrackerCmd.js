@@ -74,9 +74,10 @@ var ToTracker =
 };
 
 var SmsTracker=
- { FULL_RESET  : [1,'begin%pwd%'              , "WARNING: erase any device's stored config"]
+ { CHECK_SMS   : [0,'Control: %info%'         , "On to verify that number accept SMS"]
+ , FULL_RESET  : [1,'begin%pwd%'              , "WARNING: erase any device's stored config"]
  , ADMIN_PWD   : [1,'adminpassword13142324'   , "WARNING: full reset of device, will break any exiting configuration"]
- , CHECK_IMEI  : [1,'imei%pwd%'              , "return device DEVID"]
+ , CHECK_IMEI  : [1,'imei%pwd%'               , "return device DEVID"]
  , GPRS_APN    : [1,'apn%pwd% %apn%'          , "configure APN ex: APN123456 FREE"]
  , GPRS_URI    : [1,'adminip%pwd% %host% %port%'  , "configure WEB plateform ex: adminip123456 103.10.1.2 1234"]
  , GPRS_MOD    : [1,'gprs%pwd%'               , "Set GPRS Mode"]

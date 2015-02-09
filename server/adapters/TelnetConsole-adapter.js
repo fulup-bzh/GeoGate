@@ -53,6 +53,7 @@ function DevAdapter (controller) {
             ,['list\\b'             , "return 'LIS';"]
             ,['login\\b'            , "return 'LOG';" ]
             ,['logout\\b'           , "return 'OUT';" ]
+            ,['track\\b'            , "return 'TRK';" ]
             ,['info\\b'             , "return 'INF';" ]
             ,['track\\b'            , "return 'TRK';" ]
             
@@ -322,8 +323,8 @@ DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
                     posi.lat = posi.lat.toFixed (4);
                     posi.sog = posi.sog.toFixed (2);
                     posi.cog = posi.cog.toFixed (2);
-                    var info=util.format ("> -%d- Lat:%s Lon:%s Sog:%s Cog:%s Alt:%s Date:%s\n"
-                    , idx, posi.lat, posi.lon, posi.sog, posi.cog, posi.alt, posi.date);
+                    var info=util.format ("> -%d- Lat:%s Lon:%s Sog:%s Cog:%s Alt:%s Acquired:%s\n"
+                    , idx, posi.lat, posi.lon, posi.sog, posi.cog, posi.alt, posi.acquired_at);
                     socket.write (info);
                  }
               };
@@ -355,7 +356,7 @@ DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
                 dev.cog   = dev.stamp.cog.toFixed (2);
                 dev.alt   = dev.stamp.alt.toFixed (2);
                 var info= util.format ("> --- devid/mmsi= %s Name= '%s' LastShow: %ss Adapter: %s\n"
-                              , devId, dev.name, elapse, dev.adapter.info);
+                              , data.devid, dev.name, elapse, dev.adapter.info);
                 socket.write (info);
                 info=util.format (">    Lat:%s Lon:%s Speed:%s Alt:%s Crs:%s Time:%s\n"
                              , dev.lat, dev.lon, dev.sog, dev.alt, dev.cog, dev.stamp.date.toJSON());

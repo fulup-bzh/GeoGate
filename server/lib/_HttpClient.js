@@ -31,9 +31,9 @@ function PositionObj (data) {
     this.cog   = parseFloat(data.cog);
     this.alt   = parseFloat(data.alt);
     this.moved = parseInt(data.moved);
-    this.elapse= parseInt(data.elapse);
+    this.elapsed= parseInt(data.elapsed);
     this.valid = parseInt(+data.valid);
-    this.date  = data.date;
+    this.acquired_at  = data.date;
 }
 
 // called from http class of adapter
@@ -137,29 +137,29 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
                 var moved =  parseInt (this.Distance (this.stamp, data));
                 //console.log ("**** pos= %s,%s Stamp=%s,%s Moved=%s", data.lat, data.lon, this.stamp.lon, this.stamp.lat, moved);
            
-                // compute elapse time since last update
-                var elapse  = parseInt ((data.date.getTime() - this.stamp.date.getTime()) / 1000); // in seconds
-                var sogms = parseInt (moved/elapse);         // NEED TO BE KNOWN: with short tic sog is quicky overestimated by 100% !!!
+                // compute elapsed time since last update
+                var elapsed  = parseInt ((data.date.getTime() - this.stamp.date.getTime()) / 1000); // in seconds
+                var sogms = parseInt (moved/elapsed);         // NEED TO BE KNOWN: with short tic sog is quicky overestimated by 100% !!!
 
                 // usefull human readable info for control console
                 data.moved  = moved;
-                data.elapse = elapse;
+                data.elapsed = elapsed;
                 
                 // if moved less than mindist or faster than maxsog check maxtime value
                 if (moved < this.controller.svcopts.mindist || sogms > controller.svcopts.maxsog) {
                     this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
-                    if (elapse <  controller.svcopts.maxtime) update = false;
+                    if (elapsed <  controller.svcopts.maxtime) update = false;
                 }
              } else {
                 // usefull human readable info for control console
                 data.moved   = 0;
-                data.elapse  = 0;
+                data.elapsed  = 0;
              }
 
             // update database and store current device location in object for mindist computation
             if (update) { // update device last position in Ram/Database
-                this.stamp = new PositionObj(data);
+                this.stamp = new PositionObj(this.devid, data);
                 gateway.backend.UpdatePosDev (this, this.stamp);
             } else {
                 this.Debug(6,"%s Dev %s Data %s ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
