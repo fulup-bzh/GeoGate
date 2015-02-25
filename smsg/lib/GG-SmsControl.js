@@ -19,7 +19,7 @@
 var util        = require("util");
 var async       = require('async');
 var Debug       = require("./_Debug");
-var TrackerCmd  = require("./_TrackerCmd.js").SmsTo;
+var TrackerCmd  = require("../adapters/CobanSmsCmds");
 
 // In GeoGate development env we use local modules
 var GGsmsc; if  (process.env.GEOGATE === 'dev') {
@@ -87,6 +87,12 @@ SmsControl.prototype.SendCommand = function (callback, smscmd) {
     } else {
         return (new GGsmsc.Request(this.smsc, callback, smsparsed));
     }
+};
+
+// this routine format command before pushing to sms queue
+SmsControl.prototype.SendText = function (callback, smscmd) {
+    smscmd.id  = this.smsid++;
+   return (new GGsmsc.Request(this.smsc, callback, smscmd));
 };
 
 

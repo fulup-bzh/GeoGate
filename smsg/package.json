@@ -1,7 +1,7 @@
 {
-  "name" : "ggserver",
-  "description" : "GTSdtracking is an opensource GPS tracking server framework",
-  "version" : "0.1.13",
+  "name" : "ggsmsg",
+  "description" : "Sms Rest Interface to GeoGate Sms Client module",
+  "version" : "0.1.1",
   "author" : {
     "name" : "Fulup Ar Foll",
     "email" : "fulup@breizhme.net",
@@ -12,22 +12,12 @@
     "type" : "apache20"
   },
   "bin" : {
-     "ConfigBySms" : "./bin/ConfigBySms.js"
-    ,"GeoGateServer" : "./bin/GeoGateServer.js"
-    ,"Tracker2Json" : "./bin/Tracker2Json.js"
+     "ConfigBySms" : "./bin/SmsRestGateway.js"
   },
-  "main"         : "ApiExport.js",
-  "dependencies" : 
-    {"async" : "*"
+  "dependencies" :
+    {"ggsmsc" : "*"
     ,"traceback" : "*"
-    ,"jison" : "*"
-    ,"mysql" : "*"
-    ,"mongodb": "~2.0"
-    ,"sgeo" : "*"
-    ,"xml2js" : "*"
-    ,"ws"     : "*"
-    ,"ggencoder": "*"
-    },
+  },
   "repository" : {
     "type" : "git",
     "url" : "git://github.com/fulup-bzh/GeoGate.git"

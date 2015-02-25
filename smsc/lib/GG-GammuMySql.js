@@ -113,6 +113,13 @@ GammuSms.prototype.DelById = function (callback, id) {
     this.base.query(sqlQuery, callback);
 };
 
+GammuSms.prototype.DelByPhone = function (callback, phone) {
+    var sqlQuery = "DELETE from inbox WHERE SenderNumber=" + phone;
+
+    this.Debug(7, "sqlQuery=%s", sqlQuery);
+    this.base.query(sqlQuery, callback);
+};
+
 GammuSms.prototype.CheckById = function (callback, id) {
     var sqlQuery = "select ID from outbox WHERE ID=" + id;
 
@@ -173,6 +180,9 @@ GammuSms.prototype.SendTo = function (callback, smscmd) {
         , DeliveryReport: this.opts.report
         , CreatorID: phonenum || "GeoToBe"
     };
+
+    // remove old existing SMS in inbox if any
+    this.DelByPhone (null, phonenum);
 
     // added ALTER TABLE devices ADD UNIQUE INDEX devid (uniqueId);
     this.Debug (0,"Sending phone=%s message=[%s]", smscmd.phone, smscmd.msg);

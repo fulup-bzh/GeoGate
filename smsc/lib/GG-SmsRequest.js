@@ -118,6 +118,10 @@ function SmsRequest (smsc, appcb, smscmd) {
         }
     }
     this.Debug (2,"Queuing Phone=%s SMS=%s", smscmd.phone, smscmd.msg);
+    if (smscmd.phone == undefined ||  smscmd.msg == undefined) {
+        SendToCB ({status: -1, info: 'Invalid SMS [missing phone and/or message'});
+        return;
+    }
     smsc.SendTo (SendToCB, smscmd);
 }
 

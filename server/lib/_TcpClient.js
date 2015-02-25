@@ -29,38 +29,31 @@ var TrackerCmd= require("../lib/_TrackerCmd");
 
 // small object to keep track of last position in ram
 function PositionObj (data) {
-    this.lat   = parseFloat(data.lat);
-    this.lon   = parseFloat(data.lon);
-    this.sog   = parseFloat(data.sog);
-    this.cog   = parseFloat(data.cog);
-    this.alt   = parseFloat(data.alt);
-    this.moved = parseInt(data.moved);
+    this.msg    = parseInt (data.cmd);
+    this.lat    = parseFloat(data.lat);
+    this.lon    = parseFloat(data.lon);
+    this.sog    = parseFloat(data.sog);
+    this.cog    = parseFloat(data.cog);
+    this.alt    = parseFloat(data.alt);
+    this.moved  = parseInt(data.moved);
     this.elapsed= parseInt(data.elapsed);
-    this.valid = parseInt(+data.valid);
+    this.valid  = parseInt(+data.valid);
     this.acquired_at  = data.date;
 }
 
-function AlarmObj (data) {
-    this.alarm= parseInt (data.cmd);
-    this.arg  = parseInt (data.arg) || 0;
-    this.lat  = parseFloat(data.lat);
-    this.lon  = parseFloat(data.lon);
-    this.sog   = parseFloat(data.sog);
-    this.acquired_at = new Date();
-}
 
 function ObdObj (data) {
-    if (data.trip.length  > 0) this.trip = parseInt   (data.trip);
-    if (data.rfuel.length > 0) this.rfuel= parseInt   (data.rfuel);
-    if (data.afuel.length > 0) this.afuel= parseFloat (data.afuel);
-    if (data.dtime.length > 0) this.dtime= parseInt   (data.dtime);
-    if (data.speed.length > 0) this.speed= parseInt   (data.speed);
-    if (data.pload.length > 0) this.pload= parseFloat (data.pload);
-    if (data.temp.length  > 0) this.temp = parseInt   (data.temp);
-    if (data.atp.length   > 0) this.atp  = parseFloat (data.atp);
-    if (data.rpm.length   > 0) this.rpm  = parseInt   (data.rpm);
-    if (data.bat.length   > 0) this.bat  = parseFloat (data.bat);
-    if (data.diag.length  > 0) this.diag = parseInt   (data.diag);
+    this.trip = parseInt (data.trip) || 0;
+    this.rfuel= parseInt   (data.rfuel) || 0;
+    this.afuel= parseFloat (data.afuel) || 0;
+    this.dtime= parseInt   (data.dtime) || 0;
+    this.speed= parseInt   (data.speed) || 0;
+    this.pload= parseFloat (data.pload) || 0;
+    this.temp = parseInt   (data.temp)  || 0;
+    this.atp  = parseFloat (data.atp)   || 0;
+    this.rpm  = parseInt   (data.rpm)   || 0;
+    //this.bat  = parseFloat (data.bat) || 0;
+    if (data.diag.length  > 0) this.diag = parseInt   (data.diag);  else this.diag=0;
     this.acquired_at = new Date();
 }
 
@@ -75,13 +68,14 @@ function TcpClient (socket) {
     this.name      = false;
     this.logged    = false;
     this.alarmcount= 0;        // count alarm messages
+    this.errorcount= 0;        // number of ignore messages
     this.jobcount  = 0;        // Job commands send to gateway
     this.count     = 0;        // generic counter used by file backend
     
     if (socket.remoteAddress !== undefined) {
        this.uid= "sockclient//"  + this.adapter.info + "/remote:" + socket.remoteAddress +":" + socket.remotePort;
     } else {
-        this.uid  = "tcpclient://" + this.adapter.info + ":" + socket.port;
+       this.uid  = "tcpclient://" + this.adapter.info + ":" + socket.port;
     }
 };
 
@@ -177,7 +171,7 @@ TcpClient.prototype.ProcessData = function(data) {
                 gateway.queue.push (job, JobCallback); // push to queue
             }
 
-            this.gateway.backend.UpdateAlarmDev (this, new AlarmObj (data));
+            this.gateway.backend.UpdateAlarmDev (this, new ObdObj (data));
             break;
 
         // Standard tracking information
@@ -198,10 +192,16 @@ TcpClient.prototype.ProcessData = function(data) {
                 data.elapsed  = elapsed;
                 
                 // if moved less than mindist or faster than maxspeed check maxtime value
-                if (moved < this.controller.svcopts.mindist || speedms > this.controller.svcopts.maxspeed) {
+                if (moved < this.controller.svcopts.mindist) {
                     this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
                     if (elapsed <  this.controller.svcopts.maxtime) update = false;
+                }
+                // if moved less than mindist or faster than maxspeed check maxtime value
+                if (speedms > this.controller.svcopts.maxspeed) {
+                    this.Debug(2,"%s Dev %s Data ignored speed %dm<%dm ?", this.count, this.devid, speedms, this.controller.svcopts.maxspeed);
+                    // we only ignore maxErrorCount message, then we restart data acquisition
+                    if (this.errorcount++ >  this.controller.svcopts.maxerrors) update = false;
                 }
              } else {
                 data.moved  = 0;
@@ -211,6 +211,7 @@ TcpClient.prototype.ProcessData = function(data) {
 
             // update database and store current device location in object for mindist computation
             if (update) { // update device last position in Ram/Database
+                this.errorcount = 0;
                 this.stamp = new PositionObj(data);
                 this.gateway.backend.UpdatePosDev (this, this.stamp);
 

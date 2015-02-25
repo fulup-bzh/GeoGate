@@ -178,6 +178,7 @@ BackendStorage.prototype.LogoutDev = function (device) {
 BackendStorage.prototype.UpdatePosDev = function (device, data) {
     var self=this;
     this.Debug (6,"Updating Track MySQL devid=%s", device.devid);
+    this.Debug (3,'%j', data)
 
     // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
     var queryString = "INSERT INTO geo_tracks" + " set ?";
@@ -199,6 +200,7 @@ BackendStorage.prototype.UpdateObdDev = function (device, data) {
 
     // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
     var queryString = "INSERT INTO geo_obds" + " set ?";
+    this.Debug (3,'%j', data)
 
     // add tracker foreign key id
     data['tracker_id'] = device.sqlid;
@@ -218,7 +220,7 @@ BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
     // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
     var queryString = "INSERT INTO geo_alarms" + " set ?";
 
-    console.log (data)
+    this.Debug (3,'%j', data)
 
     // add tracker foreign key id
     data['tracker_id'] = device.sqlid;

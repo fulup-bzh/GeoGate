@@ -89,6 +89,30 @@ DevAdapter.prototype.PingDev = function(query, request, response) {
 
 };
 
+// return a json object with device name and possition
+DevAdapter.prototype.QueryDevTrack = function(query, request, response) {
+    var gateway    = this.controller.gateway;
+    var dev= gateway.activeClients [query.devid];
+
+    if (dev.stamp != undefined) {
+        var stamp = {
+            'devid': query.devid,
+            'age': parseInt((new Date().getTime() - dev.lastshow) / 1000),
+            'lon': dev.stamp.lon.toFixed(4),
+            'lat': dev.stamp.lat.toFixed(4),
+            'sog': dev.stamp.sog.toFixed(2),
+            'cog': dev.stamp.cog.toFixed(2),
+            'alt': dev.stamp.alt.toFixed(2)
+        };
+    } else var stamp = {  'devid': query.devid, 'age': parseInt((new Date().getTime() - dev.lastshow) / 1000)};
+
+    response.writeHead(200,{"Content-Type": "text/html",'Cache-Control':'no-cache'});
+    response.write (JSON.stringify (stamp));
+    response.end();
+
+};
+
+
 // Do basic REST authentication and dispatch request
 DevAdapter.prototype.ProcessRestApi = function(query, request, response) {
 
@@ -120,10 +144,11 @@ DevAdapter.prototype.ProcessRestApi = function(query, request, response) {
         case 'ping' :    // 'http://localhost:4080/restapi?cmd=logout'
             this.PingDev  (query,request,response);
             break;
+            break;
         case 'list' :
             this.QueryDevList  (query,request,response);
             break;
-        case 'track':
+        case 'get-track':
             this.QueryDevTrack (query,request,response);
             break;
         default: 

@@ -142,12 +142,14 @@ function Controller (gateway, svcopts, svc) {
     this.svc    = svc;
 
     // take care or default adapter svcopts
-    if (this.svcopts.mindist  === undefined) this.svcopts.mindist =200; // in m
-    if (this.svcopts.maxtime  === undefined) this.svcopts.maxtime =3600;// in s == 1h
-    if (this.svcopts.maxspeed === undefined) this.svcopts.maxspeed=100;  // in 100m/s=~400km/h  
-    if (this.svcopts.debug    === undefined) this.svcopts.debug   =this.debug;
-    if (svcopts.hostname      === undefined) svcopts.hostname='localhost';
-    if (svcopts.timeout       === undefined) svcopts.timeout=60;
+    if (svcopts.mindist  === undefined) this.svcopts.mindist =200; // in m
+    if (svcopts.maxtime  === undefined) this.svcopts.maxtime =3600;// in s == 1h
+    if (svcopts.maxspeed === undefined) this.svcopts.maxspeed=100;  // in 100m/s=~400km/h
+    if (svcopts.debug    === undefined) this.svcopts.debug   =this.debug;
+    if (svcopts.debug    === undefined) this.svcopts.debug   =this.debug;
+    if (svcopts.hostname === undefined) this.svcopts.hostname='localhost';
+    if (svcopts.timeout  === undefined) this.svcopts.timeout=60;
+    if (svcopts.maxerrors=== undefined) this.svcopts.maxerrors=2;
     // load device adapter as described within svcopts option from user application
     try {
         var  adapter  =  require(availableAdapters [svcopts.adapter]);  

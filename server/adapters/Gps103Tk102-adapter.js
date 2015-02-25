@@ -58,7 +58,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
         var min= val - (deg*100);
         var dec= deg + (min/60);
 
-        if (uni === 'S' || uni === 'W') dec= dec * -1;
+        if (uni === 'S' || uni === 'W' || uni === 'P') dec= dec * -1;
         return (dec);
   }
 
@@ -459,7 +459,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
             break;
 
         default:   // provide a copy of parsed device.data to device
-            this.Debug (3, 'Parsed Data=%j', data);
+            this.Debug (7, 'Parsed Data=%j', data);
             break;
     };
 
@@ -472,6 +472,7 @@ if (process.argv[1] === __filename)  {
 
     // Add here any paquet you would like to test
     var testParser = { "Start     ":  "##,devid:359710043551135,A"
+        ,"Bug Login ":  "imei:865328021054936,tracker,150219091637,,F,091652.000,A,4738.2522,N,00256.7727,P,10.39,332.39,,1,0,0.0%,,"
         ,"Gps106b   ":  "imei:865328021048227,tracker,141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,"
         ,"ODBD      ":  "imei:865328021048227,OBD,141112020400,,,0.0,,000,0.0%,+,0.0%,00000,,,,,"
         ,"SPORT     ":  "imei:359710045716587,tracker,141123023317,,F,183317.000,A,4737.1233,N,00245.6569,W,0.00,0"    

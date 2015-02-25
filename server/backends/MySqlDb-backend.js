@@ -120,6 +120,7 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
     // each device has 3 dedicated table Track, Alarm, Obg
      var sqlQuery= {
         track:  'CREATE TABLE IF NOT EXISTS T_' + devid + ' ('
+        + 'msg    INT,'
         + 'id     INT NOT NULL AUTO_INCREMENT,'
         + 'lat    FLOAT,'
         + 'lon    FLOAT,'
@@ -134,17 +135,6 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
         + 'PRIMARY KEY (id )'
         + ') DEFAULT CHARSET=utf8;'
 
-       ,alarm: 'CREATE TABLE IF NOT EXISTS A_' + devid + ' ('
-         + 'id     INT NOT NULL AUTO_INCREMENT,'
-         + 'lat    FLOAT,'
-         + 'lon    FLOAT,'
-         + 'alarm  INT,'
-         + 'arg    INT,'
-
-         + 'acquired_at   DATETIME,'
-         + 'INDEX  (date),'
-         + 'PRIMARY KEY (id )'
-         + ') DEFAULT CHARSET=utf8;'
 
        ,odb: 'CREATE TABLE IF NOT EXISTS O_' + devid + ' ('
          + 'id     INT NOT NULL AUTO_INCREMENT,'
@@ -184,7 +174,6 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
             ,callsign : data.callsign
             ,model    : data.model
             ,track : 'T_' + devid
-            ,alarm : 'A_' + devid
             ,obd   : 'O_' + devid
             ,date  : new Date()
     };
@@ -211,7 +200,6 @@ BackendStorage.prototype.RemoveDev = function (devid) {
     // each device has 3 dedicated table Track, Alarm, Obg
     var sqlQuery= {
         track: 'DROP TABLE IF EXISTS T_' + devid + ';'
-       ,alarm: 'DROP TABLE IF EXISTS A_' + devid + ';'
        ,odb:   'DROP TABLE IF EXISTS O_' + devid + ';'
     };
 
@@ -256,7 +244,6 @@ BackendStorage.prototype.LoginDev = function (device) {
         device.name  = result.devname; // friendly name extracted from database
         device.sqlid = result.id;   // this is MySQL unique ID and not device's DEVID
         device.track = result.track;
-        device.alarm = result.alarm;
         device.obd   = result.obd;
         device.logged = true;        // marked device as knowned from database
     });
@@ -311,7 +298,7 @@ BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
     this.Debug (6,"Updating Alarm MySQL devid=%s", device.devid);
 
     // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
-    var queryString = "INSERT INTO " + device.alarm + " set ?";
+    var queryString = "INSERT INTO " + device.track + " set ?";
 
     // launch insertion of new position asynchronously
     var insertQuery = this.base.query(queryString, data);

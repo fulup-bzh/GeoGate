@@ -4,8 +4,8 @@
   "version" : "0.1.6",
   "author" : {
     "name" : "Fulup Ar Foll",
-    "email" : "fulup@fridu.net",
-    "url" : "http://www.fridu.org/fulup"
+    "email" : "fulup@breizhme.net",
+    "url" : "http://www.breizhme.net/fulup"
   },
   "keywords" : [ "GTS", "opengts", "GPS", "tracker", "gps103", "tk102", "sms", "gammu" ],
   "licenses" : {
@@ -18,7 +18,7 @@
   "dependencies" :
     {"traceback" : "*"
     ,"jison" : "*"
-    ,"ggencoder" : "*"
+    ,"mysql" : "*"
   },
   "repository" : {
     "type" : "git",
