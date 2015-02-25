@@ -43,7 +43,8 @@ DevAdapter.prototype.ProcessDate = function (info) {
         var d=info.substring (4,6);
         var h=info.substring (6,8);
         var n=info.substring (8,10);
-        date = new Date (y,m,d,h,n);
+        var s=info.substring (10,12);
+        date = new Date (y,m,d,h,n,s);
     }
     return (date);
 };
@@ -72,7 +73,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
         case 'L' : // No GPS date
             data =
             { cmd: cmd
-                , gps : false
+                , gps  : false
                 , valid: false
                 , devid: args[1].split(':') [1]
                 , date: this.ProcessDate (args[2])
@@ -95,7 +96,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
                         utc: args[5],
                         lat: ProcessCardinal(args[7], args[8]),
                         lon: ProcessCardinal(args[9], args[10]),
-                        sog: args[11],
+                        sog: parseInt (args[11] * 1853 / 360)/10,
                         cog: args[12],
                         alt: -1
                     }
@@ -112,7 +113,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
                         utc: args[5],
                         lat: ProcessCardinal(args[7], args[8]),
                         lon: ProcessCardinal(args[9], args[10]),
-                        sog: args[11],
+                        sog: parseInt (args[11] * 1853 / 360)/10,
                         cog: args[12],
                         alt: CheckArg(args[13]),
                         yyy: args[14],
@@ -441,7 +442,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
     socket.count ++;
     this.Debug (4,'Input=%s', line);
     data = this.ParseData (line); // call jison parser
-    if (data === null) {
+    if (data === null || data.valid === false ) {
         this.Debug (5,'Ignored data=[%s]', line);
         socket.write ("GeoGate " + this.uid + " ignored=[" + line + "\n");
         return;
@@ -476,6 +477,7 @@ if (process.argv[1] === __filename)  {
         ,"Gps106b   ":  "imei:865328021048227,tracker,141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,"
         ,"ODBD      ":  "imei:865328021048227,OBD,141112020400,,,0.0,,000,0.0%,+,0.0%,00000,,,,,"
         ,"SPORT     ":  "imei:359710045716587,tracker,141123023317,,F,183317.000,A,4737.1233,N,00245.6569,W,0.00,0"    
+        ,"NO-GPS    ":  "imei:865328021054936,tracker,150225200217,,L,,,2601,,CDF7,,,,,1,0,0.0%,,"
         ,"Ping      ":  "359710043551135"
         ,"Help-GPS1 ":  "imei:359710043551135,help me,1409050559,1234,F,215931.000,A,4737.1058,N,00245.6524,W,0.00,0"
         ,"Help-GPS2 ":  "imei:359710043551135,help me,1409050559,,F,215931.000,A,4737.1058,N,00245.6524,W,0.00,0"

@@ -32,7 +32,7 @@ var config =  { debug : 3
         , report  : true         // enforce delivery report when sending
 
         , delay   : 3500        // xx mseconds delay in between two check of outbox send sms table
-        , retry   : 20          // number of retry before refusing removing outgoing sms MySql  queue
+        , retry   : 25          // number of retry before refusing removing outgoing sms MySql  queue
     }
 
     ,userdb : { debug   : 5  // can be overloaded with --debug in cli
