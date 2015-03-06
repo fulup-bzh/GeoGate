@@ -129,7 +129,7 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
         + 'sog    FLOAT,'
         + 'moved  INT,'
         + 'elapse INT,'
-        + 'acquired_at   DATETIME,'
+        + 'acquired_at   BIGINT,'
         + 'valid  INT,'
         + 'INDEX  (date),'
         + 'PRIMARY KEY (id )'
@@ -150,7 +150,7 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
          + 'bat    FLOAT,'
          + 'diag   INT,'
 
-         + 'acquired_at   DATETIME,'
+         + 'acquired_at   BIGINT,'
          + 'INDEX  (date),'
          + 'PRIMARY KEY (id )'
          + ') DEFAULT CHARSET=utf8;'

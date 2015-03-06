@@ -88,7 +88,6 @@ DevAdapter.prototype.QueryDevList = function(query, response) {
     // loop on device list
     for (var devid in this.gateway.activeClients) {
         var device= this.gateway.activeClients [devid];
-        
         // if device is valid and log then doit
         // if (device !== undefined && device.logged) {
         if (device !== undefined && device.stamp !== undefined) {
@@ -98,7 +97,7 @@ DevAdapter.prototype.QueryDevList = function(query, response) {
                 ,group      : group
                 ,EventData: [
                     {Device: devid
-                    ,Timestamp      : device.stamp.date.getTime()
+                    ,Timestamp      : device.stamp.acquired_at.getTime()
                     ,StatusCode     : 0
                     ,Speed          : device.stamp.sog
                     ,GPSPoint_lat   : device.stamp.lat

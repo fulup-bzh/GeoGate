@@ -6,6 +6,7 @@
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://github.com/felixge/node-mysql/
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -74,8 +75,11 @@ function BackendStorage (gateway, opts){
             host     : opts.mysql.hostname || "localhost",
             user     : opts.mysql.username,
             password : opts.mysql.password,
-            database : opts.mysql.basename || opts.username
-    };  
+            database : opts.mysql.basename || opts.username,
+            typeCast : true,
+            dateStrings: false,
+            timezone: 'utc'
+    };
     this.uid ="mysql:" + opts.mysql.username + "@" + opts.mysql.hostname + "/" + opts.mysql.basename;
     
     // create initial connection handler to database
@@ -173,6 +177,31 @@ BackendStorage.prototype.LogoutDev = function (device) {
     device.logged = false;
 };
 
+// If Elapsed Moved cannot be retreived from device session, we compute it from DB
+BackendStorage.prototype.FixeMovedElapsed = function (device, data, rowid) {
+    var self=this;
+    var sqlQuery= "Select  id,lat,lon,acquired_at from geo_tracks where tracker_id=" +  device.sqlid + " AND ID < " + rowid
+        + " ORDER BY ID DESC LIMIT 1";
+    this.Debug (4, "sqlQuery=%s", sqlQuery);
+
+    this.base.query (sqlQuery , function (err, result) {
+        if (err) {
+            self.Debug (0,"MySql FixeMovedElapsed devid=%d Err=%s",device.sqlid, err);
+        } else {
+            var moved   = device.Distance (result[0], data);
+            var elapsed = parseInt ((data.acquired_at - result[0].acquired_at)/1000);
+
+            self.Debug (4, "FixeMovedElapsed oldrow=%d newrow=%d elapsed=%d moved=%d", result[0].id, rowid, elapsed, moved);
+
+            var queryString = "UPDATE geo_tracks set moved=" + moved + ",elapsed=" + elapsed + " where id=" + rowid;
+            self.base.query (queryString, function (err, result) {
+                if (err) {
+                    self.Debug (0,"MySql FixeMovedElapsed devsqlid=%d Query=%s Err=%s",device.sqlid, queryString, err);
+                }
+            });
+        }
+    });
+};
 
 // Query are done asynchronously and function will return before result is knowned
 BackendStorage.prototype.UpdatePosDev = function (device, data) {
@@ -192,10 +221,20 @@ BackendStorage.prototype.UpdatePosDev = function (device, data) {
     insertQuery.on("error", function(err) {
         self.Debug (0,"MySql ERROR UpdatePosDev %s err=%s", queryString, err);
     });
+
+    // if moved is unknown from session try to fix it from DB
+    insertQuery.on("result", function(result) {
+        if (data.moved == -1) {
+            self.Debug (0,"MySql Sucess insertid= %d", result.insertId);
+            self.FixeMovedElapsed (device, data, result.insertId)
+        }
+    });
 };
 
 BackendStorage.prototype.UpdateObdDev = function (device, data) {
     var self=this;
+    if (!data.rpm) return;   // if engine not running ignore packet
+
     this.Debug (6,"Updating OBD MySQL devid=%s", device.devid);
 
     // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
@@ -218,7 +257,7 @@ BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
     this.Debug (6,"Updating Alarm MySQL devid=%s", device.devid);
 
     // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
-    var queryString = "INSERT INTO geo_alarms" + " set ?";
+    var queryString = "INSERT INTO geo_tracks" + " set ?";
 
     this.Debug (3,'%j', data)
 

@@ -103,7 +103,7 @@ NmeaDecode.prototype.NormalizeData= function () {
     
     // // $GPGGA provide time but no date
     if (this.day === undefined) {
-        this.date  = new Date();       
+        this.date  = new Date().getTime();
     } else { 
         // $GPRMC 100106=10-jan-2006 053740.000=5h37m40s
         var d=this.day.substring (4,6);
@@ -112,7 +112,7 @@ NmeaDecode.prototype.NormalizeData= function () {
         var h=this.time.substring (0,2);
         var n=this.time.substring (2,4);
         var s=this.time.substring (4,6);
-        this.date = new Date (y,m,d,h,n,s);
+        this.date = Date.UTC (y,m,d,h,n,s);
     }
     
     // move speed from knts to m/s with one decimal

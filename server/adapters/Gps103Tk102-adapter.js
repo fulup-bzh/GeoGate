@@ -31,21 +31,21 @@ function DevAdapter (controller) {
     this.Debug (1,"%s", this.uid);
 };
 
-DevAdapter.prototype.ProcessDate = function (info) {
+DevAdapter.prototype.ProcessDate = function (info, utc) {
     var date;
     // Note: process is preset globaly for UTC in GpsDaemon
     if (info === undefined) {
-        date  = new Date();
+        date  = new Date().getTime();
     } else {
         // TK103 data.time format "1409152220"
         var y='20' + info.substring (0,2);
         var m=info.substring (2,4)-1;  //warning january=0 !!!
         var d=info.substring (4,6);
-        var h=info.substring (6,8);
-        var n=info.substring (8,10);
-        var s=info.substring (10,12);
-        date = new Date (y,m,d,h,n,s);
+        var h = info.substring(6, 8);
+        var n = info.substring(8, 10);
+        var s = info.substring(10, 12);
     }
+    date = Date.UTC (y,m,d,h,n,s);
     return (date);
 };
 
@@ -83,6 +83,11 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
             break;
         case 'F':  // Full Gps Date
             // console.log ("**** args length %s", args.length);
+            // Try to clean up obvious wrong data
+            if (isNaN (args[7]) ||  isNaN (args[9]) || isNaN (args[11]) || isNaN (args[12])) {
+                return ({cmd: cmd, valid: false});
+            }
+
             switch (args.length) {
                 case 13: //old protocol [sms protocol 12]
                     data =
@@ -125,6 +130,8 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
             };
             break;
         default:
+
+
   }
   return (data);
 }
@@ -215,12 +222,16 @@ DevAdapter.prototype.ParseData = function (line) {
                     data= this.ParseTrackerGps (TrackerCmd.GetFrom.HELPME, args);
                     break;
 
+                case 'sp': // help me,1409050559,1234,F,215931.000,A,4737.1058,N,00245.6524,W,0.00,0;"
+                    data= this.ParseTrackerGps (TrackerCmd.GetFrom.ALARMSPEED, args);
+                    break;
+
                 case 'lo': // low battery,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,;"
                     data= this.ParseTrackerGps (TrackerCmd.GetFrom.BATLOW, args);
                     break;
 
-                case 'st': // stockade,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,;"
-                    data= this.ParseTrackerGps (TrackerCmd.GetFrom.SPEEDON, args);
+                case 'st': // stokage,0809231429,13554900601,F,062947.294,A,2234.4026,N,11354.3277,E,0.00,;"
+                    data= this.ParseTrackerGps (TrackerCmd.GetFrom.STOCKADEON, args);
                     break;
 
                 case 'do': // door alarm,1010181112,00420777123456,F,101216.000,A,5004.5502,N,01426.7268,E,0.00,;"
@@ -298,13 +309,8 @@ DevAdapter.prototype.SendCommand = function(device, action, args) {
               packet= util.format ("**,devid:%s,B;", socket.device.devid);
               socket.write (packet);
               break;
-          // Set positioning by distance (tracker only sends position if vehicle has travelled XXXX meters)
-          case TrackerCmd.SendTo.SET_BY_DISTANCE: // **,devid999999999999999,F,XXXXm;
-                packet= util.format ("**,devid:%s,F,%s;", socket.device.devid, args);
-                socket.write (packet);
-                break;
           // Set multiple positions
-          case TrackerCmd.SendTo.SET_TRACK_BY_TIME: // **,devid999999999999999,C,##x;
+          case TrackerCmd.SendTo.SET_TRACK_BY_TIME: // **,devid999999999999999,C,##x; [15m,60s]
               packet= util.format ("**,devid:%s,C,%s;", socket.device.devid,args);
               socket.write (packet);
               break;
@@ -318,13 +324,18 @@ DevAdapter.prototype.SendCommand = function(device, action, args) {
               packet= util.format ("**,devid:%s,E;", socket.device.devid);
               write (packet);
               break;
-          // Activate movement alarm if move more than 200m
+            // Set positioning by distance (tracker only sends position if vehicle has travelled XXXX meters)
+          case TrackerCmd.SendTo.SET_BY_DISTANCE: // **,devid999999999999999,F,XXXXm;
+                packet= util.format ("**,devid:%s,F,%s;", socket.device.devid, args);
+                socket.write (packet);
+                break;
+            // Activate movement alarm if move more than 200m
           case TrackerCmd.SendTo.SET_MOVE_ALARM: // **,devid999999999999999,G;
-              packet= util.format ("**,devid:%s,F,%s;", socket.device.devid, args);
+              packet= util.format ("**,devid:%s,G,%s;", socket.device.devid, args);
               socket.write (packet);
               break;
           // Activate the speed alarm (send SMS if speed goes above XXX km/h)
-          case TrackerCmd.SendTo.SET_SPEED_SMS: // **,devid999999999999999,H,XXX;
+          case TrackerCmd.SendTo.SET_SPEED_ALARM: // **,devid999999999999999,H,XXX;
                 packet= util.format ("**,devid:%s,H,%s", socket.device.devid, args);
                 socket.write (packet);
                 break;
@@ -443,7 +454,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
     this.Debug (4,'Input=%s', line);
     data = this.ParseData (line); // call jison parser
     if (data === null || data.valid === false ) {
-        this.Debug (5,'Ignored data=[%s]', line);
+        this.Debug (5,'Invalid data=[%s]', line);
         socket.write ("GeoGate " + this.uid + " ignored=[" + line + "\n");
         return;
     }
@@ -475,6 +486,8 @@ if (process.argv[1] === __filename)  {
     var testParser = { "Start     ":  "##,devid:359710043551135,A"
         ,"Bug Login ":  "imei:865328021054936,tracker,150219091637,,F,091652.000,A,4738.2522,N,00256.7727,P,10.39,332.39,,1,0,0.0%,,"
         ,"Gps106b   ":  "imei:865328021048227,tracker,141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,"
+        ,"date      ":  "imei:865328021054936,tracker,16614828111646,,F,111649.000,A,4736.9955,N,00245.5026,W,24.50,294.23,,1,0,0.0%,,"
+        ,'wrongdate ':  "imei:865328021054936,tracker,1586190240145621,,F,145621.000,A,4737.1065,N,00245.6554,W,0.33,237.31,,1,0,0.0%,,"
         ,"ODBD      ":  "imei:865328021048227,OBD,141112020400,,,0.0,,000,0.0%,+,0.0%,00000,,,,,"
         ,"SPORT     ":  "imei:359710045716587,tracker,141123023317,,F,183317.000,A,4737.1233,N,00245.6569,W,0.00,0"    
         ,"NO-GPS    ":  "imei:865328021054936,tracker,150225200217,,L,,,2601,,CDF7,,,,,1,0,0.0%,,"
@@ -495,6 +508,7 @@ if (process.argv[1] === __filename)  {
         ,"Stop Engin":  "imei:012497000419790,jt,1010181051,00420777123456,F,095123.000,A,5004.5234,N,01426.7295,E,0.00,"
         ,"Turn Alarm":  "imei:012497000419790,gt,1010181046,00420777123456,F,094657.000,A,5004.5251,N,01426.7298,E,0.00,"
         ,"Speed On  ":  "imei:012497000419790,ht,1010181032,00420777123456,F,093203.000,A,5004.5378,N,01426.7328,E,0.00,"
+        ,"Speed two" :  "imei:865328021054936,ht,150301045926,            ,F,125926.000,A,4737.1061,N,00245.6529,W,0.03,148.34,,1,0,0.0%,,"
         ,"Park Off  ":  "imei:012497000419790,mt,1010181029,00420777123456,F,092913.000,A,5004.5392,N,01426.7344,E,0.00,"
         ,"Park On   ":  "imei:012497000419790,lt,1010181025,00420777123456,F,092548.000,A,5004.5399,N,01426.7352,E,0.00,"
         ,"Stop SOS  ":  "imei:012497000419790,et,1010181049,00420777123456,F,094922.000,A,5004.5335,N,01426.7305,E,0.00,"

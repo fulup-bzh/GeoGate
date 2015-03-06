@@ -32,15 +32,15 @@ function PositionObj (data) {
     this.msg    = parseInt (data.cmd);
     this.lat    = parseFloat(data.lat);
     this.lon    = parseFloat(data.lon);
-    this.sog    = parseFloat(data.sog);
-    this.cog    = parseFloat(data.cog);
-    this.alt    = parseFloat(data.alt);
-    this.moved  = parseInt(data.moved);
-    this.elapsed= parseInt(data.elapsed);
+    this.sog    = parseFloat(data.sog)   || 0;
+    this.cog    = parseFloat(data.cog)   || 0;
+    this.alt    = parseFloat(data.alt)   || 0;
+    this.moved  = parseInt(data.moved)   || -1;
+    this.elapsed= parseInt(data.elapsed) || -1;
     this.valid  = parseInt(+data.valid);
-    this.acquired_at  = data.date;
+    this.acquired_at  = data.acquired_at;
+    this.gpsdate= data.date;
 }
-
 
 function ObdObj (data) {
     this.trip = parseInt (data.trip) || 0;
@@ -54,7 +54,7 @@ function ObdObj (data) {
     this.rpm  = parseInt   (data.rpm)   || 0;
     //this.bat  = parseFloat (data.bat) || 0;
     if (data.diag.length  > 0) this.diag = parseInt   (data.diag);  else this.diag=0;
-    this.acquired_at = new Date();
+    this.acquired_at = new Date().getTime();
 }
 
 // called from TcpFeed class of adapter
@@ -156,7 +156,7 @@ TcpClient.prototype.ProcessData = function(data) {
         // Standard Alarm Packet
         case TrackerCmd.GetFrom.HELPME:
         case TrackerCmd.GetFrom.BATLOW:
-        case TrackerCmd.GetFrom.SPEEDON:
+        case TrackerCmd.GetFrom.ALARMSPEED:
         case TrackerCmd.GetFrom.ALARMDOOR:
         case TrackerCmd.GetFrom.ALARMACC:
 
@@ -164,49 +164,49 @@ TcpClient.prototype.ProcessData = function(data) {
             if (this.alarmcount ++ > 5) {
                 this.alarmcount = 0;
                 var job={command: TrackerCmd.SendTo.ALARM_OFF
-                    ,gateway: gateway
+                    ,gateway: this.gateway
                     ,devId  : data.devid
                     ,request: this.jobcount++
                 };
                 gateway.queue.push (job, JobCallback); // push to queue
             }
 
-            this.gateway.backend.UpdateAlarmDev (this, new ObdObj (data));
+            this.gateway.backend.UpdateAlarmDev (this, new PositionObj (data));
             break;
 
         // Standard tracking information
         case TrackerCmd.GetFrom.TRACK:
 
             var update = true; // default is do the update
-            
+            data.acquired_at = new Date().getTime();
+
             // compute distance only update backend is distance is greater than xxxm
             if (this.stamp !== undefined) {
                 var moved =  parseInt (this.Distance (this.stamp, data));
-           
+
                 // compute elapsed time since last update
-                var elapsed  = parseInt ((data.date.getTime() - this.stamp.acquired_at.getTime()) / 1000); // in seconds
+                var elapsed = parseInt((data.acquired_at - this.stamp.acquired_at)/1000) ; // in seconds
                 var speedms = parseInt (moved/elapsed);         // NEED TO BE KNOWN: with short tic speed is quicky overestimated by 100% !!!
 
                 // usefull human readable info for control console
-                data.moved   = moved;
+                data.moved    = moved;
                 data.elapsed  = elapsed;
                 
                 // if moved less than mindist or faster than maxspeed check maxtime value
                 if (moved < this.controller.svcopts.mindist) {
-                    this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
+                    this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.errorcount, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
                     if (elapsed <  this.controller.svcopts.maxtime) update = false;
                 }
                 // if moved less than mindist or faster than maxspeed check maxtime value
                 if (speedms > this.controller.svcopts.maxspeed) {
-                    this.Debug(2,"%s Dev %s Data ignored speed %dm<%dm ?", this.count, this.devid, speedms, this.controller.svcopts.maxspeed);
+                    this.Debug(2,"%s Dev %s Data ignored speed %dm/s >%dm/s ?", this.errorcount, this.devid, speedms, this.controller.svcopts.maxspeed);
                     // we only ignore maxErrorCount message, then we restart data acquisition
-                    if (this.errorcount++ >  this.controller.svcopts.maxerrors) update = false;
+                    if (this.errorcount++ <  this.controller.svcopts.maxerrors) update = false;
                 }
              } else {
                 data.moved  = 0;
                 data.elapsed = 0;
-
              }
 
             // update database and store current device location in object for mindist computation

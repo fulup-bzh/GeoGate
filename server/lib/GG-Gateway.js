@@ -83,7 +83,7 @@ function JobQueue (job, callback) {
         var subrqst=1;
         for (var devid in gateway.activeClients) {
             // we only broadcast to device with a valid TCP session
-            if (device.socket !== null) {
+            if (device && device.socket !== null) {
                 var request = {
                   gateway : job.gateway,
                   devId  : gateway.activeClients[devid].devid,

@@ -33,7 +33,7 @@ function PositionObj (data) {
     this.moved = parseInt(data.moved);
     this.elapsed= parseInt(data.elapsed);
     this.valid = parseInt(+data.valid);
-    this.acquired_at  = data.date;
+    this.acquired_at  = data.acquired_at;
 }
 
 // called from http class of adapter
@@ -130,6 +130,7 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
         // Standard tracking information
         case TrackerCmd.GetFrom.TRACK :
             var update = true; // default is do the update
+            data.acquired_at = new Date().getTime();
 
             // compute distance only update backend is distance is greater than xxxm
             if (this.stamp !== undefined) {
@@ -138,7 +139,7 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
                 //console.log ("**** pos= %s,%s Stamp=%s,%s Moved=%s", data.lat, data.lon, this.stamp.lon, this.stamp.lat, moved);
            
                 // compute elapsed time since last update
-                var elapsed  = parseInt ((data.date.getTime() - this.stamp.date.getTime()) / 1000); // in seconds
+                var elapsed  = parseInt ((data.acquired_at - this.stamp.date) / 1000); // in seconds
                 var sogms = parseInt (moved/elapsed);         // NEED TO BE KNOWN: with short tic sog is quicky overestimated by 100% !!!
 
                 // usefull human readable info for control console
