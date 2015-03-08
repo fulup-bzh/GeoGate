@@ -168,7 +168,7 @@ TcpClient.prototype.ProcessData = function(data) {
                     ,devId  : data.devid
                     ,request: this.jobcount++
                 };
-                gateway.queue.push (job, JobCallback); // push to queue
+                this.gateway.queue.push (job, JobCallback); // push to queue
             }
 
             this.gateway.backend.UpdateAlarmDev (this, new PositionObj (data));

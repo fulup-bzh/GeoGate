@@ -97,7 +97,7 @@ DevAdapter.prototype.QueryDevList = function(query, response) {
                 ,group      : group
                 ,EventData: [
                     {Device: devid
-                    ,Timestamp      : device.stamp.acquired_at.getTime()
+                    ,Timestamp      : device.stamp.acquired_at
                     ,StatusCode     : 0
                     ,Speed          : device.stamp.sog
                     ,GPSPoint_lat   : device.stamp.lat
