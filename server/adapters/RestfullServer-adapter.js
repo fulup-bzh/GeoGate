@@ -47,6 +47,9 @@ DevAdapter.prototype.SendCommand = function(httpclient, action, arg1) {
     return (0);
 };
 
+DevAdapter.prototype.JobCallback= function (job) {
+    job.gateway.Debug (3, 'Job Done =%j', job);
+};
 
 // return a json object with device name and possition
 DevAdapter.prototype.LogoutDev = function(query, request, response) {
@@ -57,9 +60,7 @@ DevAdapter.prototype.LogoutDev = function(query, request, response) {
         ,devId  : data.devid
         ,request: this.request++
     };
-    gateway.queue.push (job, JobCallback); // push to queue
-
-
+    gateway.queue.push (job, this.JobCallback); // push to queue
     response.writeHead(200,{"Content-Type": "text/html",'Cache-Control':'no-cache'});
     response.write ('OK');
     response.end();
@@ -87,6 +88,15 @@ DevAdapter.prototype.PingDev = function(query, request, response) {
     response.write (JSON.stringify (stamp));
     response.end();
 
+    // if update is request let force a device track command
+    if (query.update) {
+        var job={command: TrackerCmd.SendTo.GET_TRACK
+            ,gateway: gateway
+            ,devId  : query.devid
+            ,request: this.request++
+        };
+        gateway.queue.push (job, this.JobCallback); // push to queue
+    }
 };
 
 // return a json object with device name and possition
@@ -141,7 +151,7 @@ DevAdapter.prototype.ProcessRestApi = function(query, request, response) {
         case 'logout' :   // 'http://localhost:4080/restapi?cmd=logout'
             this.LogoutDev  (query,request,response);
             break;
-        case 'ping' :    // 'http://localhost:4080/restapi?cmd=logout'
+        case 'ping' :    // 'http://localhost:4080/restapi?cmd=ping&devid=865328021054936&token=36591ef0c1fea394445e58a128a41ddc41257a57'
             this.PingDev  (query,request,response);
             break;
             break;

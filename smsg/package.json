@@ -1,7 +1,7 @@
 {
   "name" : "ggsmsg",
   "description" : "Sms Rest Interface to GeoGate Sms Client module",
-  "version" : "0.1.1",
+  "version" : "0.1.5",
   "author" : {
     "name" : "Fulup Ar Foll",
     "email" : "fulup@breizhme.net",
@@ -12,12 +12,14 @@
     "type" : "apache20"
   },
   "bin" : {
-     "ConfigBySms" : "./bin/SmsRestGateway.js"
+     "SmsAjaxGateway" : "./bin/SmsAjaxGateway.js"
   },
   "dependencies" :
     {"ggsmsc" : "*"
     ,"traceback" : "*"
-  },
+    ,"async" : "*"
+    ,"mysql" : "*"
+    },
   "repository" : {
     "type" : "git",
     "url" : "git://github.com/fulup-bzh/GeoGate.git"

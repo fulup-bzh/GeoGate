@@ -19,7 +19,7 @@
 
 'use strict';
 
-var Debug = require ('./../../smsc/lib/_Debug');
+var Debug = require ('./_Debug');
 var mysql = require ('mysql'); // https://www.npmjs.org/package/mysql
 
 var MYSQL_RECONNECT_TIMER=10*1000; // 10s timeout in bewteen two MYSQL reconnects

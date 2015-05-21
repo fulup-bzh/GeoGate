@@ -126,6 +126,11 @@ TcpClient.prototype.LoginDev = function(data) {
 
 
 TcpClient.prototype.ProcessData = function(data) {
+
+    function JobCallback (job) {
+         job.gateway.Debug (3,"Job Done job=%s", job);
+    }
+
     // if not logged exit now except for login
     if (!this.logged && data.cmd !== TrackerCmd.GetFrom.LOGIN) {
        this.Debug (3,"tracker update not logged DEVID=%s", this.devid);
@@ -171,6 +176,7 @@ TcpClient.prototype.ProcessData = function(data) {
                 this.gateway.queue.push (job, JobCallback); // push to queue
             }
 
+            data.acquired_at = new Date().getTime();
             this.gateway.backend.UpdateAlarmDev (this, new PositionObj (data));
             break;
 

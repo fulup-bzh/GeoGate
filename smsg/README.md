@@ -18,6 +18,7 @@ configure with MySQL backend. For details check http://fr.wammu.eu/smsd/
 Install
 =======
        npm install ggsmsg   [will install ggsmsc dependency]
+       cd node_modules/ggsmsg
 
 Command line
 =============

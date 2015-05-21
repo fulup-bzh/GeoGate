@@ -106,11 +106,11 @@ BatchRequest.prototype.CheckTrackerBySms = function (tracker, query) {
                         , {cmd: 'GPRS_URI', args: {host: query.host, port: query.port}}
                         , {cmd: 'GPRS_MOD', args: {} }
                         , {cmd: 'OBD_MOD'    , args: {mod: '1'}}
-                       // , {cmd: 'GPRS_LESS'  , args: {} }
-                       // , {cmd: 'LOCALTIME'  , args: {zone:  '0'} }
-                       // , {cmd: 'TRACK_MANY' , args: {delay: '15m'} }
-                       // , {cmd: 'TRACK_DIST' , args: {dist:  '0300'} }
-                       // , {cmd: 'TRACK_ANGLE', args: {angle: '015'} }
+                        , {cmd: 'GPRS_LESS'  , args: {} }
+                        , {cmd: 'LOCALTIME'  , args: {zone:  '0'} }
+                        , {cmd: 'TRACK_MANY' , args: {delay: '15m'} }
+                        , {cmd: 'TRACK_DIST' , args: {dist:  '0300'} }
+                        , {cmd: 'TRACK_ANGLE', args: {angle: '015'} }
                     ];
                     self.gateway.smsc.ProcessBatch(SmsBatchCB, query.phonenum, query.passwd, smsbatch);
 

@@ -224,10 +224,38 @@ BackendStorage.prototype.UpdatePosDev = function (device, data) {
 
     // if moved is unknown from session try to fix it from DB
     insertQuery.on("result", function(result) {
-        if (data.moved == -1) {
+        if (data.moved === -1) {
             self.Debug (0,"MySql Sucess insertid= %d", result.insertId);
             self.FixeMovedElapsed (device, data, result.insertId)
         }
+    });
+};
+
+BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
+    var self=this;
+    this.Debug (6,"Updating Alarm MySQL devid=%s", device.devid);
+
+    // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
+    var queryString = "INSERT INTO geo_tracks" + " set ?";
+
+    this.Debug (3,'%j', data)
+
+    // add tracker foreign key id
+    data['tracker_id'] = device.sqlid;
+
+    // launch insertion of new position asynchronously
+    var insertQuery = this.base.query(queryString, data);
+
+    // if moved is unknown from session try to fix it from DB
+    insertQuery.on("result", function(result) {
+        if (data.moved === -1) {
+            self.Debug (0,"MySql Sucess insertid= %d", result.insertId);
+            self.FixeMovedElapsed (device, data, result.insertId)
+        }
+    });
+
+    insertQuery.on("error", function(err) {
+        self.Debug (0,"MySql ERROR LookupDev %s err=%s", queryString, err);
     });
 };
 
@@ -252,25 +280,6 @@ BackendStorage.prototype.UpdateObdDev = function (device, data) {
     });
 };
 
-BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
-    var self=this;
-    this.Debug (6,"Updating Alarm MySQL devid=%s", device.devid);
-
-    // INSERT INTO positions (device_id, time, valid, latitude, longitude, altitude, speed, course, power)
-    var queryString = "INSERT INTO geo_tracks" + " set ?";
-
-    this.Debug (3,'%j', data)
-
-    // add tracker foreign key id
-    data['tracker_id'] = device.sqlid;
-
-    // launch insertion of new position asynchronously
-    var insertQuery = this.base.query(queryString, data);
-
-    insertQuery.on("error", function(err) {
-        self.Debug (0,"MySql ERROR LookupDev %s err=%s", queryString, err);
-    });
-};
 
 // Write last X positions on Telnet/Console for active devices only !!!
 BackendStorage.prototype.LookupDev = function (callback, devid, args) {
