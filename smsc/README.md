@@ -21,11 +21,12 @@ Install
 =======
 
        npm install ggsmsc
+       cd node_modules/ggsmsc/
 
 Command line
 =============
        # Standalone send/receive SMS
-       node ./bin/SendRecSms.js --config=config/SampleConig.js --getall
+       node ./bin/SendRecSms.js --config=config/SampleConfig.js --getall
        node ./bin/SendRecSms.js --config=config/SampleConfig.js --getfrom=+33619921323 --limit=1
        node ./bin/SendRecSms.js --config=config/SampleConfig.js --sendto=+33xxxxxxx --msg='ceci est un message de test'
 
