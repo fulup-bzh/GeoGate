@@ -32,7 +32,7 @@ Command line
 
 Raw API Usage
 ==============
-       var GGsmsc = require("ggsmsc").Gammu;
+       var GGsmsc = require("ggsmsc").Client;
        
        var SmscConfig =
            { debug   : 1            // can be overloaded with --debug in cli
