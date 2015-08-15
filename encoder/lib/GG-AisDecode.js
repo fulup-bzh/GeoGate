@@ -162,33 +162,45 @@ var VESSEL_TYPE= {
 function AisDecode (input) {
     this.bitarray=[];
     this.valid= false; // will move to 'true' if parsing succeed
+    var nmea = "";
 
-    // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
-    var nmea = input.split (",");
+    var inputtype = Object.prototype.toString.call(input);
 
-    // make sure we are facing a supported AIS message
-    if (nmea [0] !== '!AIVDM') return;
-
-
-    // this.fragcnt = nmea[1];  // fragment total count for this message
-    // this.fragnum = nmea[2];  // fragment number
-    // this.fragid  = nmea[3];  // fragment sequential index for multipart message
-    // this.pading  = nmea[6].split ('*')[0];
-
-    if (nmea[2]  !== '1') { // ignore multipart extention messages
-        // console.log ("MultiPart Message Ignored [%s]", nmea);
-        return;
+    // Require a string or an array. Turn string into an array. Return for
+    // anything else.
+    if(inputtype === "[object String]") {
+      input = [input];
+    } else if(inputtype !== "[object Array]") {
+      return;
     }
 
-    // extract binary payload and other usefull information from nmea paquet
-    var payload  = new Buffer (nmea [5]);
-    this.length  = payload.length;
-    this.channel = nmea[4];  // vhf channel A/B
-    // console.log ("payload=%s", payload.toString ('utf8'));
+    console.log(input);
+
+    this.length = 0;
+
+    var payload_buffers = [];
+
+    for(var i = 0; i < input.length; ++i) {
+      // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
+      var nmea = input[i].split (",");
+
+      // make sure we are facing a supported AIS message
+      if (nmea [0] !== '!AIVDM') return;
+
+      // extract binary payload and other usefull information from nmea paquet
+      var payload  = new Buffer (nmea [5]);
+      this.length  += payload.length;
+
+      this.channel = nmea[4];  // vhf channel A/B
+
+      payload_buffers.push(payload);
+    }
+
+    this.payload = Buffer.concat(payload_buffers, this.length);
 
     // decode printable 6bit AIS/IEC binary format
     for(var i = 0; i < this.length; i++) {
-        var byte = payload[i];
+        var byte = this.payload[i];
 
         // check byte is not out of range
         if ((byte < 0x30) || (byte > 0x77))  return;
