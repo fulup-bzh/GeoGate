@@ -143,7 +143,17 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
 
 
-        var aisDecoded  = new AisDecode (aisTest.nmea);
+        var inputtype = Object.prototype.toString.call(input);
+
+        // Require a string or an array. Turn string into an array. Return for
+        // anything else.
+        if(aisTest.nmea instanceof Array) {
+            var session=[];
+            var aisDecoded = new AisDecode(aisTest.nmea[0], session);
+            var aisDecoded = new AisDecode(aisTest.nmea[1], session);
+        } else {
+            var aisDecoded = new AisDecode(aisTest.nmea);
+        }
 
         if (aisDecoded.valid !== true) {
             console.log ("[%s] invalid AIS payload", test);

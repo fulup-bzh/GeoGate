@@ -159,22 +159,12 @@ var VESSEL_TYPE= {
 
 // Ais payload is represented in a 6bits encoded string !(
 // This method is a direct transcription in nodejs of C++ ais-decoder code
-function AisDecode (input) {
+function AisDecode (input, session) {
     this.bitarray=[];
     this.valid= false; // will move to 'true' if parsing succeed
     var nmea = "";
 
     var inputtype = Object.prototype.toString.call(input);
-
-    // Require a string or an array. Turn string into an array. Return for
-    // anything else.
-    if(inputtype === "[object String]") {
-      input = [input];
-    } else if(inputtype !== "[object Array]") {
-      return;
-    }
-
-    console.log(input);
 
     this.length = 0;
 
