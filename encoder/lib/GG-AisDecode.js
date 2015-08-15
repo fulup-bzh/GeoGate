@@ -164,29 +164,69 @@ function AisDecode (input, session) {
     this.valid= false; // will move to 'true' if parsing succeed
     var nmea = "";
 
-    var inputtype = Object.prototype.toString.call(input);
-
-    this.length = 0;
-
-    var payload_buffers = [];
-
-    for(var i = 0; i < input.length; ++i) {
-      // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
-      var nmea = input[i].split (",");
-
-      // make sure we are facing a supported AIS message
-      if (nmea [0] !== '!AIVDM') return;
-
-      // extract binary payload and other usefull information from nmea paquet
-      var payload  = new Buffer (nmea [5]);
-      this.length  += payload.length;
-
-      this.channel = nmea[4];  // vhf channel A/B
-
-      payload_buffers.push(payload);
+    if(Object.prototype.toString.call(input) !== "[object String]") {
+        return;
     }
 
-    this.payload = Buffer.concat(payload_buffers, this.length);
+    // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
+    var nmea = input.split (",");
+
+    // make sure we are facing a supported AIS message
+    if (nmea [0] !== '!AIVDM') return;
+
+    // the input string is part of a multipart message, make sure we were
+    // passed a session object.
+    var message_count = Number(nmea[1]);
+    var message_id = Number(nmea[2]);
+    var sequence_id = nmea[3].length > 0 ? Number(nmea[3]) : NaN;
+
+    if(message_count > 1) {
+        if(Object.prototype.toString.call(session) !== "[object Object]") {
+            throw "A session object is required to maintain state for decoding multipart AIS messages.";
+        }
+
+        if(message_id > 1) {
+            if(nmea[0] !== session.formatter) {
+                throw "Sentence does not match formatter of current session";
+            }
+
+            if(session[message_id - 1] === undefined) {
+                throw "Session is missing prior message part, cannot parse partial AIS message.";
+            }
+
+            if(session.sequence_id !== sequence_id) {
+                throw "Session IDs do not match. Cannot recontruct AIS message.";
+            }
+        } else {
+            session.formatter = nmea[0];
+            session.message_count = message_count;
+            session.sequence_id = sequence_id;
+        }
+    }
+
+    // extract binary payload and other usefull information from nmea paquet
+    this.payload  = new Buffer (nmea [5]);
+    this.length  = this.payload.length;
+
+    this.channel = nmea[4];  // vhf channel A/B
+
+    if(message_count > 1) {
+        session[message_id] = {payload: this.payload, length: this.length};
+
+        // Not done building the session
+        if(message_id < message_count) return;
+
+        var payloads = [];
+        var length = 0;
+
+        for(var i = 1; i <= session.message_count; ++i) {
+            payloads.push(session[i].payload);
+            length += session[i].length;
+        }
+
+        this.payload = Buffer.concat(payloads, length);
+        this.length = this.payload.length;
+    }
 
     // decode printable 6bit AIS/IEC binary format
     for(var i = 0; i < this.length; i++) {
@@ -206,7 +246,6 @@ function AisDecode (input, session) {
     this.aistype   = this.GetInt (0,6);
     this.repeat    = this.GetInt (6,2);
     this.mmsi      = this.GetInt (8,30);
-
 
     switch (this.aistype) {
         case 1:

@@ -145,8 +145,6 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
     for (var test in this.testSet) {
         var aisTest     = this.testSet [test];
 
-        var inputtype = Object.prototype.toString.call(input);
-
         // Require a string or an array. Turn string into an array. Return for
         // anything else.
         if(aisTest.nmea instanceof Object) {
