@@ -149,7 +149,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
         // Require a string or an array. Turn string into an array. Return for
         // anything else.
-        if(aisTest.nmea instanceof Array) {
+        if(aisTest.nmea instanceof Object) {
             var session=new DummySession ();
             var aisDecoded = new AisDecode(aisTest.nmea[0], session);
             var aisDecoded = new AisDecode(aisTest.nmea[1], session);
