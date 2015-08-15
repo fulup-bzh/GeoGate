@@ -137,18 +137,20 @@ AisEncodeDecodeTest.prototype.CheckResult = function (test, aisin, aisout, contr
 
 AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
+    function DummySession () {
+        // this is a fake session for multipart AIS messages
+    }
+
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
         var aisTest     = this.testSet [test];
-
-
 
         var inputtype = Object.prototype.toString.call(input);
 
         // Require a string or an array. Turn string into an array. Return for
         // anything else.
         if(aisTest.nmea instanceof Array) {
-            var session=[];
+            var session=new DummySession ();
             var aisDecoded = new AisDecode(aisTest.nmea[0], session);
             var aisDecoded = new AisDecode(aisTest.nmea[1], session);
         } else {
