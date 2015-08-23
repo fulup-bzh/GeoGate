@@ -34,7 +34,8 @@ API Usage
       var NmeaDecode = require ("ggencoder").NmeaDecode;
 
       // decode and AIS message
-      var decMsg = new AisDecode ("!AIVDM,2,1,1,A,55?MbV02;H;s<HtKR20EHE:0@T4@Dn2222222216L961O5Gf0NSQEp6ClRp8,0*1C");
+      var session=new Object();  // session is optionnal but necessary to process multi-fragment AIS messages
+      var decMsg = new AisDecode ("!AIVDM,2,1,1,A,55?MbV02;H;s<HtKR20EHE:0@T4@Dn2222222216L961O5Gf0NSQEp6ClRp8,0*1C", session);
       if (decMsg.valid) console.log ('%j', decMsg);
 
       // encode AIS message

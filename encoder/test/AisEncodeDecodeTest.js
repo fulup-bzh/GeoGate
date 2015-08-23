@@ -35,6 +35,15 @@ function AisEncodeDecodeTest (args) {
 
     if (args !== undefined) this.testSet = args;
     else this.testSet = {
+    msgInvalid1: {// invalid message
+            nmea       : undefined,
+            invalid    : true
+    },
+    msgInvalid2: {// invalid message
+            nmea       : "This is not a valid message",
+            invalid    : true
+    },
+
     msg24a: {// class B static info
         aistype    : 24,
         part       : 0,
@@ -73,7 +82,6 @@ function AisEncodeDecodeTest (args) {
     ,msg5: { // class A static info
         aistype    : 5,
         nmea       : "!AIVDM,1,1,,A,55?MbV42;H;s<HtKR20EHE:0@T4@Dn2222222216L961O0000i000000000000000000000,0*2D",
-        // ,"!AIVDM,2,2,1,A,88888888880,2*25"], [extentions for destination not implemented]
         mmsi       : 351759000,
         imo        : 9134270,
         callsign   : "3FOF8  ",
@@ -89,28 +97,27 @@ function AisEncodeDecodeTest (args) {
         etaday     : 15,
         etamonth   :  5,
         draught    : 12.2
-        //destination: "NEW YORK  " Extention message not implemented
     }
     ,msg5_2: { // class A static info
         aistype    : 5,
-        nmea       : ["!AIVDM,2,1,1,A,53P;lSh2ANCO8=0s<01<B0<Q8U=@Tp400000000O1@:6340Ht7`0000000000,0*29",
-                      "!AIVDM,2,2,1,A,0000000008,2*1D"],
-        mmsi       : 235074703,
-        imo        : 12894435639,
-        callsign   : "2CPN3",
-        shipname   : "SD CHRISTINA",
-        cargo      : 31,
-        dimA       : 10,
-        dimB       : 10,
-        dimC       :  6,
-        dimD       :  3,
+        nmea       : ["!AIVDM,2,1,0,A,58wt8Ui`g??r21`7S=:22058<v05Htp000000015>8OA;0sk,0*7B",
+                      "!AIVDM,2,2,0,A,eQ8823mDm3kP00000000000,2*5D"],
+        mmsi       : 603916439,
+        imo        : 439303422,
+        callsign   : "ZA83R",
+        shipname   : "ARCO AVON",
+        cargo      : 69,
+        dimA       : 113,
+        dimB       : 31,
+        dimC       : 17,
+        dimD       : 11,
         fixaistype :  1,
-        etamn      : 60,
-        etaho      : 24,
-        etaday     :  0,
-        etamonth   :  0,
-        draught    :  3
-        //destination: "NEW YORK  " Extention message not implemented
+        etamn      : 45,
+        etaho      : 19,
+        etaday     : 23,
+        etamonth   :  3,
+        draught    :  3,
+        destination: "  HOUSTON"
     }
 }}
 
@@ -137,9 +144,7 @@ AisEncodeDecodeTest.prototype.CheckResult = function (test, aisin, aisout, contr
 
 AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
-    function DummySession () {
-        // this is a fake session for multipart AIS messages
-    }
+    var DummySession = new Object();
 
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
@@ -147,37 +152,50 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
         // Require a string or an array. Turn string into an array. Return for
         // anything else.
-        if(aisTest.nmea instanceof Object) {
-            var session=new DummySession ();
-            var aisDecoded = new AisDecode(aisTest.nmea[0], session);
-            var aisDecoded = new AisDecode(aisTest.nmea[1], session);
+        if(aisTest.nmea instanceof Array) {
+            var aisDecoded = new AisDecode(aisTest.nmea[0], DummySession);
+            var aisDecoded = new AisDecode(aisTest.nmea[1], DummySession);
         } else {
             var aisDecoded = new AisDecode(aisTest.nmea);
         }
 
-        if (aisDecoded.valid !== true) {
-            console.log ("[%s] invalid AIS payload", test);
+        if (aisTest.invalid) {
+            if (aisDecoded.valid) console.log ("Hoops: test=[%s] should return valid==false", test);
         } else {
-            switch (aisTest.aistype) {
-                case 18:
-                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog"]);
-                    break;
-                case 24:
-                    switch (aisTest.part) {
-                        case 1: this.CheckResult(test, aisTest, aisDecoded, ["shipname"]); break;
-                        case 2: this.CheckResult(test, aisTest, aisDecoded, ['callsign', 'cargo', 'dimA', 'dimB', "dimC", 'dimD']); break;
-                        default: console.log ("hoop test=[%s] message type=[%d] invalid part number [%s]", test, aisTest.type, aisDecoded.part);
-                        }
-                    break;
-                case  5:
-                    this.CheckResult (test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
-                    break;
-                default:
-                    console.log ("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);
+
+                if (aisDecoded.valid !== true) {
+                    console.log("[%s] invalid AIS payload", test);
+                } else {
+                    switch (aisTest.aistype) {
+                        case 18:
+                            this.CheckResult(test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog"]);
+                            break;
+                        case 24:
+                            switch (aisTest.part) {
+                                case 1:
+                                    this.CheckResult(test, aisTest, aisDecoded, ["shipname"]);
+                                    break;
+                                case 2:
+                                    this.CheckResult(test, aisTest, aisDecoded, ['callsign', 'cargo', 'dimA', 'dimB', "dimC", 'dimD']);
+                                    break;
+                                default:
+                                    console.log("hoop test=[%s] message type=[%d] invalid part number [%s]", test, aisTest.type, aisDecoded.part);
+                            }
+                            break;
+                        case  5:
+                            if (aisTest.nmea instanceof Array) {
+                                this.CheckResult(test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD', 'destination']);
+                            } else {
+                                this.CheckResult(test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
+                            }
+                            break;
+                        default:
+                            console.log("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);
+                    }
+                }
             }
         }
-    }
-};
+ };
 
 AisEncodeDecodeTest.prototype.CheckEncode = function () {
 

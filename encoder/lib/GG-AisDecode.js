@@ -162,74 +162,82 @@ var VESSEL_TYPE= {
 function AisDecode (input, session) {
     this.bitarray=[];
     this.valid= false; // will move to 'true' if parsing succeed
-    var nmea = "";
+    var nmea = [];
 
-    if(Object.prototype.toString.call(input) !== "[object String]") {
-        return;
-    }
+    // at minimum input should defined
+    if (! input) return;
 
     // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
     var nmea = input.split (",");
 
     // make sure we are facing a supported AIS message
-    if (nmea [0] !== '!AIVDM') return;
-
-    // the input string is part of a multipart message, make sure we were
-    // passed a session object.
-    var message_count = Number(nmea[1]);
-    var message_id = Number(nmea[2]);
-    var sequence_id = nmea[3].length > 0 ? Number(nmea[3]) : NaN;
-
-    if(message_count > 1) {
-        if(Object.prototype.toString.call(session) !== "[object Object]") {
-            throw "A session object is required to maintain state for decoding multipart AIS messages.";
-        }
-
-        if(message_id > 1) {
-            if(nmea[0] !== session.formatter) {
-                throw "Sentence does not match formatter of current session";
-            }
-
-            if(session[message_id - 1] === undefined) {
-                throw "Session is missing prior message part, cannot parse partial AIS message.";
-            }
-
-            if(session.sequence_id !== sequence_id) {
-                throw "Session IDs do not match. Cannot recontruct AIS message.";
-            }
-        } else {
-            session.formatter = nmea[0];
-            session.message_count = message_count;
-            session.sequence_id = sequence_id;
-        }
+    if (nmea [0] !== '!AIVDM') {
+        this.valid = false;
+        return;
     }
+
+    // extract AIS fields use with multipart messages
+    // if nmea[1] > 1, then input string is part of a multipart message
+    var fragmentCount = Number(nmea[1]);   // count of fragments
+    var fragmentId    = Number(nmea[2]);   // fragment number
+    var sequenceId    = Number(nmea[3]);   // sequential message ID for multi-sentence messages
 
     // extract binary payload and other usefull information from nmea paquet
     this.payload  = new Buffer (nmea [5]);
-    this.length  = this.payload.length;
+    this.channel  = nmea[4];  // vhf channel A/B
 
-    this.channel = nmea[4];  // vhf channel A/B
+    // if session is undefined ignore any multipart extension
+    if((fragmentCount > 1) && (session !== undefined)) {
 
-    if(message_count > 1) {
-        session[message_id] = {payload: this.payload, length: this.length};
-
-        // Not done building the session
-        if(message_id < message_count) return;
-
-        var payloads = [];
-        var length = 0;
-
-        for(var i = 1; i <= session.message_count; ++i) {
-            payloads.push(session[i].payload);
-            length += session[i].length;
+        if ((session instanceof Object === false) && (session instanceof Array === false)) {
+            this.valid = false;
+            this.error = "Session object/array is required to maintain state for decoding multipart AIS messages.";
+            return;
         }
 
-        this.payload = Buffer.concat(payloads, length);
-        this.length = this.payload.length;
+        // 1st part of multipart message
+        if(fragmentId == 1) {
+            session.fragmentId    = 1;
+            session.fragmentCount = fragmentCount;
+            session.sequenceId    = sequenceId;
+            session.fragments     = [this.payload];
+            session.msgLength     = this.payload.length;
+            this.valid            = 2; // in case application wants to known its an uncompleted message
+
+        } else {
+
+            if (session.fragmentId+1 !== fragmentId) {
+                this.error = "Session is missing prior message part, cannot parse partial AIS message.";
+                this.valid = false;
+                return;
+            }
+
+            if (session.sequenceId !== sequenceId) {
+                this.error = "Session IDs do not match. Cannot recontruct AIS message.";
+                this.valid = false;
+                return;
+            }
+
+            // save message fragment within session
+            session.fragments.push (this.payload);
+            session.msgLength += this.payload.length;
+
+            // if not last fragment update fragment-id and return
+            if (session.fragmentCount !== fragmentId) {
+                session.fragmentId++;
+                return;
+            }
+
+            // when receiving last fragment build full AIS payload buffer
+            this.payload = Buffer.concat(session.fragments, session.msgLength);
+
+            // free partial fragments
+            delete session.fragments;
+        }
     }
 
     // decode printable 6bit AIS/IEC binary format
-    for(var i = 0; i < this.length; i++) {
+    for(var i = 0; i < this.payload.length; i++) {
         var byte = this.payload[i];
 
         // check byte is not out of range
