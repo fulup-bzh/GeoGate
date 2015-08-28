@@ -189,50 +189,61 @@ function AisDecode (input, session) {
     // if session is undefined ignore any multipart extension
     if((fragmentCount > 1) && (session !== undefined)) {
 
-        if ((session instanceof Object === false) && (session instanceof Array === false)) {
+        if (session instanceof Object === false) {
             this.valid = false;
             this.error = "Session object/array is required to maintain state for decoding multipart AIS messages.";
             return;
         }
 
         // 1st part of multipart message
-        if(fragmentId == 1) {
-            session.fragmentId    = 1;
-            session.fragmentCount = fragmentCount;
-            session.sequenceId    = sequenceId;
-            session.fragments     = [this.payload];
-            session.msgLength     = this.payload.length;
+        if(fragmentId === 1) {
+            // to support multipart message we ned
+            if (session.__AisDecodeParial === undefined) session.__AisDecodeParial = [];
+            
+            // index partial messages from sequenceId in case of interleaved AIS multipart messages
+            session.__AisDecodeParial[sequenceId]=[];
+            session.__AisDecodeParial[sequenceId].fragmentId    = 1;
+            session.__AisDecodeParial[sequenceId].fragmentCount = fragmentCount;
+            session.__AisDecodeParial[sequenceId].sequenceId    = sequenceId;
+            session.__AisDecodeParial[sequenceId].fragments     = [this.payload];
+            session.__AisDecodeParial[sequenceId].msgLength     = this.payload.length;
             this.valid            = 2; // in case application wants to known its an uncompleted message
 
         } else {
 
-            if (session.fragmentId+1 !== fragmentId) {
-                this.error = "Session is missing prior message part, cannot parse partial AIS message.";
+            if (!session.__AisDecodeParial[sequenceId]) {
+                this.error = "Session IDs unknown.";
                 this.valid = false;
                 return;
             }
 
-            if (session.sequenceId !== sequenceId) {
+            if (session.__AisDecodeParial[sequenceId].sequenceId !== sequenceId) {
                 this.error = "Session IDs do not match. Cannot recontruct AIS message.";
                 this.valid = false;
                 return;
             }
 
+            if (session.__AisDecodeParial[sequenceId].fragmentId+1 !== fragmentId) {
+                this.error = "Session is missing prior message part, cannot parse partial AIS message.";
+                this.valid = false;
+                return;
+            }
+
             // save message fragment within session
-            session.fragments.push (this.payload);
-            session.msgLength += this.payload.length;
+            session.__AisDecodeParial[sequenceId].fragments.push (this.payload);
+            session.__AisDecodeParial[sequenceId].msgLength += this.payload.length;
 
             // if not last fragment update fragment-id and return
-            if (session.fragmentCount !== fragmentId) {
-                session.fragmentId++;
+            if (session.__AisDecodeParial[sequenceId].fragmentCount !== fragmentId) {
+                session.__AisDecodeParial[sequenceId].fragmentId++;
                 return;
             }
 
             // when receiving last fragment build full AIS payload buffer
-            this.payload = Buffer.concat(session.fragments, session.msgLength);
+            this.payload = Buffer.concat(session.__AisDecodeParial[sequenceId].fragments, session.__AisDecodeParial[sequenceId].msgLength);
 
             // free partial fragments
-            delete session.fragments;
+            delete session.__AisDecodeParial[sequenceId];
         }
     }
 

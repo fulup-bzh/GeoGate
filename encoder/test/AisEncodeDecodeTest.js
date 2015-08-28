@@ -98,10 +98,13 @@ function AisEncodeDecodeTest (args) {
         etamonth   :  5,
         draught    : 12.2
     }
-    ,msg5_2: { // class A static info
+    ,msg5_2: { // class A static info multipart + interleave
         aistype    : 5,
-        nmea       : ["!AIVDM,2,1,0,A,58wt8Ui`g??r21`7S=:22058<v05Htp000000015>8OA;0sk,0*7B",
-                      "!AIVDM,2,2,0,A,eQ8823mDm3kP00000000000,2*5D"],
+        nmea       : [
+                      "!AIVDM,2,1,0,A,58wt8Ui`g??r21`7S=:22058<v05Htp000000015>8OA;0sk,0*7B",
+                      "!AIVDM,2,1,1,A,58wt8Ui`g??r21`7S=:22058<v05Htp000000015>8OA;0sk,0*7B",
+                      "!AIVDM,2,2,0,A,eQ8823mDm3kP00000000000,2*5D",
+                      "!AIVDM,2,2,1,A,eQ8823mDm3kP00000000000,2*5D"],
         mmsi       : 603916439,
         imo        : 439303422,
         callsign   : "ZA83R",
@@ -140,7 +143,46 @@ AisEncodeDecodeTest.prototype.CheckResult = function (test, aisin, aisout, contr
     else console.log ("## OK Test [%s] ##", test);
 };
 
+// Display AidDecode Result
+AisEncodeDecodeTest.prototype.DisplayResult = function (test, aisTest, aisDecoded) {
+    if (aisTest.invalid) {
+        if (aisDecoded.valid) console.log("Hoops: test=[%s] should return valid==false", test);
+    } else {
 
+        if (aisDecoded.valid === false) {
+            console.log("[%s] invalid AIS payload", test);
+        } else if (aisDecoded.valid === 2) {
+            console.log("[%s] partial message", test);
+        } else {
+            switch (aisTest.aistype) {
+                case 18:
+                    this.CheckResult(test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog"]);
+                    break;
+                case 24:
+                    switch (aisTest.part) {
+                        case 1:
+                            this.CheckResult(test, aisTest, aisDecoded, ["shipname"]);
+                            break;
+                        case 2:
+                            this.CheckResult(test, aisTest, aisDecoded, ['callsign', 'cargo', 'dimA', 'dimB', "dimC", 'dimD']);
+                            break;
+                        default:
+                            console.log("hoop test=[%s] message type=[%d] invalid part number [%s]", test, aisTest.type, aisDecoded.part);
+                    }
+                    break;
+                case  5:
+                    if (aisTest.nmea instanceof Array) {
+                        this.CheckResult(test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD', 'destination']);
+                    } else {
+                        this.CheckResult(test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
+                    }
+                    break;
+                default:
+                    console.log("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);
+            }
+        }
+    }
+}
 
 AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
@@ -153,47 +195,17 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
         // Require a string or an array. Turn string into an array. Return for
         // anything else.
         if(aisTest.nmea instanceof Array) {
-            var aisDecoded = new AisDecode(aisTest.nmea[0], DummySession);
-            var aisDecoded = new AisDecode(aisTest.nmea[1], DummySession);
+            // loop on multipart messages
+            for(var i = 0; i < aisTest.nmea.length; i++) {
+                var aisDecoded = new AisDecode(aisTest.nmea[i], DummySession);
+                this.DisplayResult (test, aisTest, aisDecoded);
+            }
         } else {
             var aisDecoded = new AisDecode(aisTest.nmea);
+            this.DisplayResult (test, aisTest, aisDecoded);
         }
 
-        if (aisTest.invalid) {
-            if (aisDecoded.valid) console.log ("Hoops: test=[%s] should return valid==false", test);
-        } else {
 
-                if (aisDecoded.valid !== true) {
-                    console.log("[%s] invalid AIS payload", test);
-                } else {
-                    switch (aisTest.aistype) {
-                        case 18:
-                            this.CheckResult(test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog"]);
-                            break;
-                        case 24:
-                            switch (aisTest.part) {
-                                case 1:
-                                    this.CheckResult(test, aisTest, aisDecoded, ["shipname"]);
-                                    break;
-                                case 2:
-                                    this.CheckResult(test, aisTest, aisDecoded, ['callsign', 'cargo', 'dimA', 'dimB', "dimC", 'dimD']);
-                                    break;
-                                default:
-                                    console.log("hoop test=[%s] message type=[%d] invalid part number [%s]", test, aisTest.type, aisDecoded.part);
-                            }
-                            break;
-                        case  5:
-                            if (aisTest.nmea instanceof Array) {
-                                this.CheckResult(test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD', 'destination']);
-                            } else {
-                                this.CheckResult(test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
-                            }
-                            break;
-                        default:
-                            console.log("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);
-                    }
-                }
-            }
         }
  };
 
