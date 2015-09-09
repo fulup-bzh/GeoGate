@@ -1,12 +1,3 @@
-GeoGate Simulator
-=================
-
-GeoGate is an opensource GPS/AIS tracking server framework, that enable easy
-integration of multiple GPS trackers in WEB applications. It provides data
-acquisition drivers for typical tracker devices or phone's GPS apps.
-It handle multiple database backend, and support GeoJSON, AIS & NMEA encoding/decoding.
-It embed support for multiple classes of trackers, phone-apps, as well an NMEA & AIS simulator.
-
 GeoGate-SmsClient
 ==================
 
