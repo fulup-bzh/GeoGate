@@ -60,7 +60,7 @@ Raw API Usage
        smsc.GetFrom (DisplayCallBack, '+xxPhonexxxNumberxxx');
        smsc.DelById (this.cli.smsid);
        smsc.CheckById (this.cli.smsid);
-       smsc.SendTo  (DisplayCallBack, '+xxPhonexxxNumberxxx', 'This is my message');
+       smsc.SendTo  (DisplayCallBack, {phone: '+xxPhonexxxNumberxxx', 'This is my message'});
 
 Api with Acknowledgement
 =========================
