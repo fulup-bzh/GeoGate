@@ -91,6 +91,27 @@ function AisEncodeDecodeTest (args) {
         draught    : 12.2
         //destination: "NEW YORK  " Extention message not implemented
     }
+    ,msg5_2: { // class A static info
+        aistype    : 5,
+        nmea       : ["!AIVDM,2,1,1,A,53P;lSh2ANCO8=0s<01<B0<Q8U=@Tp400000000O1@:6340Ht7`0000000000,0*29",
+                      "!AIVDM,2,2,1,A,0000000008,2*1D"],
+        mmsi       : 235074703,
+        imo        : 12894435639,
+        callsign   : "2CPN3",
+        shipname   : "SD CHRISTINA",
+        cargo      : 31,
+        dimA       : 10,
+        dimB       : 10,
+        dimC       :  6,
+        dimD       :  3,
+        fixaistype :  1,
+        etamn      : 60,
+        etaho      : 24,
+        etaday     :  0,
+        etamonth   :  0,
+        draught    :  3
+        //destination: "NEW YORK  " Extention message not implemented
+    }
 }}
 
 // compare input with decoded outputs
@@ -116,13 +137,23 @@ AisEncodeDecodeTest.prototype.CheckResult = function (test, aisin, aisout, contr
 
 AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
+    function DummySession () {
+        // this is a fake session for multipart AIS messages
+    }
+
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
         var aisTest     = this.testSet [test];
 
-
-
-        var aisDecoded  = new AisDecode (aisTest.nmea);
+        // Require a string or an array. Turn string into an array. Return for
+        // anything else.
+        if(aisTest.nmea instanceof Object) {
+            var session=new DummySession ();
+            var aisDecoded = new AisDecode(aisTest.nmea[0], session);
+            var aisDecoded = new AisDecode(aisTest.nmea[1], session);
+        } else {
+            var aisDecoded = new AisDecode(aisTest.nmea);
+        }
 
         if (aisDecoded.valid !== true) {
             console.log ("[%s] invalid AIS payload", test);
