@@ -33,6 +33,8 @@
  *     --verbose        print a copy of sent message to console
  *     --debug=1        debuglevel from 0-9
  *     --dump=fileout   copy nmea messages out to fileout
+ *     
+ *     example: node ./bin/HubSimulator.js --gpxdir=./sample/hub-route --port=5001
  *
  * Use 'telnet localhost 1234' to check your messages. You may eventually decode AIS messages at http://www.maritec.co.za/aisvdmvdodecoding1.php
  * When everything fits your needs, point your application/navigator to your localhost:1234 or what ever your choose as tcpport
@@ -112,6 +114,7 @@ ParseArgs = function (command, args) {
     if (this.opts.help)  {
         console.log ("----------------------------------------------------------------------------------------------------------");
         console.log ("## %s --gpxdir=./xxx --port=1234 --verbose \\",bin);
+        console.log ("## %s --gpxdir=./sample/hub-route --port=5001 \\",bin);
         console.log ("----------------------------------------------------------------------------------------------------------");
     }
 };
@@ -159,7 +162,7 @@ if (parsing.error) {
 }
 
 // user select --help exit silently
-if (parsing.opts.help) return;
+if (parsing.opts.help) process.exit();
 
 // set some defaults
 if (parsing.opts.loopwait === undefined) parsing.opts.loopwait=1;
@@ -171,7 +174,7 @@ var dispatcher = new  GGsimulator.Dispatcher(parsing.opts);
 dispatcher.SetEncoder(GGsimulator.NmeaAisEncoder);
 
 // scan gpx directory file
-for (gpxfile in ScanGpxDir (parsing.opts.gpxdir)) {
+for (var gpxfile in ScanGpxDir (parsing.opts.gpxdir)) {
 
     var ship = new FakeVesselStatics(gpxfile);  // built default from file name
     var opts =

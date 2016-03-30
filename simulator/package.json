@@ -1,7 +1,7 @@
 {
   "name"        : "ggsimulator",
   "description" : "GEOGATE-Simulator simulate one/many GPS/AIS receiver/transpondeur",
-  "version"     : "0.1.3",
+  "version"     : "0.1.7",
   "author"      :
       { "name"   : "Fulup Ar Foll"
       , "email"  : "fulup@breizhme.net"
@@ -13,7 +13,6 @@
   "home"         : "http://www.geotobe.org/geogate",
   "dependencies" :
       { "async" : "*"
-      ,"traceback" : "*"
       ,"jison" : "*"
       ,"sgeo" : "*"
       ,"xml2js" : "*"

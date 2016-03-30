@@ -25,7 +25,7 @@ Command line
        node ./bin/DevSimulator.js --verbose --gpxfile=sample/gpx-file/opencpn-sample.gpx --mmsi=12312345 --tic=10 --shipname='Youpi' --class='A' --speed=15 --length=150 --width=10
 
        # One GPS and Multiple AIS targets
-       node ./bin/DevSimulator.js --verbose --gpxfile=sample/gpx-file/opencpn-sample.gpx  # emulate one ship per GPX file in directory
+       node ./bin/HubSimulator.js --gpxdir=./sample/hub-route --port=5001
 
 API Usage
 ============

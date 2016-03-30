@@ -36,9 +36,10 @@ else AisEncode = require("../../encoder/ApiExport").AisEncode;
 
 // Map Tracker EMEI on Vessel MMSI [Warning: do not use fake MMSI with AISHUB, MarineTraffic,...]
 var IMEI_MMSI_MAPPING = {
-    319710045733004: {mmsi: "227417480", callsign: "FGE6445", shipname: "Choari Tadkoz", shiptype: 0},
-    123456789      : {mmsi: "227417480", callsign: "FGE6445", shipname: "Choari Tadkoz", shiptype: 0}
+    359710045733004: {mmsi: "227417480", callsign: "FGE6445", shipname: "Choari Tadkoz", shiptype: 3},
+    123456789      : {mmsi: "000000000", callsign: "FG12345", shipname: "Choari Dummy" , shiptype: 0}
 };
+
 
 // hook user event handler to receive a copy of messages
 function HookBackendEvent (adapter, backend, socket) {

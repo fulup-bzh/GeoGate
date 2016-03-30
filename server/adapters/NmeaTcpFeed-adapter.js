@@ -93,7 +93,6 @@ DevAdapter.prototype.ClientQuit = function (socket) {
     if (registermmsi [this.mmsi] !== undefined)  {
         delete registermmsi [this.mmsi]; // allow this feed to reconnect
     }
-    socket.device.LogoutDev (this.mmsi);
 };
     
 DevAdapter.prototype.ParseBuffer = function(socket, buffer) {

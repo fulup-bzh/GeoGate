@@ -49,10 +49,10 @@
  *     --lenght=xxxxx
  *     --width=xxxx
  * 
- * GPS> node SingleNmeaSimulator --file=../samples/gpx-files/opencpn-sample.gpx --srvmod --port=4001 --tic=2 --speed=10
- * AIS> node SingleNmeaSimulator --file=../samples/gpx-files/opencpn-sample.gpx --srvmod --proto=aivdm --mmsi=12345789 --port=4001 --tic=5
- * CLI> node SingleNmeaSimulator --file=../samples/gpx-files/opencpn-sample.gpx --srvmod --proto=aivdm --mmsi=12345789 --hostname=xxxx --port=yyy --tic=zz
- * HLP> node SingleNmeaSimulator --help
+ * GPS> node ./bin/DevSimulator --gpxfile=./sample/gpx-file/opencpn-sample.gpx --srvmod --mmsi=0        --port=4001 --tic=2 --speed=10
+ * AIS> node ./bin/DevSimulator --gpxfile=./sample/gpx-file/opencpn-sample.gpx --srvmod --mmsi=12345789 --port=4001 --tic=5
+ * CLI> node ./bin/DevSimulator --gpxfile=./sample/gpx-file/opencpn-sample.gpx --srvmod --mmsi=12345789 --hostname=xxxx --port=yyy --tic=zz
+ * HLP> node ./bin/DevSimulator --help
  * 
  * Use 'telnet localhost 4001' to check your messages. You may eventually decode AIS messages at http://www.maritec.co.za/aisvdmvdodecoding1.php
  * When everything fits your needs, point your application/navigator to your localhost:4001 or what ever your choose as tcpport
@@ -68,7 +68,7 @@ var jison    = require("jison").Parser;
 
 var GGsimulator; // if GeoGate development tree uses local modules
 if  (process.env.GEOGATE !== 'dev') GGsimulator = require('ggsimulator');
-                                          else GGsimulator = require("../ApiExport");
+    else GGsimulator = require("../ApiExport");
 
 ParseArgs = function (command, args) {
    var cmdgrammar = {  
@@ -143,14 +143,9 @@ ParseArgs = function (command, args) {
 
     // instanciate command line parser
     var parser=new jison (cmdgrammar);
+        var arguments= args.toString();
+        this.opts = parser.parse (arguments);
    
-    try {this.opts = parser.parse (args.toString());}
-     catch (err) {
-        console.log ("Syntax error [please check --help] err=[%s]", err);
-        this.error=true;
-        return;
-    }
-
     // get basename from command line
     var cmd= command.split ('/');
     var bin= cmd[cmd.length -1];
@@ -196,9 +191,10 @@ ParseArgs = function (command, args) {
 
         // note: depending on module they only use a subset of opts
         var simulator  = new GGsimulator.Simulator (parsing.opts);  // parse GPX route and compute position
-        if (! simulator.valid) return;                              // if simulator fail exit now
+        if (simulator.valid) {                              // if simulator fail exit now
 
-        var dispatcher = new GGsimulator.Dispatcher(parsing.opts);  // dispatch message to tcp clients
-        dispatcher.SetEncoder   (GGsimulator.NmeaAisEncoder);
-        dispatcher.SetListener  (simulator);   // ask dispatcher to handle simulator position events
+            var dispatcher = new GGsimulator.Dispatcher(parsing.opts);  // dispatch message to tcp clients
+            dispatcher.SetEncoder   (GGsimulator.NmeaAisEncoder);
+            dispatcher.SetListener  (simulator);   // ask dispatcher to handle simulator position events
+    }
     }
