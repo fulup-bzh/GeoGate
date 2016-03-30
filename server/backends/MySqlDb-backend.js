@@ -19,6 +19,7 @@
 var mysql   = require('mysql'); // https://www.npmjs.org/package/mysql
 var Debug   = require("../lib/_Debug");
 var util    = require("util");
+var EventEmitter  = require("events").EventEmitter;
 
 
 var MYSQL_RECONNECT_TIMER=10*1000; // 10s timeout in bewteen two MYSQL reconnects
@@ -60,7 +61,7 @@ var CreateConnection =function (backend) {
 function BackendStorage (gateway, opts){
     
     // prepare ourself to make debug possible
-    this.debug=opts.debug;
+    this.debug=opts.mysql.debug || opts.debug;
     this.gateway =gateway;
     this.count=0;  // stat for connection retry
     
@@ -71,9 +72,9 @@ function BackendStorage (gateway, opts){
             database : opts.mysql.basename || opts.username
     };  
     this.uid ="mysql:" + opts.mysql.username + "@" + opts.mysql.hostname + "/" + opts.mysql.basename;
-    
+    this.event = new EventEmitter();
     // create initial connection handler to database
-    CreateConnection (this);  
+    CreateConnection (this);
 };
 
 // Import debug method 
@@ -120,18 +121,18 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
     // each device has 3 dedicated table Track, Alarm, Obg
      var sqlQuery= {
         track:  'CREATE TABLE IF NOT EXISTS T_' + devid + ' ('
-        + 'msg    INT,'
-        + 'id     INT NOT NULL AUTO_INCREMENT,'
-        + 'lat    FLOAT,'
-        + 'lon    FLOAT,'
-        + 'alt    FLOAT,'
-        + 'cog    FLOAT,'
-        + 'sog    FLOAT,'
-        + 'moved  INT,'
-        + 'elapse INT,'
+        + 'msg     INT,'
+        + 'id      INT NOT NULL AUTO_INCREMENT,'
+        + 'lat     FLOAT,'
+        + 'lon     FLOAT,'
+        + 'alt     FLOAT,'
+        + 'cog     FLOAT,'
+        + 'sog     FLOAT,'
+        + 'moved   INT,'
+        + 'elapsed INT,'
         + 'acquired_at   BIGINT,'
-        + 'valid  INT,'
-        + 'INDEX  (date),'
+        + 'valid   INT,'
+        + 'gpsdate DATETIME,'
         + 'PRIMARY KEY (id )'
         + ') DEFAULT CHARSET=utf8;'
 
@@ -149,9 +150,8 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
          + 'rpm    INT,'
          + 'bat    FLOAT,'
          + 'diag   INT,'
-
+         + 'gpsdate DATETIME,'
          + 'acquired_at   BIGINT,'
-         + 'INDEX  (date),'
          + 'PRIMARY KEY (id )'
          + ') DEFAULT CHARSET=utf8;'
 
@@ -175,6 +175,7 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
             ,model    : data.model
             ,track : 'T_' + devid
             ,obd   : 'O_' + devid
+            ,alarm : 'A_' + devid
             ,date  : new Date()
     };
     
@@ -213,7 +214,7 @@ BackendStorage.prototype.RemoveDev = function (devid) {
         });
     };
 
-    var queryString = "delete from ALL_Devices where uniqueId =" + devid;
+    var queryString = "delete from ALL_Devices where devid =" + devid;
     sqlQuery = this.base.query(queryString);
  
     // on sucess this command is call once per selected row [hopefully only one in this case]
@@ -221,7 +222,7 @@ BackendStorage.prototype.RemoveDev = function (devid) {
         gateway.event.emit ("notice", "DROP-DEVICE", "in MySQL", devid);
     });
  
-    sqlQuery.on("error", function() {
+    sqlQuery.on("error", function(err) {
         gateway.event.emit ("notice", "ERROR DEVICE", "from to remove MySQL", devid, err);
     });
 };
@@ -239,6 +240,7 @@ BackendStorage.prototype.LoginDev = function (device) {
     // on sucess this command is call once per selected row [hopefully only one in this case]
     sqlQuery.on("result", function (result) {
         self.Debug(9, "sqlQuery %j", result);
+        self.event.emit ("dev-auth", device);
 
         // update active device pool [note device.devid is set by GpsdClient before SQL login]
         device.name  = result.devname; // friendly name extracted from database
@@ -251,6 +253,7 @@ BackendStorage.prototype.LoginDev = function (device) {
     sqlQuery.on("error", function (err) {
         self.Debug(0, "MySql ERROR Login devid=%d err=%s", device.devid, err);
     });
+    
 };
 
 // Query are done asynchronously and function will return before result is known
@@ -259,6 +262,7 @@ BackendStorage.prototype.LogoutDev = function (device) {
 
     // change device status to logout
     device.logged = false;
+    this.event.emit("dev-quit", device);
 };
 
 
@@ -276,6 +280,8 @@ BackendStorage.prototype.UpdatePosDev = function (device, data) {
     insertQuery.on("error", function(err) {
         self.Debug (0,"MySql ERROR UpdatePosDev %s err=%s", queryString, err);
     });
+    
+    this.event.emit ("dev-pos", device);
 };
 
 BackendStorage.prototype.UpdateObdDev = function (device, data) {

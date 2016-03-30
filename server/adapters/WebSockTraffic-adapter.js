@@ -26,7 +26,8 @@
 var Debug       = require("../lib/_Debug");
 var Device      = require('../lib/_TcpClient'); // in this cas a device is a feed
 var net         = require('net');
-var url         = require("url"); 
+var url         = require("url");
+var util       = require("util");
 
 
 var activeDev =[];

@@ -125,6 +125,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
     if (!data.valid) return (-1);
 
     // send parsed data to unique device attached to NMEA adapter
+    data.cmd = TrackerCmd.GetFrom.TRACK;
     socket.device.ProcessData (data);
 };
 
