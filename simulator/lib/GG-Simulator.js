@@ -114,6 +114,8 @@ function GGsimulator (opts) {
             class      : opts.class    || "B", // AIS class A|B
             randomize  : opts.randomize|| 0    // +-Math.Random/opts.randomize to Longitude/Latitude
     };
+    
+    this.debug = this.opts.debug | 0;
 
     this.Debug (7, "Main Options:  gpxfile=%s shipname=%s mmsi=%s sog=%d tic=%d ", this.opts.gpxfile
                , this.opts.shipname, this.opts.mmsi, this.opts.sog, this.opts.tic);
@@ -253,10 +255,10 @@ GGsimulator.prototype.ProcessSegment = function () {
         }
         this.segment ++; // next time process next segment
     } else {
-        this.Debug (6, "All [%d] segment from [%s] processed  [loop in %ss]", this.segment, this.opts.basename, this.opts.loopwait/1000);
+        this.Debug (3, "All [%d] segment from [%s] processed  [loop in %ss]", this.segment, this.opts.basename, this.opts.loopwait/1000);
         // if loop selected wait timeout and restart operation
         if (this.opts.loopwait > 0) {
-            this.Debug (6, "Restarting route [%s]", this.opts.basename);
+            this.Debug (3, "Restarting route [%s]", this.opts.basename);
             this.segment = 0;
             JobQueueActivate (this.queue, this.callback, this.opts.loopwait);
         }
@@ -393,7 +395,7 @@ if (process.argv[1] === __filename)  {
       { gpxfile :    "../sample/gpx-file/opencpn-sample.gpx"
       , mmsi    : 1234 // my prefered fake MMSI
       , tic     : 1    // send a position every 10s
-      , loopwait: 0    // stop at end of gpxfile
+      , loopwait: 1    // stop at end of gpxfile
       , debug   : 5    // 4 allow us to see event emit without officially listening to them
    };
    var simulator = new GGsimulator (config);

@@ -312,6 +312,8 @@ BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
     insertQuery.on("error", function(err) {
         self.Debug (0,"MySql ERROR LookupDev %s err=%s", queryString, err);
     });
+    
+    this.event.emit ("dev-alrm", device);
 };
 
 // Write last X positions on Telnet/Console

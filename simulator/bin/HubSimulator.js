@@ -99,13 +99,8 @@ ParseArgs = function (command, args) {
     // instanciate command line parser
     var parser=new jison (cmdgrammar);
 
-    try {this.opts = parser.parse (args.toString());}
-    catch (err) {
-        console.log ("Syntax error [please check --help] err=[%s]", err);
-        this.error=true;
-        return;
-    }
-
+    this.opts = parser.parse (args.toString());
+    
     // get basename from command line
     var cmd= command.split ('/');
     var bin= cmd[cmd.length -1];
@@ -190,6 +185,7 @@ for (var gpxfile in ScanGpxDir (parsing.opts.gpxdir)) {
             , cargo      : ship.Cargo()
             , uway       : ship.Uway()
             , class      : ship.Class()
+            , loopwait   : parsing.opts.loopwait
             };
     if (opts.mmsi === 0) opts.tic = 1;      // mmsi produce GPRMC paquet and need to have a quick tic for OpenCPN
 

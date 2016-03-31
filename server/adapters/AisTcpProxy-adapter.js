@@ -36,8 +36,8 @@ else AisEncode = require("../../encoder/ApiExport").AisEncode;
 
 // Map Tracker EMEI on Vessel MMSI [Warning: do not use fake MMSI with AISHUB, MarineTraffic,...]
 var IMEI_MMSI_MAPPING = {
-    359710045733004: {mmsi: "227417480", callsign: "FGE6445", shipname: "Choari Tadkoz", shiptype: 3},
-    123456789      : {mmsi: "000000000", callsign: "FG12345", shipname: "Choari Dummy" , shiptype: 0}
+    359710045733004: {mmsi: "227417480", callsign: "FGE6445", shipname: "Choari Tadig", shiptype: 30},
+    123456789      : {mmsi: "000000000", callsign: "FG00000", shipname: "Choari Dummy" , shiptype: 0}
 };
 
 
@@ -72,6 +72,7 @@ function HookBackendEvent (adapter, backend, socket) {
     
     backend.event.on("dev-auth",EventDevAuth);	
     backend.event.on("dev-pos" ,EventDevPos);	
+    backend.event.on("dev-alrm",EventDevPos);	
 };
 
 // Adapter is an object own by a given device controller that handle data connection
