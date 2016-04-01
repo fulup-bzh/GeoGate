@@ -24,8 +24,8 @@ Command line
        node ./bin/DevSimulator.js --verbose --gpxfile=sample/gpx-file/opencpn-sample.gpx --mmsi=0 --tic=1  # MMSI=0 force GPRMC formatting
        node ./bin/DevSimulator.js --verbose --gpxfile=sample/gpx-file/opencpn-sample.gpx --mmsi=12312345 --tic=10 --shipname='Youpi' --class='A' --speed=15 --length=150 --width=10
 
-       # One GPS and Multiple AIS targets
-       node ./bin/HubSimulator.js --gpxdir=./sample/hub-route --port=5001
+       # One GPS and Multiple AIS targets loop for ever
+       node ./bin/HubSimulator.js --gpxdir=./sample/hub-route --port=5001 --loopwait=1 --debug=3
 
 API Usage
 ============

@@ -126,7 +126,7 @@ function ListenEvents (event) {
 function FakeBackend () {};
     FakeBackend.prototype.Connect  =function() {
     if (Verbose) console.log ('Adapter: connected');
-    }
+    };
     FakeBackend.prototype.UpdateDev=function (device, command) {
     if (Verbose) console.log ('Adapter: send command:%s', command);
     };
@@ -154,7 +154,7 @@ if (! cli.opts.help) {
 
     if (cli.opts.adapter === undefined) {
         console.log ("Hoops missing --adapter=xxxxx");
-        return;
+        process.exit();
     }
     var opts =
        { info: 'adapter ' + cli.opts.adapter
@@ -178,7 +178,6 @@ if (! cli.opts.help) {
     var controller = new GGcontroller (gateway, opts, "cli.opts.adapter");
     // In verbose mode we listen & display gateway events
     if (cli.opts.verbose) ListenEvents (gateway.event);
-
 }
  
 
