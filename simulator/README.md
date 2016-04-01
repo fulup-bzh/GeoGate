@@ -18,6 +18,10 @@ Install
 
        npm install ggsimulator
 
+OnLine demo
+===========
+       tcp://sinagot.net 5001 (one GPS/GPRMC + 10 AIS targets) in the bay of Quiberon (South Brittany, Europe)
+
 Command line
 =============
        # Standalone GPS/AIS device
