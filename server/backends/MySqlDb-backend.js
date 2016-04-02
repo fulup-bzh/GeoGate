@@ -243,11 +243,13 @@ BackendStorage.prototype.LoginDev = function (device) {
         self.event.emit ("dev-auth", device);
 
         // update active device pool [note device.devid is set by GpsdClient before SQL login]
-        device.name  = result.devname; // friendly name extracted from database
-        device.sqlid = result.id;   // this is MySQL unique ID and not device's DEVID
-        device.track = result.track;
-        device.obd   = result.obd;
-        device.logged = true;        // marked device as knowned from database
+        device.name    = result.devname; // friendly name extracted from database
+        device.callsign= result.callsign; 
+        device.model   = result.model; 
+        device.sqlid   = result.id;   // this is MySQL unique ID and not device's DEVID
+        device.track   = result.track;
+        device.obd     = result.obd;
+        device.logged  = true;        // marked device as knowned from database
     });
 
     sqlQuery.on("error", function (err) {

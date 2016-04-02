@@ -23,7 +23,7 @@ var GeoGateConfig =
     ,name       : "DummyDemo" // friendly service name [default Gpsd-Track]
     ,rootdir    : "http://breizhme.org/geogate/" // dummy backend return device url image after fake authentication
     ,inactivity : 900             // remove device from active list after xxxs inactivity [default 600s]
-    ,sockpause  : 250             // delay in ms in beetween each replay data [0=nowait]
+    ,sockpause  : 250             // delay in ms in beetween each reply data [0=nowait]
     ,storesize  : 50              // size of postition/device kept in ram for "db search" command
     ,debug      : 1               // debug level 0=none 9=everything
     

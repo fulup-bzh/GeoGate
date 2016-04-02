@@ -36,66 +36,19 @@ var Debug    = require("../lib/_Debug");
 var  TcpJsonSv;
 var  TcpAisSv;
 var  QJhandle; 
-var  SockPause;
 var  CLsockid;
 
 // This is our fake device authentication DB table
 
-var FakeVesselBase = {
- //MMSI should fit with Simulator file name
- 123456789:  {id:00, name:'Elen Backy'  ,type:01}
- ,456789012: {id:02, name:'Dominig Oceanis31',type:01}
- ,789123456: {id:03, name:'Lionel Ar Pesketour',type:02}
- ,147258369: {id:03, name:'Momo Rich Man',type:02}
- ,258369147: {id:04, name:'Mael Ferry',type:04}
- ,741852963: {id:05, name:'Lena Miss Match',type:03}
- ,852963741: {id:06 ,name:'Erwan Speedy',type:06}
- ,321654987: {id:07 ,name:'Vero Cargo',type:05}
- ,963741852: {id:08 ,name:'Nanar Gazelle',type:07}
- ,159847387: {id:09 ,name:'Xavier Ground Ferry',type:05}
- ,535798321: {id:10 ,name:'Remy The Racer',type:01}
- ,179346827: {id:11 ,name:'Sinagot ar re Gozh',type:07}
- ,785412369: {id:12 ,name:'Ky Dour',type:07}
- 
- ,865328021048227: {id:13, name:'Fulup 407', type:03}
-};
-
-var VESSELCLASS=
-    {01: "Sail"
-    ,02: "Fish"
-    ,03: "Car"
-    ,04: "Ferry"
-    ,05: "Cargo"
-    ,06: "Speed"
-    ,07: "Trad"
-    };
-
-function BackendStorage (gpsd, opts){
+function BackendStorage (gateway, opts){
     
     // prepare ourself to make debug possible
     this.uid="Dummy@nothing";
-    this.gpsd =gpsd;
+    this.gateway =gateway;
     this.debug=opts.debug;
     this.count=0;
     
     this.storesize= 20 +1;  // number of position slot/devices
-    SockPause = opts.sockpause;
-    
-    // fill up Fake Vessel base with some demo values    
-    for (mmsi in FakeVesselBase) {
-    var vessel= FakeVesselBase[mmsi];
-    vessel.call  = (vessel.type + '-' + mmsi).toUpperCase() ;
-    vessel.class = VESSELCLASS[vessel.type];
-    vessel.img   = opts.rootdir + 'images/' +(vessel.name.replace(/ /g,'-') + "x250.jpg").toLowerCase();
-    vessel.url   = opts.rootdir + 'devices/'+(vessel.name.replace(/ /g,'-') + ".html").toLowerCase();
-    }
-    
-    // default for unknown vessel
-    this.unknown = {
-        img: opts.rootdir + "images/unknown-devicex250.jpg",
-        url: opts.rootdir + "devices/unknown-device.html"
-    };
-    
     this.event = new EventEmitter();
 };
 
@@ -150,29 +103,14 @@ BackendStorage.prototype.LookupDev = function (callback, devid, args) {
     callback (result);
 };
 
-
 BackendStorage.prototype.LoginDev = function (device) {
     this.Debug (4,"Authentication accepted for device=%s", device.uid);
+    var emeifix = device.devid.substring(10);
     device.logged   = true;
-
-    // extract vessel details from DB if exit
-    if (FakeVesselBase[device.devid] !== undefined) {
-        device.name = FakeVesselBase[device.devid].name;
-        device.class= FakeVesselBase[device.devid].class;
-        device.type = FakeVesselBase[device.devid].type;
-        device.call = FakeVesselBase[device.devid].call;
-        device.img  = FakeVesselBase[device.devid].img;
-        device.url  = FakeVesselBase[device.devid].url;
-    } else {
-        device.class= 0;
-        device.type = 0;
-        device.call = "NoCall";
-        device.img  = this.unknown.img;
-        device.url  = this.unknown.url;
-    }
-
-    // If default name not provided by the adapter, create one now
-    if (device.name === undefined || device.name === false || device.name === null) device.name = "Test-Dev-" + this.count;
+ 
+    device.callsign = "FX-" + emeifix;
+    device.model    = device.devid;
+    device.name     = "Droid-" + emeifix;
 
     // Create Ram storage array for tracking this.storesize positions
     if (device.posIdx === undefined) {
@@ -195,7 +133,7 @@ BackendStorage.prototype.LogoutDev = function (device) {
 
 BackendStorage.prototype.UpdateObdDev = function (device) {
     this.Debug(4, "Obd Device:%s", device.uid);
-}
+};
 
 BackendStorage.prototype.UpdatePosDev = function (device) {
     this.Debug (4,"UpdateDev device:%s", device.uid);

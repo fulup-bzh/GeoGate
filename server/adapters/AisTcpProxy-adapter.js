@@ -34,45 +34,31 @@ if  (process.env.GEOGATE !== 'dev')
      AisEncode = require('ggencoder').AisEncode;
 else AisEncode = require("../../encoder/ApiExport").AisEncode;
 
-// Map Tracker EMEI on Vessel MMSI [Warning: do not use fake MMSI with AISHUB, MarineTraffic,...]
-var IMEI_MMSI_MAPPING = {
-    359710045733004: {mmsi: "227417480", callsign: "FGE6445", shipname: "Choari Tadig", shiptype: 30},
-    123456789      : {mmsi: "000000000", callsign: "FG00000", shipname: "Choari Dummy" , shiptype: 0}
-};
-
 
 // hook user event handler to receive a copy of messages
 function HookBackendEvent (adapter, backend, socket) {
           
     function EventDevAuth (device){
-        device.aisproxy=0;   // special counter to repost full device every 20 positions
-        var msg = {type : 1, devid: device.devid};
-        adapter.BroadcastJson (msg);
+        adapter.BroadcastStatic (device);
+        if (device.stamp) adapter.BroadcastPos (device);
+    };    
+    
+    function EventDevQuit (device){
     };    
 
     // Events successful process by tracker adapter
     function EventDevPos (device){
          
-         // force push of full device info every 20 positions update
-         device.aisproxy= device.aisproxy++ % 20;
-         if (device.aisproxy === 0) {
-            EventDevAuth (device); 
-         }
-         
-         var msg = 
-            {type : 2
-            ,devid: device.devid
-            ,lat  : device.stamp.lat
-            ,lon  : device.stamp.lon
-            ,sog  : device.stamp.sog
-            ,cog  : device.stamp.cog
-        };
-        adapter.BroadcastJson (msg);
+        // force push of full device info every 20 positions update
+        device.aisproxy= device.aisproxy++ % 20;
+        if (device.aisproxy === 0) adapter.BroadcastStatic (device);
+        else adapter.BroadcastPos (device);
     };
     
     backend.event.on("dev-auth",EventDevAuth);	
     backend.event.on("dev-pos" ,EventDevPos);	
     backend.event.on("dev-alrm",EventDevPos);	
+    backend.event.on("dev-quit",EventDevQuit);	
 };
 
 // Adapter is an object own by a given device controller that handle data connection
@@ -92,74 +78,79 @@ function DevAdapter (controller) {
 // Import debug method 
 DevAdapter.prototype.Debug = Debug;
 
-DevAdapter.prototype.BroadcastJson = function (jsonobj) {
-    this.Debug (5, "%j", jsonobj);
+DevAdapter.prototype.BroadcastPos = function (device) {
     var aisOut;
-    // push back anything we got to client [if any]
+    
+    // push back anything we got to AIS clients [if any]
     for (var sock in  this.clients) {
         try {
-            if (jsonobj.type === 2) {
                 var msg18= { // standard class B Position report
                     aistype    : 18,
-                    cog        : jsonobj.cog,
-                    sog        : jsonobj.sog,
+                    cog        : device.stamp.cog,
+                    sog        : device.stamp.sog,
                     dsc        : false,
                     repeat     : false,
                     accuracy   : true,
-                    lon        : jsonobj.lon,
-                    lat        : jsonobj.lat,
+                    lon        : device.stamp.lon,
+                    lat        : device.stamp.lat,
                     second     : 1,
-                    mmsi       : IMEI_MMSI_MAPPING [jsonobj.devid].mmsi
+                    mmsi       : device.callsign
                 };
 
                 //var message=util.format ("\n18b %j\n", msg18);
                 //this.clients[sock].write (message);
                 aisOut = new AisEncode (msg18);
                 if (aisOut.valid) this.clients[sock].write (aisOut.nmea +'\n');
-            }
-            if (++IMEI_MMSI_MAPPING [jsonobj.devid].count > 20 || jsonobj.type === 1)  this.BroadcastStatic(jsonobj.devid, this.clients[sock]);
            
         } catch (err) {
-            this.Debug (0, '### HOOPS lost a aisproxy client: %s [err=%s]', this.clients[sock].uid, err);
+            this.Debug (0, '### HOOPS BroadcastPos lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
             delete this.clients[sock]; 
         }
-    }
-    
+    }   
 };
 
-DevAdapter.prototype.BroadcastStatic = function (devid, socket) {
-            IMEI_MMSI_MAPPING [devid].count =0;  // reset counter
-            var aisOut;
+DevAdapter.prototype.BroadcastStatic = function (device) {
+    
+    var aisOut;   
+    device.aisproxy= 0; // reset counter to renew AIS static info
+
+    // send statics to every connected AIS clients
+    for (var sock in  this.clients) {
+        try {
     
             var msg24a= {// class B static info
                 aistype    : 24,
                 part       : 0,
-                cargo      : IMEI_MMSI_MAPPING [devid].shiptype,
-                callsign   : IMEI_MMSI_MAPPING [devid].callsign,
-                mmsi       : IMEI_MMSI_MAPPING [devid].mmsi,
-                shipname   : IMEI_MMSI_MAPPING [devid].shipname
+                cargo      : 37, // map on pleasure Craft
+                callsign   : device.callsign,
+                mmsi       : device.model,
+                shipname   : device.name
             };
             //var message=util.format ("\n24a %j\n", msg24a);
             //socket.write (message);  
             aisOut = new AisEncode (msg24a);
-            if (aisOut.valid) socket.write (aisOut.nmea + '\n');
-
+            if (aisOut.valid) this.clients[sock].write (aisOut.nmea + '\n');
 
             var msg24b= {// class AB static info
                 aistype    : 24,
                 part       : 1,
-                mmsi       : IMEI_MMSI_MAPPING [devid].mmsi,
-                cargo      : IMEI_MMSI_MAPPING [devid].shiptype,
-                callsign   : IMEI_MMSI_MAPPING [devid].callsign,
+                mmsi       : device.model,
+                cargo      : device.name,
+                callsign   : device.callsign,
                 dimA       : 0,
-                dimB       : IMEI_MMSI_MAPPING [devid].lenght || 10,
+                dimB       : 7,
                 dimC       : 0,
-                dimD       : IMEI_MMSI_MAPPING [devid].width || 3
+                dimD       : 2.5
             };
             //var message=util.format ("\n24b %j\n", msg24b);
             //socket.write (message);
             aisOut = new AisEncode (msg24b);
-            if (aisOut.valid) socket.write (aisOut.nmea +'\n');
+            if (aisOut.valid) this.clients[sock].write (aisOut.nmea +'\n');
+            } catch (err) {
+        this.Debug (0, '### HOOPS BroadcastStatic lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
+        delete this.clients[sock]; 
+        }
+    }
 };
         
 // we got a new aisproxy add it to client list for broadcast
@@ -174,7 +165,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
     // each new client get a list of logged device at connection time
     for (var devId in gateway.activeClients) {
         var device= gateway.activeClients[devId];
-        if (device.logged && IMEI_MMSI_MAPPING [device.devid]) {
+        if (device.logged) {
             
             this.BroadcastStatic (device.devid, socket);
             
@@ -189,7 +180,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
                     lon        : device.stamp.lon,
                     lat        : device.stamp.lat,
                     second     : 1,
-                    mmsi       : IMEI_MMSI_MAPPING [device.devid].mmsi
+                    mmsi       : device.model
                 };
   
                 //var message=util.format ("\n18x %j\n", msg18);

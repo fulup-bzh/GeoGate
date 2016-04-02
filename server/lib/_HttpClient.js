@@ -25,15 +25,17 @@ var TrackerCmd= require("../lib/_TrackerCmd");
 
 // small object to keep track of last position in ram
 function PositionObj (data) {
-    this.lat   = parseFloat(data.lat);
-    this.lon   = parseFloat(data.lon);
-    this.sog   = parseFloat(data.sog);
-    this.cog   = parseFloat(data.cog);
-    this.alt   = parseFloat(data.alt);
-    this.moved = parseInt(data.moved);
-    this.elapsed= parseInt(data.elapsed);
-    this.valid = parseInt(+data.valid);
+    this.msg    = parseInt (data.cmd);
+    this.lat    = parseFloat(data.lat);
+    this.lon    = parseFloat(data.lon);
+    this.sog    = parseFloat(data.sog)   || 0;
+    this.cog    = parseFloat(data.cog)   || 0;
+    this.alt    = parseFloat(data.alt)   || 0;
+    this.moved  = parseInt(data.moved)   || -1;
+    this.elapsed= parseInt(data.elapsed) || -1;
+    this.valid  = parseInt(+data.valid);
     this.acquired_at  = data.acquired_at;
+    this.gpsdate= data.date;
 }
 
 // called from http class of adapter
@@ -46,16 +48,16 @@ function GpsdHttpClient (adapter, devid) {
     this.gateway       = adapter.gateway;
     this.controller    = adapter.controller;
     this.socket        = null;     // we cannot rely on socket to talk to device
-	this.devid         = false;    // we get uid directly from device
- 	this.name          = false;
-	this.logged         = false;
+    this.devid         = false;    // we get uid directly from device
+    this.name          = false;
+    this.logged        = false;
     this.alarm         = 0;        // count alarm messages
     this.count         = 0;        // generic counter used by file backend
+    this.errorcount    = 0;        // number of ignore messages
 };
 
 // Import debug method 
 GpsdHttpClient.prototype.Debug = Debug;
-
 
 // This method is fast but very approximative for close points
 // User may expect 50% of error for distance of few 100m
@@ -85,8 +87,6 @@ GpsdHttpClient.prototype.LoginDev = function(data) {
     if (this.logged === false) {
         this.devid = data.devid;
         this.class = controller.adapter.info;
-        this.model = data.model;
-        this.call  = data.call;
 
         //Update/Create device socket store by uid at gateway level
         gateway.activeClients [this.devid] = this;
@@ -105,7 +105,6 @@ GpsdHttpClient.prototype.LogoutDev = function() {
     }
 };
 
-
 // Action depending on data parsed by the adapter 
 GpsdHttpClient.prototype.ProcessData = function(data) {
 
@@ -116,6 +115,7 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
   
      // update lastshow to cleanup crom
     this.lastshow= new Date().getTime();
+    
     
     switch (data.cmd) {
         // This device is not register inside GpsdHttpClient Object
@@ -134,36 +134,40 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
 
             // compute distance only update backend is distance is greater than xxxm
             if (this.stamp !== undefined) {
-
                 var moved =  parseInt (this.Distance (this.stamp, data));
-                //console.log ("**** pos= %s,%s Stamp=%s,%s Moved=%s", data.lat, data.lon, this.stamp.lon, this.stamp.lat, moved);
-           
+
                 // compute elapsed time since last update
-                var elapsed  = parseInt ((data.acquired_at - this.stamp.date) / 1000); // in seconds
-                var sogms = parseInt (moved/elapsed);         // NEED TO BE KNOWN: with short tic sog is quicky overestimated by 100% !!!
+                var elapsed = parseInt((data.acquired_at - this.stamp.acquired_at)/1000) ; // in seconds
+                var speedms = parseInt (moved/elapsed);         // NEED TO BE KNOWN: with short tic speed is quicky overestimated by 100% !!!
 
                 // usefull human readable info for control console
-                data.moved  = moved;
-                data.elapsed = elapsed;
+                data.moved    = moved;
+                data.elapsed  = elapsed;
                 
-                // if moved less than mindist or faster than maxsog check maxtime value
-                if (moved < this.controller.svcopts.mindist || sogms > controller.svcopts.maxsog) {
-                    this.Debug(2,"%s Dev %s Data ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
+                // if moved less than mindist or faster than maxspeed check maxtime value
+                if (moved < this.controller.svcopts.mindist) {
+                    this.Debug(2,"%d Dev=%s Data ignored moved %dm<%dm ?", this.errorcount, this.devid, moved, this.controller.svcopts.mindist);
                     // should we force a DB update because maxtime ?
-                    if (elapsed <  controller.svcopts.maxtime) update = false;
+                    if (elapsed <  this.controller.svcopts.maxtime) update = false;
+                }
+                // if moved less than mindist or faster than maxspeed check maxtime value
+                if (speedms > this.controller.svcopts.maxspeed) {
+                    this.Debug(2,"%d Dev %s Data ignored speed %dm/s >%dm/s ?", this.errorcount, this.devid, speedms, this.controller.svcopts.maxspeed);
+                    // we only ignore maxErrorCount message, then we restart data acquisition
+                    if (this.errorcount++ <  this.controller.svcopts.maxerrors) update = false;
                 }
              } else {
-                // usefull human readable info for control console
-                data.moved   = 0;
-                data.elapsed  = 0;
+                data.moved  = 0;
+                data.elapsed = 0;
              }
+
 
             // update database and store current device location in object for mindist computation
             if (update) { // update device last position in Ram/Database
-                this.stamp = new PositionObj(this.devid, data);
+                this.stamp = new PositionObj(data);
                 gateway.backend.UpdatePosDev (this, this.stamp);
             } else {
-                this.Debug(6,"%s Dev %s Data %s ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
+                this.Debug(6,"%s Dev=%s ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
             }
             break;
     

@@ -64,7 +64,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
   }
 
   function CheckArg (arg) {
-        if (arg !== undefined) if (arg.length > 1) return (arg)
+        if (arg !== undefined) if (arg.length > 1) return (arg);
         else return 0;
   }
 
