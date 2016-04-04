@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /*
- * Copyright 2014 Fulup Ar Foll
+ * Copyright 2015 Fulup Ar Foll
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@
 
 
 /* 
- * Tracker2Json is a small debug tool. It wait on a given TCP port for incoming connection.
- * Transforms received packet with a given adapter and display result on console.
+ * Json2AIS waits on a given TCP port for incoming connection.
+ * Transforms received JSON/AIS packet in NMEA binary Packet and push then on UDP
  * 
- * Tracker2Json
+ * Json2AIS
  *    --adapter=xxxx     // adapter file
  *    --verbose=1        // display incoming binary NMEA paquet
  *    --debug=xx         // debug level [0-9]
  *
  * Examples:
- *     Tracker2Json --adapter=./conf/DummyBackend.conf
+ *     Json2AIS --adapter=./conf/DummyBackend.conf
  *
  */
 

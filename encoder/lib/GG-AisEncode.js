@@ -37,7 +37,7 @@ function AisEncode (msg) {
     this.PutInt (msg.aistype  ,0,6);
     this.PutInt (msg.repeat   ,6,2);
     this.PutInt (msg.mmsi     ,8,30);
-    var lat; var lon; var sog; var hdg;
+    var lat; var lon; var sog; var hdg; var accuracy;
     
     switch (msg.aistype) {
         case 1:
@@ -75,6 +75,9 @@ function AisEncode (msg) {
             sog=parseInt (msg.sog *10);  //speed over ground
             this.PutInt (sog,  46, 10 );
             
+            accuracy= parseInt (msg.accuracy);
+            this.PutInt(accuracy, 60, 1 );
+            
             // move lat to integer and take care of negative value
             lon = parseInt (msg.lon * 600000); //Long 1/10000 minute
             if (lon < 0) lon |= 0x08000000;
@@ -89,7 +92,7 @@ function AisEncode (msg) {
       
             hdg=parseInt (msg.hdg)|| parseInt (msg.cog);      //magnetic heading 
             this.PutInt (hdg,  124, 9 );
-            
+                        
             this.PutInt  (60,  133, 6 );  // 60 [time stamp is not available]
                   
             this.payloadSize=168;   // pad with zero non used flags

@@ -15,14 +15,9 @@
  */
 
 /*
- * This adapter handle GtcFree messages For devices using HTTP/GPRMC protocol.
- * As Android://CellTrac/Geotelematic, iPhone://OpenGtsCient/TECHNOLOGYMAZE
- * iphone://GerGTSTracker; etc....
- * https://play.google.com/store/apps/details?id=org.opengts.client.android.cgtsfre
- * 
- * Reference: http://fr.wikipedia.org/wiki/NMEA_0183
- * https://sourceforge.net/p/opengts/discussion/579834/thread/f2be5bbf/
- * http://fossies.org/dox/OpenGTS_2.5.6/EventUtil_8java_source.html
+ * This adapter handle MobilePhone under Traccar/OSM http protocol
+ * Clients: https://www.traccar.org
+ * Protocol https://www.traccar.org/osmand/
  */
 
 'use strict';
@@ -40,10 +35,22 @@ else NmeaDecode = require("../../encoder/ApiExport").NmeaDecode;
 var util        = require("util");
 var url         = require("url");
 
+function OSMdata (data) {
+    if(typeof (data) !== "object") return;
+
+    this.valid= true;
+    this.date = new Date (data.timestamp * 1000);
+    this.lat  = parseFloat (data.lat);
+    this.lon  = parseFloat (data.lon);
+    this.sog  = parseFloat (data.speed);
+    this.cog  = parseFloat (data.bearing);
+    this.alt  = parseFloat (data.altitude);
+};
+
 // Adapter is an object own by a given device controller that handle nmeadata connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:gtcfree//" +  + controller.svcopts.port;;
-    this.info      = 'GtcFree';
+    this.uid       = "adapter:osmtracker//" +  + controller.svcopts.port;;
+    this.info      = 'OSMtracker';
     this.debug     = controller.svcopts.debug;  // inherit debug from controller
     this.controller= controller;
     this.gateway   = controller.gateway;
@@ -52,7 +59,7 @@ function DevAdapter (controller) {
 };
 
 // CellTrack Free does not accept commands.
-DevAdapter.prototype.SendCommand = function(httpclient) {};
+DevAdapter.prototype.SendCommand = function() {};
 
 
 // This routine is called from Controller each time a new http request popup
@@ -62,18 +69,14 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     // parse URL to extract DevId and NMNEA $GPRMC info
     var question=url.parse(request.url, true, true);
     var query=question.query;
-    //query={"id":"123456789012345","altitude":"43.977329","hacc":"65.000000","code":"0xF020","gprmc":"$GPRMC,010341.06,A,0123.4340,N,10350.8960,E,00.00,000.00,220115,0,0,A*69"};
-
+    
+    // query={id:708697, timestamp:1459674223, lat:47.6188112896477, lon:-2.760623590985209, speed:1.1541678025918007, bearing:257.92236328125, altitude:77.14398689398148, batt:89.0}
     this.Debug (4,"Path=%s [len=%s] Query=%s", question.pathname, question.pathname.length, JSON.stringify(query));
 
-    // Debug
-    // Group:  http://localhost:4020/events/dev.json?a=fulup-bzh&u=demo-id&p=MyPasswd&g=all&l=1
-    // Device: http://localhost:4020/events/dev.json?a=fulup-bzh&u=demo-id&p=MyPasswd&d=123456789&l=4
-      
     if (query.id === undefined) {
           this.Debug (2,"Hoops: query:id not found in Http Request");
           response.writeHeader(400, {"Content-Type": "text/plain"});
-          response.write('ERR: This is not a valid CellTracGTS request');
+          response.write('ERR: Invalid IMEI in Http Request');
           response.end();
           return;
     }
@@ -95,14 +98,17 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     }
 
     // if parsing abort then force line as invalid
-    var data = new NmeaDecode(query.gprmc);
-    if (data.valid) {
+    var data = new OSMdata (query);
+    if (!data.valid) {
+        this.Debug (5,'OSM invalid data=%s', JSON.stringify(query));
+        result = "Invalid Data";
+    } else {
         this.Debug (7,"--> NMEA Lat:%s Lon:%s Sog:%d Cog:%d Alt:%d Date:%s"
                    , data.lat, data.lon, data.sog, data.cog, data.alt, data.date);
         data.cmd = TrackerCmd.GetFrom.TRACK;
         device.ProcessData (data);
+        result = "OK";
     }
-    result = "OK";
     response.writeHeader(200, {"Content-Type": "text/plain"});  
     response.write(result);
     response.end();      

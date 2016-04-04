@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * WARNING: this adaptator was not testing with latest versions !!!
+ * Old Traccar Protocol https://www.traccar.org/
+ * New version of Traccer use OsmDroid adapter
+ * 
  */
 
-var Jison = require("jison").Parser;
-var Debug = require("../GpsdDebug");
-var util  = require("util");
-var TrackerCmd  = require("../lib/_TrackerCmd");
 
+'use strict';
+
+var Debug       = require("../lib/_Debug");
+var TcpClient = require("../lib/_TcpClient");
+var TrackerCmd  = require("../lib/_TrackerCmd");
+var Jison = require("jison").Parser;
+var util  = require("util");
 
 // Adapter is an object own by a given device controler that handle data connection
-DevAdapter = function(controler) {
-        // Extract from Traccar T55ProtocolDecoder.java  grammar 
-        // $TRCCR // Date (YYYYMMDD)   // Time (HHMMSS.SSS) // Latitude // Longitude // Speed // Course // Altitude // Battery
-        // $GPRMC // Time (HHMMSS.SSS) // Validity // Latitude (DDMM.MMMM) // Longitude (DDDMM.MMMM) // Speed // Course // Date (DDMMYY)
-        // $GPGGA // Time // Latitude // Longitude
-        // $GPRMA // Validity // Latitude // Longitude // Speed // Course
+function DevAdapter (controler)  {
+
     
     // Define or LEX/Bison grammar to handle device packet
-    grammar = {  
+    var grammar = {  
     "lex": {
         "rules" : [ [" +" , "/* skip whitespace */"]
             // Lex rules==> smallest token after big/generic ones ex: 'b,'/'b', [A,C]/[a-Z], etc ...
@@ -77,14 +78,13 @@ DevAdapter = function(controler) {
         ]
     }};
 
-    this.uid      = "adapter:TK103/T55" + controler.svcopts.port;
+    this.uid      = "adapter:Traccar/" + controler.svcopts.port;
     this.control   = 'tcpsock';
-    this.info      = 'Traccar';
+    this.info      = 'TraccarDroid';
     this.debug     =  controler.svcopts.debug;  // inherit debug from controler
     this.controler = controler;  // keep a link to device controler and TCP socket
     this.parser    = new Jison(grammar);
     this.Debug (1,"%s", this.uid);    
-
 };
 
 // Import debug method 
@@ -107,18 +107,6 @@ DevAdapter.prototype.GpsNormalize =function(data) {
     }
 };
 
-// Jison is quite picky, heavy testing is more than recommended
-DevAdapter.prototype.TestParser = function(testParser) {
-    //var code = new Generator (grammar, opts).generate();
-    // console.log(code);
-    console.log ("\n#### Starting Test ####");
-    for (var test in testParser) {
-        line= testParser[test];
-        console.log ("### %s = [%s]", test, line);
-        var data=this.parser.parse(line);
-        console.log ("  --> Emei:%s Cmd:%s Lat:%s Lon:%s Date:%s Speed:%d Course:%d Altitude:%d", data.imei, data.cmd, data.lat, data.lon, data.date, data.sog, data.cog, data.alt);
-    }
-};
 
 // send a commant to activate GPS tracker
 DevAdapter.prototype.SendCommand = function(device, action, arg1) {
@@ -141,50 +129,37 @@ DevAdapter.prototype.SendCommand = function(device, action, arg1) {
     return (0);
 };
 
+    
 // Method is called each time a new client connect
 DevAdapter.prototype.ClientConnect = function (socket) {
-        
     // let's use TCP session to keep track of device
-    socket.device = new GpsdTcpClient (socket);
-     
-    // attach line counter and tempry buffer to socket dev track session 
+    socket.device = new TcpClient (socket);
+
+    // attach line counter and tempry buffer to socket session
     socket.lineidx   = 0;                       // index within buffer
     socket.linebuf   = new Buffer (256);        // intermediary buffer
     socket.count     = 0;
 };
+
 
 // Method is called each time a client quit
 DevAdapter.prototype.ClientQuit = function (socket) {
     socket.device.RequestAction ('LOGOUT');
 };
 
-DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
-    this.Debug  (9, "request=[%s]", buffer);
-    
-    // split buffer multiple lines if any and remove \r\n
-    for (var idx=0; idx < buffer.length; idx++) {
-        switch (buffer [idx]) {
-            case 0x0A: // new line \n
-                var status = this.ParseLine (socket, socket.linebuf.toString ('ascii',0, socket.lineidx));
-                socket.lineidx=0;
-                break;
-            case 0x0D: break;  // cariage return \r
-            default: 
-                socket.linebuf[socket.lineidx] = buffer [idx];
-                socket.lineidx++;
-            }
-    }
-};
 
 // This routine is call from DevClient each time a new line arrive on socket
-DevAdapter.prototype.ParseLine= function(socket, buffer) {
+DevAdapter.prototype.ParseLine= function(socket, line) {
         var device=socket.device;
         var data;
+       
+       console.log (line);
        
         try {
             // parse data directly inside device object structure
             data=this.parser.parse(line); // call jison parser
         } catch (err) {
+            console.log ( "Parsing Err:%s", err);
             this.Debug (5, "Parsing Err:%s Line:%s", err, line );
             socket.write ('Invalid TR05 data:' + line);
             return (-1);
@@ -208,19 +183,50 @@ DevAdapter.prototype.ParseLine= function(socket, buffer) {
         };
     
          // send parsed data to device
-         data.cmd = TrackerCmd.GetFrom.TRACK;
+        data.cmd = TrackerCmd.GetFrom.TRACK;
+        this.Debug (7,"Device=%s Data=%j", socket.device.uid, data);
         var status = socket.device.ProcessData (data);
         if (status < 0) {
-            this.Debug ("Device=%s Ignored=%s", socket.device.uid, line);
+            this.Debug (1,"Device=%s Ignored=%s", socket.device.uid, line);
         }
     return (status);
 };
 
+DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
+    this.Debug  (9, "request=[%s]", buffer);
+    
+    // split buffer multiple lines if any and remove \r\n
+    for (var idx=0; idx < buffer.length; idx++) {
+        switch (buffer [idx]) {
+            case 0x0A: // new line \n
+                var status = this.ParseLine (socket, socket.linebuf.toString ('ascii',0, socket.lineidx));
+                socket.lineidx=0;
+                break;
+            case 0x0D: break;  // cariage return \r
+            default: 
+                socket.linebuf[socket.lineidx] = buffer [idx];
+                socket.lineidx++;
+            }
+    }
+};
+
+// Jison is quite picky, heavy testing is more than recommended
+DevAdapter.prototype.TestParser = function(testParser) {
+    //var code = new Generator (grammar, opts).generate();
+    // console.log(code);
+    console.log ("\n#### Starting Test ####");
+    for (var test in testParser) {
+        var line= testParser[test];
+        console.log ("### %s = [%s]", test, line);
+        var data=this.parser.parse(line);
+        console.log ("  --> Emei:%s Cmd:%s Lat:%s Lon:%s Date:%s Speed:%d Course:%d Altitude:%d", data.imei, data.cmd, data.lat, data.lon, data.date, data.sog, data.cog, data.alt);
+    }
+};
 
 // if started as a main and not as module, then process test.
 if (process.argv[1] === __filename)  {
     // Add here any paquet you would like to test
-    testParser = { Empty: ""
+    var testParser = { Empty: ""
         ,"Start     " : "$PGID,352519050984578*05\r\n"
         ,"Track1    " : "$TRCCR,20140908100115.000,A,47.618587,-2.761109,0.00,291.00,50.00,89,*14\r\n"
         ,"Track2    " : "$TRCCR,20140908100219.999,A,47.618458,-2.761302,0.54,218.00,71.00,89,*1b\r\n"
@@ -231,9 +237,12 @@ if (process.argv[1] === __filename)  {
         ,"Track7    " : "$TRCCR,20140916204253.749,A,47.618555,-2.760980,0.00,151.00,0.00,91,*23\r\n$TRCCR,20140916204558.249,A,47.618319,-2.760873,0.00,151.00,0.00,91,*29\r\n"
     
     };
-    dummy = [];  // dummy object for test
-    dummy.debug = 9;
-    devAdapter  = new DevAdapter (dummy);
+    var dummyControler = { test: true  // dummy object for test
+      ,debug: 9
+      ,svcopts: {port:9999}
+    };
+    
+    var devAdapter  = new DevAdapter (dummyControler);
     devAdapter.TestParser (testParser);
     console.log ("**** T55 Parser Test Done ****");
 }

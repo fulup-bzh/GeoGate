@@ -22,11 +22,8 @@
 
 'use strict';
 
-var Debug       = require("../lib/_Debug");
-var Device      = require('../lib/_TcpClient'); // in this cas a device is a feed
-var net         = require('net');
-var url         = require("url"); 
-var util       = require("util");
+var Debug   = require("../lib/_Debug");
+var dgram   = require('dgram');
 
 // use localdev tree if available
 var AisEncode;
@@ -39,6 +36,7 @@ else AisEncode = require("../../encoder/ApiExport").AisEncode;
 function HookBackendEvent (adapter, backend, socket) {
           
     function EventDevAuth (device){
+        device.mmsi = parseInt (device.model);
         adapter.BroadcastStatic (device);
         if (device.stamp) adapter.BroadcastPos (device);
     };    
@@ -50,9 +48,8 @@ function HookBackendEvent (adapter, backend, socket) {
     function EventDevPos (device){
          
         // force push of full device info every 20 positions update
-        device.aisproxy= device.aisproxy++ % 20;
-        if (device.aisproxy === 0) adapter.BroadcastStatic (device);
-        else adapter.BroadcastPos (device);
+        if (device.aisproxy >= 20) adapter.BroadcastStatic (device);
+        adapter.BroadcastPos (device);
     };
     
     backend.event.on("dev-auth",EventDevAuth);	
@@ -70,7 +67,12 @@ function DevAdapter (controller) {
     this.controller =  controller;              // keep a link to device controller and TCP socket
     this.clients   =  [];                       // array to keep track of client
     this.count     =  0;                        // index for incomming client
-    this.Debug (1,"%s", this.uid);    
+    this.uport     =  controller.svcopts.uport;
+    this.uhost     =  controller.svcopts.uhost || "localhost";
+    this.Debug (1,"%s", this.uid);
+
+    // create UDP port to push packet out
+    if (this.uport) this.usock = dgram.createSocket('udp4');
 
     HookBackendEvent(this, controller.gateway.backend);
 };
@@ -81,29 +83,47 @@ DevAdapter.prototype.Debug = Debug;
 DevAdapter.prototype.BroadcastPos = function (device) {
     var aisOut;
     
+    device.aisproxy++; // update counter for AIS static renewal
+    
     // push back anything we got to AIS clients [if any]
+    var msg18= { // standard class B Position report
+        aistype    : 18,
+        cog        : device.stamp.cog,
+        sog        : device.stamp.sog,
+        dsc        : false,
+        repeat     : false,
+        accuracy   : true,
+        lon        : device.stamp.lon,
+        lat        : device.stamp.lat,
+        second     : 1,
+        mmsi       : device.mmsi
+    };
+    this.Debug (4, "AIS Position=%j", msg18);
+
+    //var message=util.format ("\n18b %j\n", msg18);
+    //this.clients[sock].write (message);
+    aisOut = new AisEncode (msg18);
+    if (! aisOut.valid) {
+        this.Debug (1, "Invalid msg18=%j", msg18);
+        return;
+    }
+    
+    // transform AIS string into a buffer linefeed ended
+    var msgbuf = new Buffer (aisOut.nmea + "\n");
+    
+    // if UDP is defined send AISpos onto it
+    if (this.usock) {
+           this.usock.send(msgbuf, 0, msgbuf.length, this.uport, this.uhost, function(err, bytes) {
+           if (err) console.log ('### Hoops BroadcastPos : UDP Msg18 [err=%s]', err); 
+        });
+    }
+
+    // if we have AIS TCP client let's send a copy of AISpos to each of them
     for (var sock in  this.clients) {
         try {
-                var msg18= { // standard class B Position report
-                    aistype    : 18,
-                    cog        : device.stamp.cog,
-                    sog        : device.stamp.sog,
-                    dsc        : false,
-                    repeat     : false,
-                    accuracy   : true,
-                    lon        : device.stamp.lon,
-                    lat        : device.stamp.lat,
-                    second     : 1,
-                    mmsi       : device.callsign
-                };
-
-                //var message=util.format ("\n18b %j\n", msg18);
-                //this.clients[sock].write (message);
-                aisOut = new AisEncode (msg18);
-                if (aisOut.valid) this.clients[sock].write (aisOut.nmea +'\n');
-           
+            this.clients[sock].write (msgbuf);          
         } catch (err) {
-            this.Debug (0, '### HOOPS BroadcastPos lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
+            this.Debug (1, '### Hoops BroadcastPos lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
             delete this.clients[sock]; 
         }
     }   
@@ -111,85 +131,70 @@ DevAdapter.prototype.BroadcastPos = function (device) {
 
 DevAdapter.prototype.BroadcastStatic = function (device) {
     
-    var aisOut;   
+    var aisOutA, aisOutB;   
     device.aisproxy= 0; // reset counter to renew AIS static info
+    
+    var msg24a= {// class B static info
+        aistype    : 24,
+        part       : 0,
+        mmsi       : device.mmsi,
+        shipname   : device.name
+    };
+    this.Debug (4, "AIS Statics=%j", msg24a);
+    aisOutA = new AisEncode (msg24a);
+
+    var msg24b= {// class AB static info
+        aistype    : 24,
+        part       : 1,
+        mmsi       : device.mmsi,
+        cargo      : 37, // map to pleasure boat
+        callsign   : device.callsign,
+        dimA       : 0,
+        dimB       : 7,
+        dimC       : 0,
+        dimD       : 2
+    };
+    aisOutB = new AisEncode (msg24b);
+
+    if (!aisOutA.valid || !aisOutB.valid) {
+        this.Debug (1, "Invalid msg24a=%j msg24b=%j", msg24a, msg24b);
+        return; 
+    }
+    
+    // transform AIS string into a buffer linefeed ended
+    var msgbufA = new Buffer (aisOutA.nmea + "\n");
+    var msgbufB = new Buffer (aisOutB.nmea + "\n");
+    
+    // if UDP is defined send AISpos onto it
+    if (this.usock) {
+            this.usock.send(msgbufA, 0, msgbufA.length, this.uport, this.uhost, function(err, bytes) {
+               if (err) console.log ('### Hoops BroadcastPos : UDP msg24a send [err=%s]', err); 
+             });
+           
+            this.usock.send(msgbufB, 0, msgbufB.length, this.uport, this.uhost, function(err, bytes) {
+                if (err) console.log ('### Hoops BroadcastPos : UDP msg24b send [err=%s]', err); 
+        });
+    }
 
     // send statics to every connected AIS clients
     for (var sock in  this.clients) {
         try {
-    
-            var msg24a= {// class B static info
-                aistype    : 24,
-                part       : 0,
-                cargo      : 37, // map on pleasure Craft
-                callsign   : device.callsign,
-                mmsi       : device.model,
-                shipname   : device.name
-            };
-            //var message=util.format ("\n24a %j\n", msg24a);
-            //socket.write (message);  
-            aisOut = new AisEncode (msg24a);
-            if (aisOut.valid) this.clients[sock].write (aisOut.nmea + '\n');
-
-            var msg24b= {// class AB static info
-                aistype    : 24,
-                part       : 1,
-                mmsi       : device.model,
-                cargo      : device.name,
-                callsign   : device.callsign,
-                dimA       : 0,
-                dimB       : 7,
-                dimC       : 0,
-                dimD       : 2.5
-            };
-            //var message=util.format ("\n24b %j\n", msg24b);
             //socket.write (message);
-            aisOut = new AisEncode (msg24b);
-            if (aisOut.valid) this.clients[sock].write (aisOut.nmea +'\n');
-            } catch (err) {
-        this.Debug (0, '### HOOPS BroadcastStatic lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
-        delete this.clients[sock]; 
+            this.clients[sock].write (msgbufA);
+            this.clients[sock].write (msgbufB);
+        } catch (err) {
+            this.Debug (0, '### HOOPS BroadcastStatic lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
+            delete this.clients[sock]; 
         }
     }
 };
         
 // we got a new aisproxy add it to client list for broadcast
 DevAdapter.prototype.ClientConnect = function (socket) {
-    var aisOut;
     socket.id=this.count ++;
-    var gateway=this.controller.gateway;
     socket.uid="aisproxy://" +  socket.remoteAddress +':'+ socket.remotePort;
     this.Debug  (4, "New client [%s]=%s", socket.id, socket.uid);
     this.clients[socket.id] = socket;
-
-    // each new client get a list of logged device at connection time
-    for (var devId in gateway.activeClients) {
-        var device= gateway.activeClients[devId];
-        if (device.logged) {
-            
-            this.BroadcastStatic (device.devid, socket);
-            
-            if (device.stamp !== undefined) {                
-                var msg18= { // standard class B Position report
-                    aistype    : 18,
-                    cog        : device.stamp.cog,
-                    sog        : device.stamp.sog,
-                    dsc        : false,
-                    repeat     : false,
-                    accuracy   : true,
-                    lon        : device.stamp.lon,
-                    lat        : device.stamp.lat,
-                    second     : 1,
-                    mmsi       : device.model
-                };
-  
-                //var message=util.format ("\n18x %j\n", msg18);
-                //socket.write (message);
-                aisOut = new AisEncode (msg18);
-                if (aisOut.valid) socket.write (aisOut.nmea +'\n');
-            }
-        }
-    }    
 };
 
 // aisproxy quit remove it from out list
@@ -200,7 +205,8 @@ DevAdapter.prototype.ClientQuit = function (socket) {
 
 // browser talking, ignore data
 DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
-    this.Debug (4, 'Talk AisTcpClient: %s data=%s', socket.uid, buffer);
+    this.Debug (4, '%s data=%s', socket.uid, buffer);
+    socket.write ("Adapter: [" + this.info + "] invalid--> " + buffer);
 };
 
 // This adapter does not send command

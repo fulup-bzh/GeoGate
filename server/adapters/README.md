@@ -49,6 +49,8 @@ Then to replay your packet with socat until your adapter successfully parse them
 
 Note: socat is a standard Linux tool, and a simple aptget, zypper, yum should install it.
 
+Reference for GPS protocols https://www.traccar.org/protocols/
+
 
 
  

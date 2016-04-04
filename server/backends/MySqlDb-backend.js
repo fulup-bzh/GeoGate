@@ -239,8 +239,7 @@ BackendStorage.prototype.LoginDev = function (device) {
 
     // on sucess this command is call once per selected row [hopefully only one in this case]
     sqlQuery.on("result", function (result) {
-        self.Debug(9, "sqlQuery %j", result);
-        self.event.emit ("dev-auth", device);
+        self.Debug(9, "sqlResponse %j", result);
 
         // update active device pool [note device.devid is set by GpsdClient before SQL login]
         device.name    = result.devname; // friendly name extracted from database
@@ -250,6 +249,8 @@ BackendStorage.prototype.LoginDev = function (device) {
         device.track   = result.track;
         device.obd     = result.obd;
         device.logged  = true;        // marked device as knowned from database
+        
+        self.event.emit ("dev-auth", device);
     });
 
     sqlQuery.on("error", function (err) {

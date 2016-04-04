@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
  */
 
 'use strict';
@@ -104,7 +105,7 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
                         sog: parseInt (args[11] * 1853 / 360)/10,
                         cog: args[12],
                         alt: -1
-                    }
+                    };
                     break;
                 case 19: // new protocol [sms protocol123456 18]
                     data =
@@ -134,12 +135,12 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
 
   }
   return (data);
-}
+};
 // tracker-command, 141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,;"
 DevAdapter.prototype.ParseTrackerObd = function (cmd, args) {
 
     function CheckArg (arg) {
-        if (arg.length > 1) return (arg)
+        if (arg.length > 1) return (arg);
         else return '';
     }
 
@@ -161,7 +162,7 @@ DevAdapter.prototype.ParseTrackerObd = function (cmd, args) {
             , diag : args[13] // Diag code
             };
   return (data);
-}
+};
 
 DevAdapter.prototype.ParseData = function (line) {
     var packetype;
@@ -284,7 +285,7 @@ DevAdapter.prototype.ParseData = function (line) {
     }
 
  return (data);
-}
+};
 
 // Import debug method
 DevAdapter.prototype.Debug = Debug;
@@ -417,8 +418,6 @@ DevAdapter.prototype.ClientConnect = function (socket) {
     socket.linebuf   = new Buffer (256);        // intermediary buffer
     socket.count     = 0;
 
-    // Sharing one unique parser for all clients looks OK
-    // socket.parser =  this.GetParser();
 };
 
 // Method is called each time a client quit

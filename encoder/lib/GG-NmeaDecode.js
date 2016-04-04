@@ -25,6 +25,12 @@
 
 
 function NmeaDecode (inputpaquet) {
+    
+    // if empty packet return
+    if(Object.prototype.toString.call(inputpaquet) !== "[object String]") {
+    return;
+    }
+    
     this.nmea = inputpaquet.split(",");
     this.valid= true; 
     

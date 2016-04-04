@@ -103,9 +103,14 @@ BackendStorage.prototype.LookupDev = function (callback, devid, args) {
     callback (result);
 };
 
+BackendStorage.prototype.DummyName = function (devid) {
+    var devname = devid.toString();
+    return devname.substring(devname.length-5);
+};
+
 BackendStorage.prototype.LoginDev = function (device) {
     this.Debug (4,"Authentication accepted for device=%s", device.uid);
-    var emeifix = device.devid.substring(10);
+    var emeifix = this.DummyName (device.devid);
     device.logged   = true;
  
     device.callsign = "FX-" + emeifix;
