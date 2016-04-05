@@ -80,7 +80,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     
     // make sure the ID is an interger
     var devid = parseInt (query.id);
-    if (isNaN (devid)) devid = parseInt (query.id,16);
+    if (isNaN (devid)) devid = parseInt (query.id,16)/1000;
     if (isNaN (devid)) {
           this.Debug (2,"Hoops: query:id invalid id=%s", devid);
           response.writeHeader(400, {"Content-Type": "text/plain"});
