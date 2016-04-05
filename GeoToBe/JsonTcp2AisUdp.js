@@ -21,9 +21,9 @@
  * 
  * Incomming Messages sample:
  * 
- * {"aistype":24,"mmsi":"163994842","part":0,"shipname":"maitai"}
- * {"aistype":24,"mmsi":"163994842","part":1,"callsign":"FG9196","cargo":95,"dimA":10,"dimB":2,"dimC":3,"dimD":3}
- * {"aistype":18,"mmsi":"163994842","lon":-4.3329008333333334,"lat":49.033095000000003,"cog":1300,"sog":160,"dsc":false,"accuracy":true,"second":1}
+ * {"aistype":24,"mmsi":163994842,"part":0,"shipname":"maitai"}
+ * {"aistype":24,"mmsi":163994842,"part":1,"callsign":"FG9196","cargo":95,"dimA":10,"dimB":2,"dimC":3,"dimD":3}
+ * {"aistype":18,"mmsi":163994842,"lon":-4.3329008333333334,"lat":49.033095000000003,"cog":1300,"sog":160,"dsc":false,"accuracy":true,"second":1}
  *
  * Outgoing message are send in UDP and Gpsd is probably needed to process them
  *   gpsd -G -S 1234 -N udp://127.0.0.1:4023 (or what ever udp host/port you selected)
@@ -33,6 +33,9 @@
  *   
  * Send test messages with socat
  *   socat - TCP4:localhost:4022 </tmp/test.ais
+ *   
+ * Debug
+ *   tcpdump -i lo -n -lnX  udp and port 4023  
  *   
  * Note: if debug > 3 then JsonAisProxy adapter send a copy of NMEA/AIS encoded messages  
  */

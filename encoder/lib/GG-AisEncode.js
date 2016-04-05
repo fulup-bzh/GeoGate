@@ -167,7 +167,7 @@ function AisEncode (msg) {
     // this.pading  = nmea[6].split ('*')[0];
     var nmea=[];
     nmea [0] = '!AIVDM';  // ! is added after checksum
-    nmea [1]  = '1';     // ignore multipart extention messages
+    nmea [1]  = '1';      // ignore multipart extention messages
     nmea [2]  = '1'; 
     nmea [3]  = ''; 
     nmea [4]  = 'A';     // this is VHF channel and not AIS class
@@ -179,7 +179,11 @@ function AisEncode (msg) {
     for(var i = 1; i < paquet.length; i++) {
         checksum = checksum ^ paquet.charCodeAt(i);
     }
-    var trailer= "*" + checksum.toString(16).toUpperCase();
+    
+    var trailer;
+    if (checksum < 16)  trailer= "*0" + checksum.toString(16).toUpperCase();
+    else trailer= "*" + checksum.toString(16).toUpperCase();
+    
     this.nmea =  paquet + trailer;
     this.valid=  true;
 }

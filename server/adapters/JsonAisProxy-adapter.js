@@ -41,7 +41,7 @@ function DevAdapter (controller) {
     this.clients   =  [];                       // array to keep track of client
     this.count     =  0;                        // index for incomming client
     this.uport     =  controller.svcopts.uport;
-    this.uhost     =  controller.svcopts.uhost || "localhost";
+    this.uhost     =  controller.svcopts.uhost || "127.0.0.1";
     this.Debug (1,"%s uhost=%s uport=%d", this.uid, this.uhost, this.uport);
 
     // create UDP port to push packet out
@@ -67,10 +67,11 @@ DevAdapter.prototype.AisEncodeSend = function (message) {
     }
     
     // transform AIS string into a buffer linefeed ended
-    var msgbuf = new Buffer (aisOut.nmea + "\n");
+    var msgbuf = new Buffer (aisOut.nmea + '\n');
     
     // if UDP is defined send AISpos onto it
     if (this.usock) {
+           this.Debug (9, "Send UDP://%s:%d NMEA/AIS=%s", this.uhost, this.uport, aisOut.nmea);
            this.usock.send(msgbuf, 0, msgbuf.length, this.uport, this.uhost, function(err, bytes) {
            if (err) console.log ('### Hoops BroadcastPos : UDP Msg18 [err=%s]', err); 
         });
@@ -100,8 +101,8 @@ DevAdapter.prototype.ClientQuit = function (socket) {
 DevAdapter.prototype.ParseLine = function(socket, line) {
     this.Debug (4, '%s data=%s', socket.uid, line);
     var aisNmea = this.AisEncodeSend (line);
-    if (!aisNmea) socket.write ("Adapter: [" + this.info + "] JSON/AIS Invalid --> " + line);
-    else if (this.debug > 3) socket.write (aisNmea);
+    if (!aisNmea) socket.write ("Adapter: [" + this.info + "] JSON/AIS Invalid --> " + line + '\n');
+    else if (this.debug > 3) socket.write ("Done\n");
 };
 
 DevAdapter.prototype.ParseBuffer = function(socket, buffer) {

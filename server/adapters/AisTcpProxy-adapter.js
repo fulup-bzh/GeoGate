@@ -68,7 +68,7 @@ function DevAdapter (controller) {
     this.clients   =  [];                       // array to keep track of client
     this.count     =  0;                        // index for incomming client
     this.uport     =  controller.svcopts.uport;
-    this.uhost     =  controller.svcopts.uhost || "localhost";
+    this.uhost     =  controller.svcopts.uhost || "127.0.0.1";
     this.Debug (1,"%s", this.uid);
 
     // create UDP port to push packet out
