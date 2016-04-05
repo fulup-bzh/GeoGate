@@ -77,19 +77,31 @@ DevAdapter.prototype.ProcessData = function(request, response) {
           response.end();
           return;
     }
+    
+    // make sure the ID is an interger
+    var devid = parseInt (query.id);
+    if (isNaN (devid)) devid = parseInt (query.id,16);
+    if (isNaN (devid)) {
+          this.Debug (2,"Hoops: query:id invalid id=%s", devid);
+          response.writeHeader(400, {"Content-Type": "text/plain"});
+          response.write('ERR: This is not a valid CellTracGTS request');
+          response.end();
+          return;
+    }
 
     // is user is logged try it now
-    var device = this.gateway.activeClients [query.id];
+    var device = this.gateway.activeClients [devid];
     if (device === undefined) {
-        device= new HttpClient(this, query.id);
+        Debug (5,"New CellTrac Device id=%s devid=%d", query.id, devid);
+        device= new HttpClient(this, devid);
         // force authent [due to DB delay we may refuse first NMEA packets]
-        device.LoginDev ({devid: query.id});
+        device.LoginDev ({devid: devid});
     }
 
     // we refuse packet from device until it is not log by DB backend
     if (device.logged !== true) {
         // leave 1s for DB to authenticate device before closing request
-        this.Debug (4,"Device not login: EMEI=%s", query.id);
+        this.Debug (4,"Device not login: EMEI=%s", devid);
         setTimeout(function(){response.end();}, 1000);
         return;
     }
