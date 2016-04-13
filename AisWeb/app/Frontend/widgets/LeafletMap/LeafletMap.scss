@@ -1,0 +1,57 @@
+/* 
+ * Copyright (C) 2015 "IoT.bzh"
+ * Author "Fulup Ar Foll"
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+ais-to-map {
+
+    // Warning: vessel-undefined does not define undeclare websock "src=xxx"
+    
+    .vessel-droid {
+        background-color: #ff7800;
+        border-color: black;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+    }
+    .vessel-track {
+        background-color: greenyellow;
+        border-color: blue;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+    }
+    
+    .vessel-undefined {
+        background-color: grey;
+        border-color: black;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+    }
+    
+    .vector-droid {
+        stroke: orange;
+    }
+    
+    .vector-track {
+        stroke: green;
+    }
+    
+    .vector-undefined { // Unknown vessel source
+        stroke: grey;
+    }
+}

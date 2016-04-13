@@ -1,0 +1,52 @@
+/*
+    Every SCSS files will be injected into main HTML page
+*/
+%shadow-transition {
+    transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s;
+    border-radius: 5px;
+}
+
+@mixin ibz-box-content {
+    border: 2px solid gainsboro !important;
+    border-radius: 5px;
+    
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 98% !important; 
+    margin: .5rem .5rem .5rem .5rem;
+    background: rgba(200,205,200,.3);
+}
+
+@mixin ibz-button ($color, $size:2rem) {
+    display: inline-block;
+    border: 1px solid darken($color,10%);
+    box-shadow: 2px 2px 1px adjust-hue($color,20deg);
+    color: $color;
+    border-radius: 5px;
+    font-style: italic;
+    padding: 0rem .5rem 0rem .5rem;
+    margin:.5rem;
+    background: lighten(#9494b7, 20%);
+    i {
+        padding-right: 0.3rem;
+        font-size: $size;
+    }
+    span {font-size: 1rem}
+    
+    &:hover {
+      background: lighten($color, 45%);
+      border: 2px solid darken($color,20%);
+      
+    }
+}
+
+@mixin ibz-input-alert ($color, $background) {
+    position  :fixed;
+    margin: -2.2rem 0 0 15rem;
+    border-radius: 5px;
+    font-style: italic;
+    border-color: darken($background,10%);
+    color: $color;
+    background-color: $background !important;
+    padding: 0.2rem !important;
+}

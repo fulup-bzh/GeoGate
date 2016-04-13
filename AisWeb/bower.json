@@ -1,0 +1,24 @@
+{
+  "name": "healthy-gulp-angular",
+  "version": "0.0.0",
+  "authors": "",
+  "private": true,
+  "dependencies": {
+    "foundation-apps": "~1.2.0",
+    "foundation-icon-fonts": "*",
+    "angular-ui-notification": "*",
+    "tangram": "^0.6.3",
+    "leaflet": "^1.0"
+  },
+  "overrides": {
+    "foundation": {
+      "main": [
+        "dist/js/foundation-apps-templates.js",
+        "dist/js/foundation-apps.js"
+      ]
+    }
+  },
+  "resolutions": {
+    "leaflet": "^1.0"
+  }
+}

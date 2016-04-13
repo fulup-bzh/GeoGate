@@ -1,0 +1,18 @@
+# WARNING: 
+#  - need 3 modules : mod_rewrite mod_proxy mod_proxy_wstunnel 
+#  - check with "apachectl -t -D DUMP_MODULES" that modules are really loaded
+
+options +FollowSymLinks
+IndexIgnore */*
+RewriteEngine on
+
+# if a directory or a file exists, use it directly
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !/api
+
+# otherwise forward it to index.html 
+RewriteRule ^.*$ - [NC,L]
+RewriteRule ^aisweb/. /aisweb/index.html [NC,L]
+

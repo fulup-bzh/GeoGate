@@ -1,0 +1,55 @@
+{
+"name" : "ggAisWeb",
+  "description" : "ggAisWeb is a sample front and for GeoGate server",
+  "version" : "0.1.0",
+  "author" : {
+    "name" : "Fulup Ar Foll",
+    "email" : "fulup@sinagot.net",
+    "url" : "http://www.sinagot.net/fulup"
+  },
+  "keywords" : [ "GTS", "opengts", "GPS", "tracker", "AIS", "GeoJSON", "nmea", "gpx", "gps103", "tk102", "simulator", "gprmc" ],
+  "licenses" : {
+    "type" : "apache20"
+  },
+  "scripts": {
+    "postinstall": "bower install",
+    "build": "./node_modules/.bin/gulp clean-build-app-dev",
+    "start": "node node_modules/.bin/gulp watch-dev"
+  },
+  "devDependencies": {
+    "gulp": "*",
+    "front-router": "*",
+    "gulp-angular-filesort": "*",
+    "del": "*",
+    "event-stream": "*",
+    "q": "*",
+    "gulp-debug": "*",
+    "gulp-concat": "*",
+    "gulp-htmlhint": "*",
+    "gulp-htmlmin": "*",
+    "gulp-imagemin": "*",
+    "gulp-inject": "*",
+    "gulp-jshint": "*",
+    "jshint": "*",
+    "gulp-livereload": "*",
+    "gulp-load-plugins": "*",
+    "gulp-clean-css": "*",
+    "gulp-ng-annotate": "*",
+    "gulp-ng-html2js": "*",
+    "gulp-nodemon": "*",
+    "gulp-order": "*",
+    "gulp-print": "*",
+    "gulp-rename": "*",
+    "gulp-replace": "*",
+    "gulp-sass": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-task-listing": "*",
+    "gulp-uglify": "*",
+    "imagemin-pngquant": "*",
+    "jshint-stylish": "*",
+    "main-bower-files": "*",
+    "gulp-sym": "*"
+  },
+  "dependencies": {
+  }
+}

@@ -1,0 +1,19 @@
+@import "foundation-settings";
+@import "foundation-icons";
+@import "foundation";
+
+
+/*.sidebar {
+    // Panel on small screens
+    @extend %panel-base;
+    @include panel-position(left);
+    // Override styles to become a block on medium screens
+    @include breakpoint(medium) {
+    @include grid-panel-reset;
+    @include grid-block(4);
+    }
+    // Change size to 3 columns on large screens
+    @include breakpoint(large) {
+    @include grid-size(3);
+    }
+}*/
