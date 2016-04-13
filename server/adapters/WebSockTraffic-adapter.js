@@ -37,13 +37,14 @@ function HookBackendEvent (adapter, backend, socket) {
           
     function EventDevAuth (device){
         device.websock=0;   // special counter to repost full device every 20 positions
+        adapter.Debug (5, "EventDevAuth devid=%s name=%s", device.devid, device.name);
         var msg = 
             {type : 1
                ,devid: device.devid
+               ,src  : adapter.src
                ,model: device.type
                ,name : device.name
                ,call : device.call
-               ,img  : device.img
         };
         adapter.BroadcastJson (msg);
     };    
@@ -52,14 +53,12 @@ function HookBackendEvent (adapter, backend, socket) {
     function EventDevPos (device){
          
          // force push of full device info every 20 positions update
-         device.websock= device.websock++ % 20;
-         if (device.websock === 0) {
-            EventDevAuth (device); 
-         }
+         if (device.websock++ >= 10) EventDevAuth (device); 
          
          var msg = 
             {type : 2
             ,devid: device.devid
+            ,src  : adapter.src
             ,lat  : device.stamp.lat
             ,lon  : device.stamp.lon
             ,sog  : device.stamp.sog
@@ -88,6 +87,7 @@ function DevAdapter (controller) {
     this.info      = 'websock';
     this.control   = 'websock';                // this wait for clients to connect via websock  
     this.debug     =  controller.svcopts.debug; // inherit debug from controller
+    this.src    =  controller.svcopts.src || controller.svcopts.port; // websock serial id for HTML clients
     this.controller =  controller;               // keep a link to device controller and TCP socket
     this.clients   =  [];                      // array to keep track of client
     this.count     =  0;                       // index for incomming client
@@ -107,29 +107,27 @@ DevAdapter.prototype.BroadcastJson = function (jsonobj) {
             var message=util.format ("%j", jsonobj);
             this.clients[sock].send (message);
         } catch (err) {
-            this.Debug (0, '### HOOPS lost a websock client: %s', this.clients[sock].uid);
-            delete this.clients[sock]; 
+            this.Debug (1, '### Notice lost: %s err:', this.clients[sock].uid,err);
+            if (sock) delete this.clients[sock]; 
         }
-    }
-    
+    }    
 };
 DevAdapter.prototype.WebSockVerify = function (info, callback) {
    var status, code, msg; 
     
-   this.Debug (5, "origin=%s url", info.origin, info.req.url);
+   this.Debug (5, "src=%s url=%s", info.src, info.req.url);
    var question=url.parse(info.req.url, true, true);
    
    if (parseInt (question.query.API_KEY) === 123456789) {
-      status= true; // I'm happy
-      code  = 400;  // everything OK
-      msg   = '';   // nothing to add
-  } else {
-      status= false; // I'm noy happy
-      code  = 404;   // key is invalid
-      msg   = 'Demo requires API_KEY=123456789';
-  }
-   
-   callback (status,code,msg);
+        status= true; // I'm happy
+        code  = 400;  // everything OK
+        msg   = '';   // nothing to add
+    } else {
+        status= false; // I'm noy happy
+        code  = 404;   // key is invalid
+        msg   = 'Demo requires API_KEY=123456789';
+    }   
+    callback (status,code,msg);
 };
 
 
@@ -148,16 +146,17 @@ DevAdapter.prototype.ClientConnect = function (socket) {
 
             if (device.stamp === undefined) {
             var msg =
-               {type: 0
+               {type: 1 //auth witout position
+               ,src  : this.src
                ,devid: device.devid
                ,model: device.type
                ,name : device.name
                ,call : device.call
-               ,img  : device.img
                };
            } else {
             var msg =
-               {type: 0
+               {type: 0 //auth with position
+               ,src  : this.src
                ,devid: device.devid
                ,model: device.type
                ,name : device.name

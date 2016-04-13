@@ -450,7 +450,6 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
     var data;
 
     socket.count ++;
-    this.Debug (4,'Input=%s', line);
     data = this.ParseData (line); // call jison parser
     if (data === null || data.valid === false ) {
         this.Debug (5,'Invalid data=[%s]', line);
@@ -466,11 +465,13 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
             break;
 
         case TrackerCmd.GetFrom.PING: // update last online time
+            this.Debug (4,'Ping=%s', line);
             socket.write ("ON");
             break;
 
         default:   // provide a copy of parsed device.data to device
-            this.Debug (7, 'Parsed Data=%j', data);
+            this.Debug (3,'Trac=%s', line);
+            this.Debug (5,'Data=%j', data);
             break;
     };
 
@@ -484,7 +485,9 @@ if (process.argv[1] === __filename)  {
     // Add here any paquet you would like to test
     var testParser = { "Start     ":  "##,devid:359710043551135,A"
         ,"Bug Login ":  "imei:865328021054936,tracker,150219091637,,F,091652.000,A,4738.2522,N,00256.7727,P,10.39,332.39,,1,0,0.0%,,"
-        ,"Gps106b   ":  "imei:865328021048227,tracker,141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,"
+        ,"Gps106b   ":  "imei:865328021048227,tracker,141111061820,,F,221824.000,A,4737.1076,N,00245.6550,W,0.04,0.00,,1,0,0.0%,,"        
+        ,"Gps103b1  ":  "imei:359710043551135,tracker,1604101403  ,,F,140355.000,A,4737.0370,N,00246.8439,W,0.00,0   ,,0,0,0.00%,,"
+        ,"Gps103b2  ":  "imei:359710043551135,tracker,1604101145  ,,F,114556.000,A,4737.0370,N,00246.8439,W,0.00,0"
         ,"date      ":  "imei:865328021054936,tracker,16614828111646,,F,111649.000,A,4736.9955,N,00245.5026,W,24.50,294.23,,1,0,0.0%,,"
         ,"????      ":  "imei:865328021054936,dt,1503082494102,,F,094104.000,A,4737.1657,N,00244.3707,W,0.00,296.93,,1,0,0.0%,,"
         ,'wrongdate ':  "imei:865328021054936,tracker,1586190240145621,,F,145621.000,A,4737.1065,N,00245.6554,W,0.33,237.31,,1,0,0.0%,,"

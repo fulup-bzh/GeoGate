@@ -177,6 +177,7 @@ TcpClient.prototype.ProcessData = function(data) {
             }
 
             data.acquired_at = new Date().getTime();
+            this.stamp = new PositionObj(data);
             this.gateway.backend.UpdateAlarmDev (this, new PositionObj (data));
             break;
 

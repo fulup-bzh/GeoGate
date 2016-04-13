@@ -5,3 +5,5 @@ dist.prod/
 *.DS_Store
 nbproject/private/
 .noderc*
+website/
+AisWeb

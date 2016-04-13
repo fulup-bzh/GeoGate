@@ -40,7 +40,7 @@ function AisPositionObj (ais) {
     this.devid= ais.mmsi;   // make a fake devid for device mmsi
     this.lat  = ais.lat;
     this.lon  = ais.lon;
-    this.sog  = ais.sog  * 1853 / 360; // move to m/s
+    this.sog  = ais.sog; 
     this.cog  = ais.cog;
     this.alt  = 0;          // this is a boat it does not hick mountains!!! 
     this.date = new Date(); // use computer time 

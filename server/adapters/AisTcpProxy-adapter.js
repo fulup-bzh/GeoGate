@@ -84,6 +84,7 @@ DevAdapter.prototype.BroadcastPos = function (device) {
     var aisOut;
     
     device.aisproxy++; // update counter for AIS static renewal
+    if (!device.stamp) return;
     
     // push back anything we got to AIS clients [if any]
     var msg18= { // standard class B Position report
@@ -175,7 +176,7 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
                 if (err) console.log ('### Hoops BroadcastPos : UDP msg24b send [err=%s]', err); 
         });
     }
-
+    
     // send statics to every connected AIS clients
     for (var sock in  this.clients) {
         try {
@@ -184,7 +185,7 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
             this.clients[sock].write (msgbufB);
         } catch (err) {
             this.Debug (0, '### HOOPS BroadcastStatic lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
-            delete this.clients[sock]; 
+            if (sock) delete this.clients[sock]; 
         }
     }
 };
@@ -192,15 +193,45 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
 // we got a new aisproxy add it to client list for broadcast
 DevAdapter.prototype.ClientConnect = function (socket) {
     socket.id=this.count ++;
+    var gateway=this.controller.gateway;
+    var aisOut;
     socket.uid="aisproxy://" +  socket.remoteAddress +':'+ socket.remotePort;
     this.Debug  (4, "New client [%s]=%s", socket.id, socket.uid);
     this.clients[socket.id] = socket;
+    
+    // each new client get a list of logged device at connection time
+    for (var devId in gateway.activeClients) {
+        var device= gateway.activeClients[devId];
+        if (device.logged) {
+            
+            
+            if (device.stamp !== undefined) {                
+                var msg18= { // standard class B Position report
+                    aistype    : 18,
+                    cog        : device.stamp.cog,
+                    sog        : device.stamp.sog,
+                    dsc        : false,
+                    repeat     : false,
+                    accuracy   : true,
+                    lon        : device.stamp.lon,
+                    lat        : device.stamp.lat,
+                    second     : 1,
+                    mmsi       : device.model
+                };
+  
+                //var message=util.format ("\n18x %j\n", msg18);
+                //socket.write (message);
+                aisOut = new AisEncode (msg18);
+                if (aisOut.valid) socket.write (aisOut.nmea +'\n');
+            }
+        }
+    }    
 };
 
 // aisproxy quit remove it from out list
 DevAdapter.prototype.ClientQuit = function (socket) {
     this.Debug (4, 'Quit aisproxy client: %s id=%j', socket.uid, socket.id);
-    delete this.clients[socket.id]; 
+    delete this.clients[socket.id];
 };
 
 // browser talking, ignore data
