@@ -55,12 +55,12 @@ function TcpConnect (socket) {
     socket.on('error', function (err) {
         socket.controller.Debug(3, "%s ERROR=[%s]", socket.device.uid, err);
         this.adapter.ClientQuit(socket);
-        socket.end();
+        socket.destroy();
     });
         
     // Remove the device from gateway active device list and notify adapter for eventual cleanup
     socket.on('end', function () {
-	    socket.controller.Debug(4, "SockClient Quit devid=%s uid=%s", socket.device.devid, socket.device.uid);
+	socket.controller.Debug(4, "SockClient Quit devid=%s uid=%s", socket.device.devid, socket.device.uid);
         this.adapter.ClientQuit(socket);
     });
     
@@ -120,7 +120,7 @@ function TcpClientEnd () {
 // Remote server close connection
 function TcpClientError (err) {
     var svcopts   = this.svcopts;  // make objec info visible inside timer handler
-    var controller = this.controller;
+    var controller= this.controller;
     var gateway   = this.controller.gateway;
     var svc       = this.controller.svc;
     

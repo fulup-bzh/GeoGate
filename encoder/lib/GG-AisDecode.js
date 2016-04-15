@@ -17,7 +17,7 @@
  *  Gpsd   : http://catb.org/gpsd/AIVDM.html [best doc]
  *  OpenCPN: https://github.com/OpenCPN/OpenCPN [file: AIS_Bitstring.cpp]
  *  http://fossies.org/linux/misc/gpsd-3.11.tar.gz/gpsd-3.11/test/sample.aivdm
- *  online AIS decoder http://www.maritec.co.za/aisvdmvdodecoding/
+ *  online AIS decoder http://www.maritec.co.za/tools/aisvdmvdodecoding/
  */
 'use strict';
 
@@ -187,15 +187,18 @@ function AisDecode (input, session) {
 
         if(message_id > 1) {
             if(nmea[0] !== session.formatter) {
-                throw "Sentence does not match formatter of current session";
+                console.log ("AisDecode: Sentence does not match formatter of current session");
+                return;
             }
 
             if(session[message_id - 1] === undefined) {
-                throw "Session is missing prior message part, cannot parse partial AIS message.";
+                console.log ("AisDecode: Session is missing prior message part, cannot parse partial AIS message.");
+                return;
             }
 
             if(session.sequence_id !== sequence_id) {
-                throw "Session IDs do not match. Cannot recontruct AIS message.";
+                console.log ("AisDecode: Session IDs do not match. Cannot recontruct AIS message.");
+                return;
             }
         } else {
             session.formatter = nmea[0];

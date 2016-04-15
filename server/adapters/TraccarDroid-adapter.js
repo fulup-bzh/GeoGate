@@ -78,13 +78,14 @@ function DevAdapter (controler)  {
         ]
     }};
 
-    this.uid      = "adapter:Traccar/" + controler.svcopts.port;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.control   = 'tcpsock';
     this.info      = 'TraccarDroid';
     this.debug     =  controler.svcopts.debug;  // inherit debug from controler
     this.controler = controler;  // keep a link to device controler and TCP socket
     this.parser    = new Jison(grammar);
-    this.Debug (1,"%s", this.uid);    
+    this.Debug (1,"uid=%s", this.uid);    
 };
 
 // Import debug method 

@@ -43,7 +43,8 @@ var registermmsi=[];  // keep track of nmea MMSI for uniqueness
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:nmeafeed@" +  controller.svcopts.remport;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + "@" +  controller.svcopts.hostname + ":" +controller.svcopts.remport;
     this.info      = 'nmeatcp';
     this.control   = 'tcpfeed';               // this adapter connect onto a remote server  
     this.debug     =  controller.svcopts.debug;         // inherit debug from controller
@@ -57,7 +58,7 @@ function DevAdapter (controller) {
         process.exit (-1);
     } 
     registermmsi [this.mmsi] = true; 
-    this.Debug (1,"%s mmsi=%s", this.uid,this.mmsi);    
+    this.Debug (1,"uid=%s mmsi=%s", this.uid,this.mmsi);    
 
 };
 
@@ -74,6 +75,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
     var data = 
             {cmd  : TrackerCmd.GetFrom["LOGIN"]
             ,devid : this.mmsi
+            ,name  : this.id
             ,model:'gprmc'
             ,call :'none'
             };

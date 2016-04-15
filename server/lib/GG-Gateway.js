@@ -18,9 +18,6 @@
 
 process.env['TZ'] = 'UTC'; // Update gateway internal time to UTC
 
-var util            = require("util");
-var fs              = require('fs');
-var path            = require('path');
 var async           = require("async");
 var EventEmitter    = require("events").EventEmitter;
 
@@ -42,8 +39,8 @@ function SetCrontab (gateway, inactivity) {
     // let compute inactivity timeout limit
     var timeout = new Date ().getTime - (inactivity *1000);
     
-    for (var device in gateway.activeClients) {
-        
+    for (var devid in gateway.activeClients) {
+        var device = gateway.activeClients[devid];
         if (device.lastshow < timeout) {
             gateway.Debug (6, "Removed ActiveDev Id=%s uid=%s", device.devid, device.uid);
             delete gateway.activeClients [device];

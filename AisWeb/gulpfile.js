@@ -85,10 +85,10 @@ pipes.builtAppScriptsProd = function() {
     return es.merge(scriptedPartials, validatedAppScripts)
         .pipe(plugins.ngAnnotate())
         .pipe(pipes.orderedAppScripts())
-        //.pipe(plugins.sourcemaps.init())
-        //.pipe(plugins.concat(config.APPNAME+'.min.js'))
-        //.pipe(plugins.uglify({compress: {drop_console: true}}))
-        //.pipe(plugins.sourcemaps.write())
+        .pipe(plugins.sourcemaps.init())
+        .pipe(plugins.concat(config.APPNAME+'.min.js'))
+        .pipe(plugins.uglify({compress: {drop_console: true}}))
+        .pipe(plugins.sourcemaps.write())
         .pipe(gulp.dest(paths.distAppProd));
 };
 
@@ -102,7 +102,7 @@ pipes.builtVendorScriptsProd = function() {
         .pipe(pipes.orderedVendorScripts())
          // Bug in Tangram no simple option to aglomerate all JS into one
          // .pipe(debug({title: '***** ordered:'}))
-         //.pipe(plugins.concat('vendor.min.js'))
+        .pipe(plugins.concat('vendor.min.js'))
         .pipe(plugins.uglify())
         .pipe(gulp.dest(paths.distProd+ '/bower_components'));
 };

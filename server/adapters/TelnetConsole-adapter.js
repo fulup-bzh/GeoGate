@@ -114,11 +114,12 @@ function DevAdapter (controller) {
         ]
     }};
 
-    this.uid      = "adapter:telnet//" +  controller.svcopts.port;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.control   = "tcpsock";
     this.info      = "Telnet";
     this.debug     = controller.svcopts.debug;  // inherit debug from controller
-    this.Debug     (1,"%s", this.uid);
+    this.Debug     (1,"uid=%s", this.uid);
     this.controller= controller;  // keep a link to device controller and TCP socket
     this.parser    = new Jison(grammar);
     this.request   = 0; // job request number for gateway queue

@@ -154,14 +154,24 @@ BackendStorage.prototype.LogoutDev = function (device) {
     device.logged = false;
 };
 
+BackendStorage.prototype.TempryLoggin = function (device) {
+    this.Debug(6, "TempryLogin Device:%s", device.uid);
+    this.event.emit("dev-tmp", device);
+};
+
+BackendStorage.prototype.IgnorePosDev = function (device) {
+    this.Debug(6, "IgnoreDev Device:%s", device.uid);
+    this.event.emit("dev-ign", device);
+};
+
 // Query are done asynchronously and function will return before result is known
-BackendStorage.prototype.UpdatePosDev = function (device, data) {
+BackendStorage.prototype.UpdatePosDev = function (device) {
     var self= this;
 
     this.Debug (6,"Update Position device:%s devid=%s", device.uid, device.devid);
 
     function ResponseCB (err, response) {
-        if (err != null) {
+        if (err !== null) {
             self.Debug(0, 'Hoops MongoDB device=%s error=%j', device.devid, err);
             return;
         }
@@ -173,11 +183,11 @@ BackendStorage.prototype.UpdatePosDev = function (device, data) {
         }
     }    
     // launch insertion of new position asynchronously
-    device.mogotrack.insert (data, {w:1}, ResponseCB);
+    device.mogotrack.insert (device.stamp, {w:1}, ResponseCB);
 };
 
 // Query are done asynchronously and function will return before result is known
-BackendStorage.prototype.UpdateObdDev = function (device, data) {
+BackendStorage.prototype.UpdateObdDev = function (device) {
     var self= this;
 
     this.Debug (6,"Update OBD device:%s devid=%s", device.uid, device.devid);
@@ -195,10 +205,10 @@ BackendStorage.prototype.UpdateObdDev = function (device, data) {
         }
     }
     // launch insertion of new position asynchronously
-    device.mogoobd.insert (data, {w:1}, ResponseCB);
+    device.mogoobd.insert (device.stamp, {w:1}, ResponseCB);
 };
 // Query are done asynchronously and function will return before result is known
-BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
+BackendStorage.prototype.UpdateAlarmDev = function (device) {
     var self= this;
 
     this.Debug (6,"Update OBD device:%s devid=%s", device.uid, device.devid);
@@ -216,7 +226,7 @@ BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
         }
     }
     // launch insertion of new position asynchronously
-    device.mogoalarm.insert (data, {w:1}, ResponseCB);
+    device.mogoalarm.insert (device.stamp, {w:1}, ResponseCB);
 };
 
 // Write last X positions on Telnet/Console
@@ -226,7 +236,7 @@ BackendStorage.prototype.LookupDev = function (callback, devid, limit) {
     function ResponseCB (err, responses) {
         self.Debug(6, 'LookupDev device doc=%j err=%j', responses, err);
         if (err) {
-            device.Debug(0, "MongoDB Find Err=%s", err);
+            self.Debug(0, "MongoDB Find Err=%s", err);
             return;
         }
 

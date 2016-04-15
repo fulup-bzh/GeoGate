@@ -52,9 +52,8 @@ var fs          = require('fs');
 
 // Adapter is an object own by a given device controller that handle nmeadata connection
 function DevAdapter (controller) {
-    
-
-    this.uid       = "adapter:httpdajax//" + controller.svcopts.port;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.info      = 'HttpdAjax';
     this.debug     = controller.svcopts.debug;  // inherit debug from controller
     this.controller= controller;  // keep a link to device controller and TCP socket

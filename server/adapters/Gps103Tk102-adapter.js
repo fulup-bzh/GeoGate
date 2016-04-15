@@ -24,12 +24,13 @@ var TrackerCmd= require("../lib/_TrackerCmd");
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
-    this.uid       = "adapterTK103/GPS103//" +  controller.svcopts.port;;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.control   = 'tcpsock';
     this.info      = 'Tk102-Gps103';
     this.debug     = controller.svcopts.debug;
     this.controller= controller;
-    this.Debug (1,"%s", this.uid);
+    this.Debug (1,"uid=%s", this.uid);
 };
 
 DevAdapter.prototype.ProcessDate = function (info, utc) {

@@ -42,13 +42,14 @@ var url         = require("url");
 
 // Adapter is an object own by a given device controller that handle nmeadata connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:gtcfree//" +  + controller.svcopts.port;;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.info      = 'GtcFree';
     this.debug     = controller.svcopts.debug;  // inherit debug from controller
     this.controller= controller;
     this.gateway   = controller.gateway;
     this.control   = 'http';
-    this.Debug (1,"%s", this.uid);    
+    this.Debug (1,"uid=%s", this.uid);    
 };
 
 // CellTrack Free does not accept commands.
@@ -73,7 +74,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     if (query.id === undefined) {
           this.Debug (2,"Hoops: query:id not found in Http Request");
           response.writeHeader(400, {"Content-Type": "text/plain"});
-          response.write('ERR: This is not a valid CellTracGTS request');
+          response.write('CellTracGTS: Invalid Input Format');
           response.end();
           return;
     }
@@ -107,14 +108,17 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     }
 
     // if parsing abort then force line as invalid
-    var data = new NmeaDecode(query.gprmc);
-    if (data.valid) {
-        this.Debug (7,"--> NMEA Lat:%s Lon:%s Sog:%d Cog:%d Alt:%d Date:%s"
-                   , data.lat, data.lon, data.sog, data.cog, data.alt, data.date);
-        data.cmd = TrackerCmd.GetFrom.TRACK;
-        device.ProcessData (data);
-    }
-    result = "OK";
+    if (query.gprmc) {
+        var data = new NmeaDecode(query.gprmc);
+        if (data.valid) {
+            this.Debug (7,"--> NMEA Lat:%s Lon:%s Sog:%d Cog:%d Alt:%d Date:%s"
+                       , data.lat, data.lon, data.sog, data.cog, data.alt, data.date);
+            data.cmd = TrackerCmd.GetFrom.TRACK;
+            device.ProcessData (data);
+        }    
+        result = "OK";
+    } else result = "FX";
+    
     response.writeHeader(200, {"Content-Type": "text/plain"});  
     response.write(result);
     response.end();      

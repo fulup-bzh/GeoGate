@@ -41,16 +41,32 @@ function HookBackendEvent (adapter, backend, socket) {
         var msg = 
             {type : 1
                ,devid: device.devid
-               ,src  : adapter.src
+               ,src  : adapter.src + ' ' + device.adapter.id
                ,model: device.type
                ,name : device.name
                ,call : device.call
         };
         adapter.BroadcastJson (msg);
     };    
+    
+    function EventDevTmp (device){
+        device.websock=0;   // special counter to repost full device every 20 positions
+        adapter.Debug (5, "EventDevAuth devid=%s name=%s", device.devid, device.name);
+        var msg = 
+        {type : 0
+            ,devid: device.devid
+            ,src  : adapter.src + ' ' + device.adapter.id
+            ,lat  : device.stamp.lat
+            ,lon  : device.stamp.lon
+            ,sog  : device.stamp.sog
+            ,cog  : device.stamp.cog
+        };
+        adapter.BroadcastJson (msg);
+    };    
 
     // Events successful process by tracker adapter
     function EventDevPos (device){
+        adapter.Debug (6, "EventDevPos devid=%s name=%s", device.devid, device.name);
          
          // force push of full device info every 20 positions update
          if (device.websock++ >= 10) EventDevAuth (device); 
@@ -58,7 +74,7 @@ function HookBackendEvent (adapter, backend, socket) {
          var msg = 
             {type : 2
             ,devid: device.devid
-            ,src  : adapter.src
+            ,src  : adapter.src + ' ' +device.adapter.id
             ,lat  : device.stamp.lat
             ,lon  : device.stamp.lon
             ,sog  : device.stamp.sog
@@ -67,31 +83,46 @@ function HookBackendEvent (adapter, backend, socket) {
         adapter.BroadcastJson (msg);
     };
     
+    // Events successful process by tracker adapter
+    function EventDevPing (device){
+        adapter.Debug (7, "EventDevPing devid=%s name=%s", device.devid, device.name);
+         
+        var msg = 
+            {type : 3
+            ,devid: device.devid
+        };
+        adapter.BroadcastJson (msg);
+    };
+    
      // Events on action refused by tracker adapter
     function EventDevQuit (device){
        var msg=
-           {type: 3
+           {type: 4
            ,devid: device.devid
            };
        adapter.BroadcastJson (msg);
     };
 
+    backend.event.on("dev-tmp" ,EventDevTmp);	
     backend.event.on("dev-auth",EventDevAuth);	
     backend.event.on("dev-pos" ,EventDevPos);	
+    backend.event.on("dev-ign" ,EventDevPing);	
     backend.event.on("dev-quit",EventDevQuit);	
 };
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:" + "websock//"  + controller.svcopts.port;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
+    this.id        = controller.svcopts.adapter;
     this.info      = 'websock';
     this.control   = 'websock';                // this wait for clients to connect via websock  
     this.debug     =  controller.svcopts.debug; // inherit debug from controller
-    this.src    =  controller.svcopts.src || controller.svcopts.port; // websock serial id for HTML clients
+    this.src       =  controller.svcopts.src || controller.svcopts.port; // websock serial id for HTML clients
     this.controller =  controller;               // keep a link to device controller and TCP socket
     this.clients   =  [];                      // array to keep track of client
     this.count     =  0;                       // index for incomming client
-    this.Debug (1,"%s", this.uid);    
+    this.Debug (1,"uid=%s", this.uid);    
 
     HookBackendEvent(this, controller.gateway.backend);
 };
@@ -147,7 +178,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
             if (device.stamp === undefined) {
             var msg =
                {type: 1 //auth witout position
-               ,src  : this.src
+               ,src  : this.src + ' ' + device.adapter.id
                ,devid: device.devid
                ,model: device.type
                ,name : device.name
@@ -156,7 +187,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
            } else {
             var msg =
                {type: 0 //auth with position
-               ,src  : this.src
+               ,src  : this.src + ' ' + device.adapter.id
                ,devid: device.devid
                ,model: device.type
                ,name : device.name
@@ -176,7 +207,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
 
 // websock quit remove it from out list
 DevAdapter.prototype.ClientQuit = function (socket) {
-    this.Debug (4, 'Quit websock client: %s', this.clients[sock.id].uid);
+    this.Debug (4, 'Quit websock client: %s', this.clients[socket.id].uid);
     delete this.clients[socket.id]; 
 };
 

@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ * 
  */
 
 (function () {
@@ -30,39 +31,35 @@ function DeviceOnMap (map, data) {
     this.src   = data.src;
     this.name  = data.name;
     this.map=map;
+    this.lastshow = new Date().getTime();
 } 
   
 DeviceOnMap.prototype.CreateCircle= function (radius) {
-    var marker= L.circleMarker([this.lat, this.lon],  {
-        radius: radius,
-        color:  'purple',
-        weight:  0.5,
-        opacity: 0.5,
-        riseOnHover: true,
-        fillOpacity: 0.5
+    var marker= L.marker([this.lat, this.lon],  {
+        icon : L.divIcon({className:'vessel trace ' + this.src, iconSize:[3,3]}),
+        clickable: true,
+        title: this.name + ' [mmsi='+ this.devid+ ']'        
       }).addTo(this.map);
-    var info= "devid="+this.devid +" name=" +this.name+"<br>lat:"+this.lat.toFixed(4) +" lon:" +this.lon.toFixed(4) +
-              " spd:" + this.sog.toFixed(2)+ " hdg:"+ this.cog.toFixed(2)+"<br>" +  new Date();
+    var info= "Name=" +this.name+" mmsi="+this.devid +"<br>lat:"+this.lat.toFixed(4) +" lon:" +this.lon.toFixed(4) +
+              " sog:" + this.sog.toFixed(2)+ " cog:"+ this.cog.toFixed(2)+"<br>time: " +  this.LastShow();
     marker.bindPopup("<center>"+info+"</center>");
     return (marker);
 };
 
-    // Create a marker from device object and plate in on the map
-DeviceOnMap.prototype.CreateMarker= function () {
-    if (!this.lat || !this.lon) return;
 
-    this.marker= L.marker([this.lat, this.lon],  
-        { 
-           icon : L.divIcon({className:'vessel-' + this.src, iconSize:[10,10]}),
-           clickable: true,
-           title: 'Nom=' + this.name + ' ['+ this.devid+ ']'
-        }).addTo(this.map);
+DeviceOnMap.prototype.LastShow =function () {
+    var date=new Date(this.lastshow);
+    var hours   = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
 
-    var info="devid=" +this.devid+"<br>Name=" + this.name +"</b><img src="+this.img+" width='250' >";  
-    this.marker.bindPopup("<center>"+info+"</center>");
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    var time    = hours+':'+minutes+':'+seconds;
+    return time;
 };
-   
-  
+
    // build a vector base on device heading & speed
 DeviceOnMap.prototype.CreateVector =function () {
     if (this.vector) this.map.removeLayer (this.vector);
@@ -80,10 +77,33 @@ DeviceOnMap.prototype.CreateVector =function () {
     var newy= parseInt (pts.y + (Math.cos(this.cog* Math.PI / 180)*len*cosDir));
 
     this.vector=L.polyline ([[this.lat, this.lon], this.map.containerPointToLatLng(L.point(newx,newy))],
-                {clickable:false, className: "vector-" + this.src, opacity:0.7, dashArray:[3, 10]}).addTo(this.map);
+                {clickable:false, className: "vessel vector " +this.src, opacity:0.7, dashArray:[3, 10]}).addTo(this.map);
        
 };
+
+// Create a marker from device object and plate in on the map
+DeviceOnMap.prototype.CreateMarker= function (status) {
+    var activeclass;
     
+    if (!this.lat || !this.lon) return;
+    if (status) activeclass='active'; else activeclass='inactive';
+
+    this.active=status;
+    this.marker= L.marker([this.lat, this.lon],  
+        { 
+           icon : L.divIcon({className:'vessel lonlat ' +activeclass +' ' +this.src, iconSize:[10,10]}),
+           clickable: true,
+           title: this.name + ' mmsi='+ this.devid+ '['+ activeclass +']'
+        }).addTo(this.map);
+
+    var info= "Nom=<b>" + this.name + "</b> mmsi=<b>" + this.devid + "</b> " +
+              "<br>Pos:<b>" + this.lat.toFixed(4) + "</b>,<b>" + this.lon.toFixed(4)  +
+              "<br>LastShow=<b>" + this.LastShow() + "</b> ";
+    this.marker.bindPopup("<center>"+info+"</center>");
+};
+   
+
+
 // if no marker create on, else move it and update trace
 DeviceOnMap.prototype.UpdatePos = function (data) {
     
@@ -93,22 +113,29 @@ DeviceOnMap.prototype.UpdatePos = function (data) {
     this.lon = data.lon;
     this.sog = data.sog || 0;
     this.cog = data.cog || 0;
-
-    if (!this.marker) this.CreateMarker();
-    else {
-        // move data marker to new location
-        this.marker.setLatLng ([this.lat, this.lon]);
-        // add a new point to trace
-        var current= this.count; 
-        var next   = ++this.count % 10;
-        this.trace[current]= this.CreateCircle (2);
-        // clear old trace point if needed
-        if (this.trace[next]) this.map.removeLayer (this.trace[next]);  
+    this.lastshow = new Date().getTime();
+    
+    // if not active rebuilt marker
+    if (!this.active) {
+        if (this.marker) this.map.removeLayer (this.marker);
+        this.CreateMarker(true); 
+    } else {
+        if (this.sog > 0) {
+            // move data marker to new location
+            this.marker.setLatLng ([this.lat, this.lon]);
+            // add a new point to trace
+            var current= this.count; 
+            var next   = ++this.count % 20; // trace lenght
+            this.trace[current]= this.CreateCircle (2);
+            // clear old trace point if needed
+            if (this.trace[next]) this.map.removeLayer (this.trace[next]);  
+        }
     }
     
-    var info= "devid=<b>" + data.devid + "</b> Nom=<b>" + this.name + "</b>" +
-              "<br>pos:<b>" + this.lat.toFixed(4) + "</b>,<b>" + this.lon.toFixed(4)  +
-              "<br></b> sog:<b>" + this.sog.toFixed(2)+ "</b> hdg<b>:"+ this.cog.toFixed(2) + "</b>";
+    var info= "Nom=<b>" + this.name + "</b> mmsi=<b>" + this.devid + "</b> " +
+              "<br>Pos:<b>" + this.lat.toFixed(4) + "</b>,<b>" + this.lon.toFixed(4)  +
+              "</b> Sog:<b>" + this.sog.toFixed(2)+ "</b> Cog<b>:"+ this.cog.toFixed(2) + "</b>" +
+              "<br>LastShow=<b>" + this.LastShow() + "</b> ";
 
     this.marker.bindPopup("<center>"+info+"</center>");
 
@@ -118,20 +145,30 @@ DeviceOnMap.prototype.UpdatePos = function (data) {
 DeviceOnMap.prototype.UpdateInfo= function(data) {
 
     // if AIS authent arrive after 1st position let's refresh VesselMaker
-    if (!this.name && data.name) {
-        console.log ("UpdateInfo refresh Maker");
+    if (!this.active || !this.name && data.name) {
         if (this.marker) this.map.removeLayer (this.marker);
         this.name= data.name;
-        this.CreateMarker();
+        this.CreateMarker(true);
     }
 };
-    
-DeviceOnMap.prototype.CleanTrace=function () {
-    for (var slot in this.trace) {
-        if (this.trace [slot] !== undefined) {
-            this.map.removeLayer(this.trace [slot]);
-        }
+
+DeviceOnMap.prototype.DevicePing= function(data) {
+
+    // if device was inactive change it status
+    if (!this.active) {
+        if (this.marker) this.map.removeLayer (this.marker);
+        this.CreateMarker(true);
     }
+    this.lastshow = new Date().getTime();
+};
+    
+DeviceOnMap.prototype.SetInactive=function () {
+    if (this.vector) this.map.removeLayer (this.vector);
+    for (var slot in this.trace) {
+        if (!this.trace [slot]) this.map.removeLayer(this.trace [slot]);
+    }
+    if (this.marker) this.map.removeLayer (this.marker);
+    this.CreateMarker(false);
 };
 
 function AisWebsock (uri, callback) {
@@ -165,10 +202,10 @@ function AisWebsock (uri, callback) {
 }
 
     angular.module('AisToMap', [])
-            .directive('aisToMap', function ($location, urlquery) {
+            .directive('aisToMap', function ($location, $timeout, urlquery) {
                 
                 function mymethods(scope, elem, attrs) {
-                    scope.activeDevs=[];
+                    scope.activeVessels=[];
                     
                     // process AIS position returned by websocket
                     scope.DisplayCallback = function (message) {
@@ -177,65 +214,89 @@ function AisWebsock (uri, callback) {
 
                         switch (data.type) {
                             case 0: // initial messages get both auth & position info
-                               scope.activeDevs [data.devid]= new DeviceOnMap (scope.map, data);
-                               scope.activeDevs [data.devid].UpdateInfo(data);
-                               scope.activeDevs [data.devid].UpdatePos (data);
+                               scope.activeVessels [data.devid]= new DeviceOnMap (scope.map, data);
+                               scope.activeVessels [data.devid].UpdateInfo(data);
+                               scope.activeVessels [data.devid].UpdatePos (data);
                                break;
 
                             case 1: // authentication 
-                                if (!scope.activeDevs[data.devid]) scope.activeDevs [data.devid]= new DeviceOnMap (scope.map, data);
-                                scope.activeDevs [data.devid].UpdateInfo (data);
+                                if (!scope.activeVessels[data.devid]) scope.activeVessels [data.devid]= new DeviceOnMap (scope.map, data);
+                                scope.activeVessels [data.devid].UpdateInfo (data);
                                 break;
 
                             case 2: // position update
-                                if (!scope.activeDevs[data.devid]) scope.activeDevs [data.devid]= new DeviceOnMap (scope.map, data);
-                                scope.activeDevs [data.devid].UpdatePos (data);
+                                if (!scope.activeVessels[data.devid]) scope.activeVessels [data.devid]= new DeviceOnMap (scope.map, data);
+                                scope.activeVessels [data.devid].UpdatePos (data);
+                                break;
+                                
+                            case 3: // device ping
+                                if (scope.activeVessels[data.devid]) scope.activeVessels[data.devid].DevicePing(data);
                                 break;
 
-                            case 3: // data quit let's clean the place
-                                if (scope.activeDevs [data.devid] !== undefined) {
-                                    scope.activeDevs [data.devid].CleanTrace();
-                                    delete scope.activeDevs [data.devid];
+                            case 4: // data quit let's clean the place
+                                if (!scope.activeVessels [data.devid]) {
+                                    scope.activeVessels [data.devid].SetInactive();
+                                    delete scope.activeVessels [data.devid];
                                 }
                                 break;
                             default:
                                console.log ("HOOP: unknown message type: %s [%s]", data.type, JSON.stringify(data));
-                        }
+                        }                        
                     };
                     
+                    scope.CleanOldPos = function () {
+                        var timeout = new Date().getTime() - (scope.inactivity*1000);
+                        for (var devid in scope.activeVessels) {
+                            var vessel = scope.activeVessels[devid];
+                            if (vessel.lastshow < timeout) {
+                                vessel.SetInactive();
+                            }
+                        }
+                        // Check for inactive vessels every 30s
+                        $timeout (scope.CleanOldPos, 30000);                        
+                    }; 
                     
                     scope.Init = function() {
                         
                         scope.map = L.map(attrs.id,  {"keyboardZoomOffset": 0.05, maxZoom: 20, "scrollWheelZoom": true });
                         
                         // Default Morbihan (South Britanny)
-                        scope.lat=urlquery.lat || 47.6;
-                        scope.lng=urlquery.lng || -3.5;
-                        scope.zoom=urlquery.zoom || 8;
-
-                        scope.style = 'http://sinagot.prod/aisweb/config/LeafletMap.yaml'; 
-
+                        scope.lat=urlquery.lat   || 48.123;
+                        scope.lng=urlquery.lng   || -3.05;
+                        scope.zoom=urlquery.zoom || 9;
                         
-                        scope.tangramLayer = Tangram.leafletLayer({
-                            workerUrl: 'http://sinagot.prod/aisweb',
-                            scene: 'config/LeafletMap.yaml',
-                            attribution: '<a href="https://mapzen.com/tangram" target="_blank">Mapzen</a>'
-                        }).addTo (scope.map);
+                        scope.minzoom=attrs.minzoom || 0;
+                        scope.maxzoom=attrs.maxzoom || 12;
                         
-                        scope.OpenSeaMap = L.tileLayer (
+                        scope.inactivity=attrs.inactivity || 600; // time before moving target to inactive
+                         
+                        // Warning: to use Tangram vector layer
+                        //  - need to force load of tangram.min.js not concatenated with any other JS files
+                        //  - load tangram.min.js with Index.htlm template and not through gulp
+                        //var tangramLayer = Tangram.leafletLayer({
+                        //    workerUrl: 'http://sinagot.prod/aisweb',
+                        //    scene: 'config/LeafletMap.yaml',
+                        //    attribution: '<a href="https://mapzen.com/tangram" target="_blank">Mapzen</a>'
+                        //}).addTo (scope.map);
+                        
+                        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                        var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a>';
+                        var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib}).addTo (scope.map);	
+
+                        // References http://wiki.openseamap.org/wiki/OpenSeaMap_in_Website
+                        var OpenSeaMap = L.tileLayer (
                             'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',
                             {attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a> <b>aisweb</b> by <a href="http://sinagot.net">sinagot.net</a>'}
                         ).addTo (scope.map);
-
-                        // Harbours
-			//var layer_pois = new L.Layer.Vector("Häfen", { projection: new OpenLayers.Projection("EPSG:4326"), visibility: true, displayOutsideMaxExtent:true});
-				
+                				
                         // center the map
                         scope.map.setView ([scope.lat, scope.lng], scope.zoom);
                         
-                        // open 2 websockets (Trackers+Mobiles)
-                        new AisWebsock ("ws://" + $location.host() + "/ais-track?API_KEY=123456789", scope.DisplayCallback);
+                        // open websocket on sinagot.net localtraffic + Mobile + Tracker
                         new AisWebsock ("ws://" + $location.host() + "/ais-droid?API_KEY=123456789", scope.DisplayCallback);
+                        
+                        // start process to clean old position
+                        scope.CleanOldPos();
                         
                         // add listener on mouse move
                         scope.map.getContainer().addEventListener('mouseup', function (event) {

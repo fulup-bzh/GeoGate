@@ -34,9 +34,23 @@ else AisEncode = require("../../encoder/ApiExport").AisEncode;
 
 // hook user event handler to receive a copy of messages
 function HookBackendEvent (adapter, backend, socket) {
+    
+    function String2Hash (str) {
+        var hash = 5381;
+        var i = str.length;
+
+        while(i) hash = (hash * 33) ^ str.charCodeAt(--i);
+
+        /* JavaScript does bitwise operations (like XOR, above) on 32-bit signed
+         * integers. Since we want the results to be always positive, convert the
+         * signed int to an unsigned by doing an unsigned bitshift. 
+         */
+        return hash >>> 0;
+    }
           
     function EventDevAuth (device){
         device.mmsi = parseInt (device.model);
+        if (isNaN (device.mmsi)) device.mmsi=String2Hash(device.mmsi);
         adapter.BroadcastStatic (device);
         if (device.stamp) adapter.BroadcastPos (device);
     };    
@@ -52,15 +66,22 @@ function HookBackendEvent (adapter, backend, socket) {
         adapter.BroadcastPos (device);
     };
     
+    function EventDevPng (device){
+        // Simple AisPing         
+        adapter.BroadcastPing (device);
+    };
+    
     backend.event.on("dev-auth",EventDevAuth);	
     backend.event.on("dev-pos" ,EventDevPos);	
+    backend.event.on("dev-ign" ,EventDevPos);	
     backend.event.on("dev-alrm",EventDevPos);	
     backend.event.on("dev-quit",EventDevQuit);	
 };
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:" + "aistcp//"  + controller.svcopts.port;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.info      = 'aistcp';
     this.control   = 'tcpsock';                 // this wait for AIS clients to connect via TCP  
     this.debug     =  controller.svcopts.debug; // inherit debug from controller
@@ -69,7 +90,7 @@ function DevAdapter (controller) {
     this.count     =  0;                        // index for incomming client
     this.uport     =  controller.svcopts.uport;
     this.uhost     =  controller.svcopts.uhost || "127.0.0.1";
-    this.Debug (1,"%s", this.uid);
+    this.Debug (1,"uid=%s", this.uid);
 
     // create UDP port to push packet out
     if (this.uport) this.usock = dgram.createSocket('udp4');
@@ -116,6 +137,48 @@ DevAdapter.prototype.BroadcastPos = function (device) {
     if (this.usock) {
            this.usock.send(msgbuf, 0, msgbuf.length, this.uport, this.uhost, function(err, bytes) {
            if (err) console.log ('### Hoops BroadcastPos : UDP Msg18 [err=%s]', err); 
+        });
+    }
+
+    // if we have AIS TCP client let's send a copy of AISpos to each of them
+    for (var sock in  this.clients) {
+        try {
+            this.clients[sock].write (msgbuf);          
+        } catch (err) {
+            this.Debug (1, '### Hoops BroadcastPos lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
+            delete this.clients[sock]; 
+        }
+    }   
+};
+
+DevAdapter.prototype.BroadcastPing = function (device) {
+    var aisOut;
+    
+    device.aisproxy++; // update counter for AIS static renewal
+    if (!device.stamp) return;
+    
+    // push back anything we got to AIS clients [if any]
+    var msg25= { // standard class B Position report
+        aistype    : 25,
+        mmsi       : device.mmsi
+    };
+    this.Debug (4, "AIS Ping=%j", msg25);
+
+    //var message=util.format ("\n18b %j\n", msg18);
+    //this.clients[sock].write (message);
+    aisOut = new AisEncode (msg25);
+    if (! aisOut.valid) {
+        this.Debug (1, "Invalid msg18=%j", msg25);
+        return;
+    }
+    
+    // transform AIS string into a buffer linefeed ended
+    var msgbuf = new Buffer (aisOut.nmea + "\n");
+    
+    // if UDP is defined send AISpos onto it
+    if (this.usock) {
+           this.usock.send(msgbuf, 0, msgbuf.length, this.uport, this.uhost, function(err, bytes) {
+           if (err) console.log ('### Hoops BroadcastPos : UDP Msg25 [err=%s]', err); 
         });
     }
 

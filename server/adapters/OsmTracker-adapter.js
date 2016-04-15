@@ -49,13 +49,14 @@ function OSMdata (data) {
 
 // Adapter is an object own by a given device controller that handle nmeadata connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:osmtracker//" +  + controller.svcopts.port;;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.info      = 'OSMtracker';
     this.debug     = controller.svcopts.debug;  // inherit debug from controller
     this.controller= controller;
     this.gateway   = controller.gateway;
     this.control   = 'http';
-    this.Debug (1,"%s", this.uid);    
+    this.Debug (1,"uid=%s", this.uid);    
 };
 
 // CellTrack Free does not accept commands.
@@ -76,7 +77,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
     if (query.id === undefined) {
           this.Debug (2,"Hoops: query:id not found in Http Request");
           response.writeHeader(400, {"Content-Type": "text/plain"});
-          response.write('ERR: Invalid IMEI in Http Request');
+          response.write('OSM/Traccar: Invalid Input Format');
           response.end();
           return;
     }

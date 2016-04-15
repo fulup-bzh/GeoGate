@@ -33,7 +33,8 @@ else AisEncode = require("../../encoder/ApiExport").AisEncode;
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:" + "json2ais//"  + controller.svcopts.port;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.info      = 'json2ais';
     this.control   = 'tcpsock';                 // this wait for AIS clients to connect via TCP  
     this.debug     =  controller.svcopts.debug; // inherit debug from controller

@@ -18,24 +18,8 @@
 
 ais-to-map {
 
-    // Warning: vessel-undefined does not define undeclare websock "src=xxx"
-    
-    .vessel-droid {
-        background-color: #ff7800;
-        border-color: black;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
-    }
-    .vessel-track {
-        background-color: greenyellow;
-        border-color: blue;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
-    }
-    
-    .vessel-undefined {
+    .vessel {
+        stroke: grey; // direction vector
         background-color: grey;
         border-color: black;
         border-radius: 5px;
@@ -43,15 +27,53 @@ ais-to-map {
         border-width: 1px;
     }
     
-    .vector-droid {
-        stroke: orange;
+    .Traccar {
+        background-color: darkorchid;
+        stroke:  darkorchid;
+        border-color:  darkblue ;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
     }
     
-    .vector-track {
-        stroke: green;
+    .Celltrac {
+        background-color: #ff7800;
+        stroke: #ff7800;
+        border-color: black;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
     }
     
-    .vector-undefined { // Unknown vessel source
-        stroke: grey;
+    .AisGpsd {
+        background-color:  greenyellow;
+        stroke:  greenyellow;
+        border-color:  blue;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+    }
+    
+    
+    .SimuNmea {
+        background-color: aquamarine;
+        stroke: aquamarine;
+        border-color: blue;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+    }
+    
+    .vessel.inactive {
+        stroke: grey; // direction vector
+        background-color: grey;
+        border-color: black;
+        border-radius: 5px;
+        border-style: solid;
+        border-width: 1px;
+    }
+        
+    .vessel.trace {
+       opacity: 0.7;
     }
 }

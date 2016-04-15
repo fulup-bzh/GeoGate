@@ -268,9 +268,19 @@ BackendStorage.prototype.LogoutDev = function (device) {
     this.event.emit("dev-quit", device);
 };
 
+BackendStorage.prototype.TempryLoggin = function (device) {
+    this.Debug(6, "TempryLogin Device:%s", device.uid);
+    this.event.emit("dev-tmp", device);
+};
+
+
+BackendStorage.prototype.IgnorePosDev = function (device) {
+    this.Debug(6, "IgnorePosDev Device:%s", device.uid);
+    this.event.emit("dev-ign", device);
+};
 
 // Query are done asynchronously and function will return before result is knowned
-BackendStorage.prototype.UpdatePosDev = function (device, data) {
+BackendStorage.prototype.UpdatePosDev = function (device) {
     var self=this;
     this.Debug (6,"Updating Track MySQL devid=%s", device.devid);
 
@@ -278,7 +288,7 @@ BackendStorage.prototype.UpdatePosDev = function (device, data) {
     var queryString = "INSERT INTO " + device.track + " set ?";
 
     // launch insertion of new position asynchronously
-    var insertQuery = this.base.query(queryString, data);
+    var insertQuery = this.base.query(queryString, device.stamp);
 
     insertQuery.on("error", function(err) {
         self.Debug (0,"MySql ERROR UpdatePosDev %s err=%s", queryString, err);
@@ -287,7 +297,7 @@ BackendStorage.prototype.UpdatePosDev = function (device, data) {
     this.event.emit ("dev-pos", device);
 };
 
-BackendStorage.prototype.UpdateObdDev = function (device, data) {
+BackendStorage.prototype.UpdateObdDev = function (device) {
     var self=this;
     this.Debug (6,"Updating OBD MySQL devid=%s", device.devid);
 
@@ -295,14 +305,14 @@ BackendStorage.prototype.UpdateObdDev = function (device, data) {
     var queryString = "INSERT INTO " + device.obd + " set ?";
 
     // launch insertion of new position asynchronously
-    var insertQuery = this.base.query(queryString, data);
+    var insertQuery = this.base.query(queryString, device.stamp);
 
     insertQuery.on("error", function(err) {
         self.Debug (0,"MySql ERROR UpdateOdbDev %s err=%s", queryString, err);
     });
 };
 
-BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
+BackendStorage.prototype.UpdateAlarmDev = function (device) {
     var self=this;
     this.Debug (6,"Updating Alarm MySQL devid=%s", device.devid);
 
@@ -310,7 +320,7 @@ BackendStorage.prototype.UpdateAlarmDev = function (device, data) {
     var queryString = "INSERT INTO " + device.track + " set ?";
 
     // launch insertion of new position asynchronously
-    var insertQuery = this.base.query(queryString, data);
+    var insertQuery = this.base.query(queryString, device.stamp);
 
     insertQuery.on("error", function(err) {
         self.Debug (0,"MySql ERROR LookupDev %s err=%s", queryString, err);

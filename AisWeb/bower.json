@@ -5,9 +5,7 @@
   "private": true,
   "dependencies": {
     "foundation-apps": "~1.2.0",
-    "foundation-icon-fonts": "*",
     "angular-ui-notification": "*",
-    "tangram": "^0.6.3",
     "leaflet": "^1.0"
   },
   "overrides": {

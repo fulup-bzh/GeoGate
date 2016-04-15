@@ -12,6 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * This adaptater takes AIS input in AIS/NMEA Binary Format from either GPSd or Socket
+ * Note is will not accept AIS positioning before target send a static AIS message
  */
 
 /*
@@ -48,14 +51,16 @@ function AisPositionObj (ais) {
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
-    this.uid       = "adapter:aisfeed@" +  controller.svcopts.hostname + ":" +controller.svcopts.remport;
+    this.id        = controller.svc;
+    this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + "@" +  controller.svcopts.hostname + ":" +controller.svcopts.remport;
     this.info      = 'TcpAis';
     this.control   = 'tcpfeed';          // this adapter connect onto a remote server 
     this.debug     = controller.svcopts.debug;    // inherit debug from controller
     this.controller= controller;          // keep a link to device controller and TCP socket
     this.gateway   = controller.gateway;
-    this.Debug (1,"DevAdapter: %s", this.uid);
+    this.Debug (1,"uid=%s", this.uid);
     this.count     =0; // stat counter
+    this.session   = {}; // special object to store AIS multipart messages
 };
 
 // Import debug method 
@@ -97,9 +102,11 @@ DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
     
 // Process a full line Gpsd/Json send one object per line 
 DevAdapter.prototype.ParseLine = function(socket, line) {
+    var device;
+    
     this.Debug  (8, "line=[%s]", line);
     // send AIS message to parser
-    var ais= new AisDecode (line);
+    var ais= new AisDecode (line, this.session);
     
     // check if message was valid
     if (!ais.valid) return;
@@ -118,11 +125,16 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
             data.count = socket.count;
             
             // if we exist in active client and we're log then update position now
-            var device = this.gateway.activeClients [ais.mmsi];
-            if (device !== undefined && device.logged) {        // device has sent its static info
-                    device.ProcessData (data); // update ship position in DB
+            device = this.gateway.activeClients [ais.mmsi];
+            if (device) {        // is device is not logged we use a trempry name
+                device.ProcessData (data); // update ship position in DB
             } else {
-                this.Debug (3, "Ignoring AIS count:%s mmsi:%s type:%s [not logged]", this.count++, ais.mmsi, ais.aistype);
+                this.Debug (3, "Tempry log for mmsi:%s type:%s", ais.mmsi, ais.aistype);
+                device = new TcpClient (socket);
+                this.gateway.activeClients [ais.mmsi] = device;
+                device.devid = ais.mmsi;
+                data.cmd= TrackerCmd.GetFrom.TMPLOG;
+                device.ProcessData (data); // update ship position in DB                
             }
             break;
         
@@ -130,12 +142,13 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
         case 5:  // static information class A
         case 24: // static information class B
             // if device is not in active list we force a new object to keep track of it
-            if (this.gateway.activeClients [ais.mmsi] === undefined) {
-                var device = new TcpClient (socket);
-                
-                // if we have shipname update device even is unknown from DB
-                if (ais.shipname !== undefined)  ais.shipname = device.name;
-                // force authent [due to DB delay we ignore first AIS paquets]
+            if (!this.gateway.activeClients [ais.mmsi]) {
+                device = new TcpClient (socket);
+                this.gateway.activeClients [ais.mmsi] = device;
+            } else device=this.gateway.activeClients [ais.mmsi];
+                 
+            if (!device.logged) { // if we have shipname update device even is unknown from DB
+                if (ais.shipname)  device.name = ais.shipname;
                 var data = 
                     {devid : ais.mmsi
                     ,cmd  : TrackerCmd.GetFrom.LOGIN
@@ -147,8 +160,14 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
                 device.ProcessData (data);
             }
             break;
+        case 25: // ping self
+            if (device !== undefined && device.logged) { // device has sent its static info
+                data.cmd= TrackerCmd.GetFrom.PING;
+                device.ProcessData (data); // update ship position in DB
+            }  
+            break;
         default:
-            this.Debug (4,"Hoops: AIS aistype=%s not supported", ais.aistype)
+            this.Debug (4,"Hoops: AIS aistype=%s not supported", ais.aistype);
     }
 };
 

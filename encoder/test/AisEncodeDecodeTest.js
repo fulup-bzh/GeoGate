@@ -137,10 +137,6 @@ AisEncodeDecodeTest.prototype.CheckResult = function (test, aisin, aisout, contr
 
 AisEncodeDecodeTest.prototype.CheckDecode = function () {
 
-    function DummySession () {
-        // this is a fake session for multipart AIS messages
-    }
-
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
         var aisTest     = this.testSet [test];
@@ -148,7 +144,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
         // Require a string or an array. Turn string into an array. Return for
         // anything else.
         if(aisTest.nmea instanceof Object) {
-            var session=new DummySession ();
+            var session={};
             var aisDecoded = new AisDecode(aisTest.nmea[0], session);
             var aisDecoded = new AisDecode(aisTest.nmea[1], session);
         } else {
@@ -184,27 +180,30 @@ AisEncodeDecodeTest.prototype.CheckEncode = function () {
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
         var aisIn  = this.testSet [test];
-        var aisOut = new AisEncode (aisIn);
+        
+        if (aisIn.nmea.lenght === 1) {
+            var aisOut = new AisEncode (aisIn);
 
-        // Warning: this test only to a string comparison on old result from www.maritec.co.za
-        if (aisOut.valid) {
-            console.log("\nTEST=%s  --> http://www.maritec.co.za/ais", test);
-            console.log(" --in=%s", aisIn.nmea);
-            console.log(" --ou=%s", aisOut.nmea);
-        } else  {
-            console.log ("Ais Input message [%s] invalid", test)
-        }
-
-        var error=0;
-        for (var i=0; i< aisIn.nmea.length; i++) {
-            if (aisIn.nmea [i] !== aisOut.nmea [i]) {
-                error=1;
-                console.log ('  ** idx=%d in:%s != out:%s', i, aisIn.nmea [i],  aisOut.nmea [i]);
+            // Warning: this test only to a string comparison on old result from www.maritec.co.za
+            if (aisOut.valid) {
+                console.log("\nTEST=%s  --> http://www.maritec.co.za/ais", test);
+                console.log(" --in=%s", aisIn.nmea);
+                console.log(" --ou=%s", aisOut.nmea);
+            } else  {
+                console.log ("Ais Input message [%s] invalid", test);
             }
-        }
 
-        if (error === 0 )console.log ("  ## OK ##");
-        else console.log ("  ** ERROR **");
+            var error=0;
+            for (var i=0; i< aisIn.nmea.length; i++) {
+                if (aisIn.nmea [i] !== aisOut.nmea [i]) {
+                    error=1;
+                    console.log ('  ** idx=%d in:%s != out:%s', i, aisIn.nmea [i],  aisOut.nmea [i]);
+                }
+            }
+
+            if (error === 0 )console.log ("  ## OK ##");
+            else console.log ("  ** ERROR **");
+        }
     }
 };
 

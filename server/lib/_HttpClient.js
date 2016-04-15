@@ -44,7 +44,7 @@ function GpsdHttpClient (adapter, devid) {
     this.debug =  adapter.debug; // inherit debug level
     this.uid  = "httpclient//" + adapter.info + ":" + devid;
         
-	this.adapter       = adapter;
+    this.adapter       = adapter;
     this.gateway       = adapter.gateway;
     this.controller    = adapter.controller;
     this.socket        = null;     // we cannot rely on socket to talk to device
@@ -165,9 +165,10 @@ GpsdHttpClient.prototype.ProcessData = function(data) {
             // update database and store current device location in object for mindist computation
             if (update) { // update device last position in Ram/Database
                 this.stamp = new PositionObj(data);
-                gateway.backend.UpdatePosDev (this, this.stamp);
+                gateway.backend.UpdatePosDev (this);
             } else {
                 this.Debug(6,"%s Dev=%s ignored moved %dm<%dm ?", this.count, this.devid, moved, this.controller.svcopts.mindist);
+                this.gateway.backend.IgnorePosDev (this);
             }
             break;
     

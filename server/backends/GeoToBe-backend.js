@@ -177,6 +177,16 @@ BackendStorage.prototype.LogoutDev = function (device) {
     device.logged = false;
 };
 
+BackendStorage.prototype.TempryLoggin = function (device) {
+    this.Debug(5, "TempryLogin Device:%s", device.uid);
+    this.event.emit("dev-tmp", device);
+};
+
+BackendStorage.prototype.IgnorePosDev = function (device) {
+    this.Debug(6, "IgnoreDev Device:%s", device.uid);
+    this.event.emit("dev-ign", device);
+};
+
 // If Elapsed Moved cannot be retreived from device session, we compute it from DB
 BackendStorage.prototype.FixeMovedElapsed = function (device, data, rowid) {
     var self=this;

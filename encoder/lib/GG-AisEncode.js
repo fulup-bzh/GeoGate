@@ -17,7 +17,7 @@
  *  Gpsd   : http://catb.org/gpsd/AIVDM.html
  *  OpenCPN: https://github.com/OpenCPN/OpenCPN [AIS_Bitstring.cpp]
  *  http://fossies.org/linux/misc/gpsd-3.11.tar.gz/gpsd-3.11/test/sample.aivdm
- *  Online AIS decoder http://www.maritec.co.za/aisvdmvdodecoding/
+ *  Online AIS decoder http://www.maritec.co.za/tools/aisvdmvdodecoding/
  *  Danish Maritime Authority https://github.com/dma-ais/AisLib (dma/ais/message)
  */
 
@@ -120,7 +120,7 @@ function AisEncode (msg) {
             var draught = parseInt (msg.draught*10);
             this.PutInt((parseInt(draught*10)), 294, 8);
             this.PutStr(msg.destination,302,120);
-             this.payloadSize=422;
+            this.payloadSize=422;
             break;
         case 24:  // Vesel static information
             this.class='B';
@@ -140,6 +140,12 @@ function AisEncode (msg) {
                 // message part missing
                 this.valid=false;
             }
+            break;
+        case 25:  // single slot Binary message
+            this.class='B';
+            this.PutInt(1, 38, 1 ); // single destination
+            this.PutInt(msg.mmsi   , 40, 20 ); // we self ping only
+            this.payloadSize=168; // ignore last flags
             break;
         default:
             // not implemented

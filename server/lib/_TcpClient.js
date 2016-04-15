@@ -115,6 +115,7 @@ TcpClient.prototype.LoginDev = function(data) {
         this.class = this.adapter.info;
         this.model = data.model;
         this.call  = data.call;
+        this.name  = data.name;
 
         //Update/Create device socket store by uid at this.gateway level
         this.gateway.activeClients [this.devid] = this;
@@ -132,9 +133,21 @@ TcpClient.prototype.ProcessData = function(data) {
     }
 
     // if not logged exit now except for login
-    if (!this.logged && data.cmd !== TrackerCmd.GetFrom.LOGIN) {
-       this.Debug (3,"tracker update not logged DEVID=%s", this.devid);
-        return (-1);
+    if (!this.logged) {
+        switch (data.cmd) {
+            // This device is not register inside TcpClient Object
+            case TrackerCmd.GetFrom.LOGIN:
+                this.LoginDev (data);
+                break;    
+            case TrackerCmd.GetFrom.TMPLOG:
+                data.acquired_at = new Date().getTime();
+                this.stamp = new PositionObj(data);
+                this.gateway.backend.TempryLoggin (this);
+                break;
+            default:
+                this.Debug (3,"tracker update TempryLoggin DEVID=%s", this.devid);
+                return (-1);
+        }
     }
     
     // update lastshow for cleanup cron
@@ -143,14 +156,10 @@ TcpClient.prototype.ProcessData = function(data) {
     
 // process login in DB & active client list
     switch (data.cmd) {
-                // This device is not register inside TcpClient Object
-        case TrackerCmd.GetFrom.LOGIN: {
-            this.LoginDev (data);
-            break;
-        };
-
+ 
         // Device keep alive service
         case TrackerCmd.GetFrom.PING:
+            this.gateway.backend.IgnorePosDev (this);
             break;
 
         // Standard tracking information
@@ -178,8 +187,9 @@ TcpClient.prototype.ProcessData = function(data) {
 
             data.acquired_at = new Date().getTime();
             this.stamp = new PositionObj(data);
-            this.gateway.backend.UpdateAlarmDev (this, new PositionObj (data));
+            this.gateway.backend.UpdateAlarmDev (this);
             break;
+
 
         // Standard tracking information
         case TrackerCmd.GetFrom.TRACK:
@@ -220,10 +230,11 @@ TcpClient.prototype.ProcessData = function(data) {
             if (update) { // update device last position in Ram/Database
                 this.errorcount = 0;
                 this.stamp = new PositionObj(data);
-                this.gateway.backend.UpdatePosDev (this, this.stamp);
+                this.gateway.backend.UpdatePosDev (this);
 
             } else {
-                this.Debug (6, "DevId=%s [%s] Update Ignored moved:%dm/%d speed:%dms/%d"
+                this.gateway.backend.IgnorePosDev (this);
+                this.Debug (5, "DevId=%s [%s] Update Ignored moved:%dm/%d speed:%dms/%d"
                            , this.devid, this.name, moved, this.controller.svcopts.mindist, speedms, this.controller.svcopts.maxspeedms);
             }
             break;
