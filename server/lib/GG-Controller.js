@@ -55,7 +55,7 @@ function TcpConnect (socket) {
     socket.on('error', function (err) {
         socket.controller.Debug(3, "%s ERROR=[%s]", socket.device.uid, err);
         this.adapter.ClientQuit(socket);
-        socket.destroy();
+        try {socket.destroy();} catch(e){};
     });
         
     // Remove the device from gateway active device list and notify adapter for eventual cleanup

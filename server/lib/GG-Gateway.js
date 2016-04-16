@@ -34,18 +34,20 @@ var JOB_RETRY_TIMER=30* 1000; // 30s in between two retry
 // this function scan active device table and remove dead one based on inactivity timeout
 function SetCrontab (gateway, inactivity) {
     // let's call back ourself after inactivity*1000/4
+    gateway.Debug (5, "SetCrontab inactivity=%d", inactivity);
     setTimeout (function(){SetCrontab (gateway, inactivity);}, inactivity*250);
     
     // let compute inactivity timeout limit
-    var timeout = new Date ().getTime - (inactivity *1000);
+    var timeout = new Date().getTime() - (inactivity *1000);
     
     for (var devid in gateway.activeClients) {
         var device = gateway.activeClients[devid];
         if (device.lastshow < timeout) {
-            gateway.Debug (6, "Removed ActiveDev Id=%s uid=%s", device.devid, device.uid);
-            delete gateway.activeClients [device];
+            gateway.Debug (1, "Removed ActiveDev Id=%s uid=%s", device.devid, device.uid);
+            delete gateway.activeClients [devid];
         }
     }
+      
 };
 
 // Callback notify Async API that curent JobQueue processing is done
@@ -181,7 +183,7 @@ Gateway.prototype.Debug = Debug;
 Gateway.prototype.Gateway=function(opts) {
 
 
-    console.log ("\nGateway Start: " + opts.name );
+    this.Debug (0, "Gateway Start: %s ", opts.name );
     
     //  Create databaseObj and attach it to Gateway
     try {
@@ -204,7 +206,7 @@ Gateway.prototype.Gateway=function(opts) {
     this.queue  =  async.queue  (JobQueue, 1);
     
     // Cron is an even handler executed outside of current object
-    SetCrontab (this, opts.inactivity);
+    SetCrontab (this, parseInt (opts.inactivity) || 900);
 
     // For each adapter start a dedicated device server
     for (var svc in opts.services) {

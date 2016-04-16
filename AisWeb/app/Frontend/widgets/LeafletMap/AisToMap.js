@@ -171,6 +171,14 @@ DeviceOnMap.prototype.SetInactive=function () {
     this.CreateMarker(false);
 };
 
+DeviceOnMap.prototype.RemoveTarget=function (scope) {
+    if (this.marker) this.map.removeLayer (this.marker);
+    delete scope.activeVessels [this.devid];
+};
+
+                                    
+
+
 function AisWebsock (uri, callback) {
 
     var restart = function () {
@@ -235,8 +243,7 @@ function AisWebsock (uri, callback) {
 
                             case 4: // data quit let's clean the place
                                 if (!scope.activeVessels [data.devid]) {
-                                    scope.activeVessels [data.devid].SetInactive();
-                                    delete scope.activeVessels [data.devid];
+                                    scope.activeVessels [data.devid].RemoveTarget(scope);
                                 }
                                 break;
                             default:
@@ -245,15 +252,15 @@ function AisWebsock (uri, callback) {
                     };
                     
                     scope.CleanOldPos = function () {
-                        var timeout = new Date().getTime() - (scope.inactivity*1000);
+                        var timeout1 = new Date().getTime() - (scope.inactivity*1000);
+                        var timeout2 = new Date().getTime() - (scope.inactivity*2000);
                         for (var devid in scope.activeVessels) {
                             var vessel = scope.activeVessels[devid];
-                            if (vessel.lastshow < timeout) {
-                                vessel.SetInactive();
-                            }
+                            if (vessel.lastshow < timeout2) vessel.RemoveTarget(scope);
+                            else if (vessel.lastshow < timeout1) vessel.SetInactive();
                         }
                         // Check for inactive vessels every 30s
-                        $timeout (scope.CleanOldPos, 30000);                        
+                        $timeout (scope.CleanOldPos, scope.inactivity*250);                        
                     }; 
                     
                     scope.Init = function() {
