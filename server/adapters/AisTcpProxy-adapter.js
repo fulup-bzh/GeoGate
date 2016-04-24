@@ -45,12 +45,13 @@ function HookBackendEvent (adapter, backend, socket) {
          * integers. Since we want the results to be always positive, convert the
          * signed int to an unsigned by doing an unsigned bitshift. 
          */
+        
         return hash >>> 0;
     }
           
     function EventDevAuth (device){
-        device.mmsi = parseInt (device.model);
-        if (isNaN (device.mmsi)) device.mmsi=String2Hash(device.mmsi);
+        device.mmsi = parseInt (device.devid);
+        if (isNaN (device.mmsi)) device.mmsi=String2Hash(device.devid);
         adapter.BroadcastStatic (device);
         if (device.stamp) adapter.BroadcastPos (device);
     };    
@@ -211,12 +212,12 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
         aistype    : 24,
         part       : 1,
         mmsi       : device.mmsi,
-        cargo      : 37, // map to pleasure boat
+        cargo      : device.cargo || 0, 
         callsign   : device.callsign,
-        dimA       : 0,
-        dimB       : 7,
-        dimC       : 0,
-        dimD       : 2
+        dimA       : device.dimA || 0,
+        dimB       : device.dimB || 7,
+        dimC       : device.dimC || 0,
+        dimD       : device.dimD || 2
     };
     aisOutB = new AisEncode (msg24b);
 

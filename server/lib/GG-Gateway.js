@@ -206,7 +206,7 @@ Gateway.prototype.Gateway=function(opts) {
     this.queue  =  async.queue  (JobQueue, 1);
     
     // Cron is an even handler executed outside of current object
-    SetCrontab (this, parseInt (opts.inactivity) || 900);
+    SetCrontab (this, parseInt (opts.inactivity) || 3600);
 
     // For each adapter start a dedicated device server
     for (var svc in opts.services) {

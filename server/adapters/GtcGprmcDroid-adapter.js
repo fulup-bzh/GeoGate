@@ -96,6 +96,7 @@ DevAdapter.prototype.ProcessData = function(request, response) {
         Debug (5,"New CellTrac Device id=%s devid=%d", query.id, devid);
         device= new HttpClient(this, devid);
         // force authent [due to DB delay we may refuse first NMEA packets]
+        
         device.LoginDev ({devid: devid});
     }
 

@@ -103,19 +103,14 @@ BackendStorage.prototype.LookupDev = function (callback, devid, args) {
     callback (result);
 };
 
-BackendStorage.prototype.DummyName = function (devid) {
-    var devname = devid.toString();
-    return devname.substring(devname.length-5);
+BackendStorage.prototype.TempryLoggin = function (device) {
+    this.Debug(5, "TempryLogin Device:%s", device.uid);
+    this.event.emit("dev-tmp", device);
 };
 
 BackendStorage.prototype.LoginDev = function (device) {
     this.Debug (1,"Authentication accepted for device=%s name=%s", device.uid, device.name);
-    var emeifix = this.DummyName (device.devid);
     device.logged   = true;
- 
-    device.callsign = "FX-" + emeifix;
-    device.model    = device.devid;
-    if (!device.name)  device.name = device.adapter.id + "-" + emeifix;
 
     // Create Ram storage array for tracking this.storesize positions
     if (device.posIdx === undefined) {
@@ -138,11 +133,6 @@ BackendStorage.prototype.LogoutDev = function (device) {
 
 BackendStorage.prototype.UpdateObdDev = function (device) {
     this.Debug(4, "Obd Device:%s", device.uid);
-};
-
-BackendStorage.prototype.TempryLoggin = function (device) {
-    this.Debug(5, "TempryLogin Device:%s", device.uid);
-    this.event.emit("dev-tmp", device);
 };
 
 BackendStorage.prototype.IgnorePosDev = function (device) {

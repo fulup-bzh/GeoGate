@@ -155,6 +155,10 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
                     ,name : ais.shipname
                     ,model: ais.cargo
                     ,call : ais.callsign
+                    ,dimA : ais.dimA
+                    ,dimB : ais.dimB
+                    ,dimC : ais.dimC
+                    ,dimD : ais.dimD
                 };
                 // ask client to process login 
                 device.ProcessData (data);

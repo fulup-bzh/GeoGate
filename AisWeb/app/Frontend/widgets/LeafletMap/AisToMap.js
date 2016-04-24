@@ -125,7 +125,7 @@ DeviceOnMap.prototype.UpdatePos = function (data) {
             this.marker.setLatLng ([this.lat, this.lon]);
             // add a new point to trace
             var current= this.count; 
-            var next   = ++this.count % 20; // trace lenght
+            var next   = ++this.count % 10; // trace lenght
             this.trace[current]= this.CreateCircle (2);
             // clear old trace point if needed
             if (this.trace[next]) this.map.removeLayer (this.trace[next]);  
@@ -145,7 +145,7 @@ DeviceOnMap.prototype.UpdatePos = function (data) {
 DeviceOnMap.prototype.UpdateInfo= function(data) {
 
     // if AIS authent arrive after 1st position let's refresh VesselMaker
-    if (!this.active || !this.name && data.name) {
+    if (!this.name && data.name) {
         if (this.marker) this.map.removeLayer (this.marker);
         this.name= data.name;
         this.CreateMarker(true);
@@ -173,6 +173,9 @@ DeviceOnMap.prototype.SetInactive=function () {
 
 DeviceOnMap.prototype.RemoveTarget=function (scope) {
     if (this.marker) this.map.removeLayer (this.marker);
+    for (var slot in this.trace) {
+        if (!this.trace[slot]) this.map.removeLayer(this.trace [slot]);
+    }
     delete scope.activeVessels [this.devid];
 };
 
@@ -263,6 +266,14 @@ function AisWebsock (uri, callback) {
                         $timeout (scope.CleanOldPos, scope.inactivity*250);                        
                     }; 
                     
+                    scope.StartTracking= function() {
+                        // open websocket on sinagot.net localtraffic + Mobile + Tracker
+                        new AisWebsock ("ws://" + $location.host() + "/ais-droid?API_KEY=123456789", scope.DisplayCallback);
+                        
+                        // start process to clean old position
+                        scope.CleanOldPos();
+                    };
+                    
                     scope.Init = function() {
                         
                         scope.map = L.map(attrs.id,  {"keyboardZoomOffset": 0.05, maxZoom: 20, "scrollWheelZoom": true });
@@ -275,7 +286,7 @@ function AisWebsock (uri, callback) {
                         scope.minzoom=attrs.minzoom || 0;
                         scope.maxzoom=attrs.maxzoom || 12;
                         
-                        scope.inactivity=attrs.inactivity || 600; // time before moving target to inactive
+                        scope.inactivity=attrs.inactivity || 1000; // time before moving target to inactive
                          
                         // Warning: to use Tangram vector layer
                         //  - need to force load of tangram.min.js not concatenated with any other JS files
@@ -298,12 +309,8 @@ function AisWebsock (uri, callback) {
                 				
                         // center the map
                         scope.map.setView ([scope.lat, scope.lng], scope.zoom);
-                        
-                        // open websocket on sinagot.net localtraffic + Mobile + Tracker
-                        new AisWebsock ("ws://" + $location.host() + "/ais-droid?API_KEY=123456789", scope.DisplayCallback);
-                        
-                        // start process to clean old position
-                        scope.CleanOldPos();
+
+                        $timeout (scope.StartTracking, 125);
                         
                         // add listener on mouse move
                         scope.map.getContainer().addEventListener('mouseup', function (event) {

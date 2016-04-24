@@ -54,6 +54,9 @@ function GpsdHttpClient (adapter, devid) {
     this.alarm         = 0;        // count alarm messages
     this.count         = 0;        // generic counter used by file backend
     this.errorcount    = 0;        // number of ignore messages
+    
+    this.uid = "httpclient://" + this.adapter.info + ":" + this.adapter.id;
+
 };
 
 // Import debug method 
@@ -76,6 +79,12 @@ GpsdHttpClient.prototype.Distance = function (old, now) {
     return (d); // return distance in meters
 };
 
+GpsdHttpClient.prototype.DummyName = function (devid) {
+    var devname = devid.toString();
+    return devname.substring(devname.length-8);
+};
+
+
 GpsdHttpClient.prototype.LoginDev = function(data) {
     // make code simpler to read
     var adapter   = this.adapter;
@@ -90,6 +99,13 @@ GpsdHttpClient.prototype.LoginDev = function(data) {
 
         //Update/Create device socket store by uid at gateway level
         gateway.activeClients [this.devid] = this;
+        
+        //Propose a fake name in case nothing exist
+        var emeifix = this.DummyName (this.devid);
+        this.callsign = "FX-" + emeifix;
+        this.model    = this.devid;
+        if (!data.name) this.name = this.adapter.id + "-" + emeifix;
+        else this.name = data.name;
 
         // ask backend to authenticate device and eventfully to change logged state to true
         gateway.backend.LoginDev (this);

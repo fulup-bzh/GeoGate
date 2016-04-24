@@ -73,9 +73,9 @@ function TcpClient (socket) {
     this.count     = 0;        // generic counter used by file backend
     
     if (socket.remoteAddress !== undefined) {
-       this.uid= "sockclient//"  + this.adapter.info + "/remote:" + socket.remoteAddress +":" + socket.remotePort;
+       this.uid= "tcpclient//"  + this.adapter.info + "/remote:" + socket.remoteAddress +":" + socket.remotePort;
     } else {
-       this.uid  = "tcpclient://" + this.adapter.info + ":" + socket.port;
+       this.uid= "tcpclient://" + this.adapter.info + ":" + socket.port;
     }
 };
 
@@ -132,6 +132,10 @@ TcpClient.prototype.ProcessData = function(data) {
          job.gateway.Debug (3,"Job Done job=%s", job);
     }
 
+    // update lastshow for cleanup cron
+    this.lastshow= new Date().getTime();
+    this.count ++; 
+
     // if not logged exit now except for login
     if (!this.logged) {
         switch (data.cmd) {
@@ -150,9 +154,6 @@ TcpClient.prototype.ProcessData = function(data) {
         }
     }
     
-    // update lastshow for cleanup cron
-    this.lastshow= new Date().getTime();
-    this.count ++; 
     
 // process login in DB & active client list
     switch (data.cmd) {

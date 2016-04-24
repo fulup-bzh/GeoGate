@@ -103,7 +103,8 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
                         utc: args[5],
                         lat: ProcessCardinal(args[7], args[8]),
                         lon: ProcessCardinal(args[9], args[10]),
-                        sog: parseInt (args[11] * 1853 / 360)/10,
+                        //sog: parseInt (args[11] * 1853 / 360)/10,  // MS/S
+                        sog: parseInt (args[11]*10)/10,  // KNTS
                         cog: args[12],
                         alt: -1
                     };
@@ -120,7 +121,8 @@ DevAdapter.prototype.ParseTrackerGps = function (cmd, args) {
                         utc: args[5],
                         lat: ProcessCardinal(args[7], args[8]),
                         lon: ProcessCardinal(args[9], args[10]),
-                        sog: parseInt (args[11] * 1853 / 360)/10,
+                        //sog: parseInt (args[11] * 1853 / 360)/10, // MS/S
+                        sog: parseInt (args[11]*10)/10,  // KNTS
                         cog: args[12],
                         alt: CheckArg(args[13]),
                         yyy: args[14],
