@@ -91,6 +91,10 @@ BackendStorage.prototype.CheckTablesExits = function () {
          + 'devid CHAR(20) NOT NULL,'
          + 'devname CHAR(30) NOT NULL,'
          + 'callsign CHAR(20) NOT NULL,'
+         + 'mmsi  CHAR(20) NOT NULL,'
+         + 'length SMALLINT NOT NULL,'
+         + 'width  SMALLINT NOT NULL,'
+         + 'cargo  SMALLINT NOT NULL,'
          + 'model CHAR(20) NOT NULL,'
          + 'track CHAR(20) NOT NULL,'
          + 'alarm CHAR(20) NOT NULL,'
@@ -106,6 +110,7 @@ BackendStorage.prototype.CheckTablesExits = function () {
     for (var table in sqlQuery) {
         this.base.query (sqlQuery[table] , function (err) {
             if (err) {
+                gateway.debug (0,"MySQL ERROR","CreateTable", table, err);
                 gateway.event.emit ("notice", "MySQL ERROR","CreateTable",table ,err);
             }
         });
@@ -137,23 +142,23 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
         + ') DEFAULT CHARSET=utf8;'
 
 
-       ,odb: 'CREATE TABLE IF NOT EXISTS O_' + devid + ' ('
-         + 'id     INT NOT NULL AUTO_INCREMENT,'
-         + 'trip   INT,'
-         + 'rfuel  INT,'
-         + 'afuel  FLOAT,'
-         + 'dtime  INT,'
-         + 'speed  INT,'
-         + 'pload  FLOAT,'
-         + 'temp   INT,'
-         + 'atp    FLOAT,'
-         + 'rpm    INT,'
-         + 'bat    FLOAT,'
-         + 'diag   INT,'
-         + 'gpsdate DATETIME,'
-         + 'acquired_at   BIGINT,'
-         + 'PRIMARY KEY (id )'
-         + ') DEFAULT CHARSET=utf8;'
+//       ,odb: 'CREATE TABLE IF NOT EXISTS O_' + devid + ' ('
+//         + 'id     INT NOT NULL AUTO_INCREMENT,'
+//         + 'trip   INT,'
+//         + 'rfuel  INT,'
+//         + 'afuel  FLOAT,'
+//         + 'dtime  INT,'
+//         + 'speed  INT,'
+//         + 'pload  FLOAT,'
+//         + 'temp   INT,'
+//         + 'atp    FLOAT,'
+//         + 'rpm    INT,'
+//         + 'bat    FLOAT,'
+//         + 'diag   INT,'
+//         + 'gpsdate DATETIME,'
+//         + 'acquired_at   BIGINT,'
+//         + 'PRIMARY KEY (id )'
+//         + ') DEFAULT CHARSET=utf8;'
 
     };
 
@@ -173,6 +178,10 @@ BackendStorage.prototype.CreateDev = function (devid, data) {
             ,devname  : data.devname
             ,callsign : data.callsign
             ,model    : data.model
+            ,mmsi     : data.mmsi
+            ,cargo    : data.cargo
+            ,length   : data.length
+            ,width    : data.width
             ,track : 'T_' + devid
             ,obd   : 'O_' + devid
             ,alarm : 'A_' + devid
@@ -243,7 +252,11 @@ BackendStorage.prototype.LoginDev = function (device) {
 
         // update active device pool [note device.devid is set by GpsdClient before SQL login]
         device.name    = result.devname; // friendly name extracted from database
+        device.mmsi    = result.mmsi; 
         device.callsign= result.callsign; 
+        device.cargo   = result.cargo; 
+        device.length  = result.length; 
+        device.width   = result.width; 
         device.model   = result.model; 
         device.sqlid   = result.id;   // this is MySQL unique ID and not device's DEVID
         device.track   = result.track;

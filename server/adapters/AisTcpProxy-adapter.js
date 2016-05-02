@@ -48,9 +48,10 @@ function HookBackendEvent (adapter, backend, socket) {
         
         return hash >>> 0;
     }
-          
+    
+    // if no MMSI avaliable let's try to build a fakeone
     function EventDevAuth (device){
-        device.mmsi = parseInt (device.devid);
+        if (!device.mmsi)  device.mmsi = parseInt (device.devid);
         if (isNaN (device.mmsi)) device.mmsi=String2Hash(device.devid);
         adapter.BroadcastStatic (device);
         if (device.stamp) adapter.BroadcastPos (device);
@@ -212,12 +213,12 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
         aistype    : 24,
         part       : 1,
         mmsi       : device.mmsi,
-        cargo      : device.cargo || 0, 
+        cargo      : device.cargo  || 0, 
         callsign   : device.callsign,
-        dimA       : device.dimA || 0,
-        dimB       : device.dimB || 7,
-        dimC       : device.dimC || 0,
-        dimD       : device.dimD || 2
+        dimA       : device.dimA   || 0,
+        dimB       : device.length/100 || 7,
+        dimC       : device.dimC   || 0,
+        dimD       : device.width/100  || 2
     };
     aisOutB = new AisEncode (msg24b);
 
@@ -280,7 +281,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
                     lon        : device.stamp.lon,
                     lat        : device.stamp.lat,
                     second     : 1,
-                    mmsi       : device.model
+                    mmsi       : device.mmsi
                 };
   
                 //var message=util.format ("\n18x %j\n", msg18);

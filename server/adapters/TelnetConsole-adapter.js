@@ -96,7 +96,7 @@ function DevAdapter (controller) {
             ,["BASE DROP TXT EOL" ,"this.cmd='DBDROP' ; this.devid=$3;return (this);"]
             ,["BASE SEAR TXT EOL" ,"this.cmd='DBSEAR' ; this.devid=$3; this.args=5; return (this);"]
             ,["BASE SEAR TXT TXT EOL" ,"this.cmd='DBSEAR' ; this.devid=$3; this.limit=parseInt($4); return (this);"]
-            ,["BASE CREA TXT TXT TXT ARGS EOL","this.cmd='DBCREA' ; this.devid=$3; this.callsign=$4; this.model=$5;return (this);"]
+            ,["BASE CREA TXT TXT TXT TXT TXT TXT TXT ARGS EOL","this.cmd='DBCREA' ; this.devid=$3; this.mmsi=$4; this.callsign=$5; this.cargo=$6; this.length=$7; this.width=$8; this.model=$9; return (this);"]
 
             ,["EVTS STAR EOL" ,"this.cmd='EVTSTART' ; return (this);"]
             ,["EVTS STOP EOL" ,"this.cmd='EVTSTOP'  ; return (this);"]
@@ -245,7 +245,7 @@ DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
             socket.write (">   dev logout xxxx                   [close client socket & force a full reconnect]\n");
             socket.write (">\n");
             socket.write (">   db init                           [if not exist create table in database]\n");
-            socket.write (">   db create xxxx 00112233 xxmodel abcd [create devices in database devid=xxx 0112233=calling-number xxmodel=model-name abcd=device-name]\n");
+            socket.write (">   db create devid mmsi callsign cargo length/cm width/cm model name....name \n");
             socket.write (">   db remove xxxx                    [delete devices in database devid=xxx]\n");
             socket.write (">   db search xxxx                    [search last devices dev.stampitions in database devid=xxx]\n");
             socket.write (">\n");
@@ -393,7 +393,11 @@ DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
                 devname : devname
                ,callsign: data.callsign
                ,model   : data.model
-            }
+               ,mmsi    : data.mmsi
+               ,cargo   : data.cargo
+               ,length  : data.length
+               ,width   : data.width
+            };
 
             for (var slot in cmdcreate) {
                 if (cmdcreate [slot].length === 0) {
@@ -457,7 +461,7 @@ if (process.argv[1] === __filename)  {
         ,"Send5     " : "snd  command 1234567 arg1 arg2"
         
         ,"DBinit    " : "db init"
-        ,"DBCreate  " : "db create 123456 My Friendly Name"
+        ,"DBCreate  " : "db create devid mmsi callsign length width My Friendly Name"
         ,"DBRemove  " : "db remove 123456"
         ,"DBSearch1 " : "db search 123456"
         ,"DBSearch2 " : "db search 123456 10"
