@@ -216,9 +216,9 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
         cargo      : device.cargo  || 0, 
         callsign   : device.callsign,
         dimA       : device.dimA   || 0,
-        dimB       : device.length/100 || 7,
+        dimB       : device.dimB   || 7,
         dimC       : device.dimC   || 0,
-        dimD       : device.width/100  || 2
+        dimD       : device.dimD   || 2
     };
     aisOutB = new AisEncode (msg24b);
 

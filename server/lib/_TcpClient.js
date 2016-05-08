@@ -152,10 +152,11 @@ TcpClient.prototype.ProcessData = function(data) {
                 this.Debug (3,"tracker update TempryLoggin DEVID=%s", this.devid);
                 return (-1);
         }
+        return;
     }
     
     
-// process login in DB & active client list
+    // process login in DB & active client list
     switch (data.cmd) {
  
         // Device keep alive service
