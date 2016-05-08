@@ -54,9 +54,13 @@ var GeoGateConfig = {
          debug    : 'allow to give a specific debug level this adapter default is [gateway.debug]'
          */
 
-        // Tracker devices are TCP servers & wait for clients to connect
+        // monitoring console
+        , Telnet   : {info: "Telnet Console"  , adapter: "TelnetConsole" , port: PortBase +0}
+        // Raw AIS Feed from Sinagot.net
         , AisBzh : {info: "AIS BZH GPSd feed"   , adapter: "AisProxyNmea" , hostname: "sinagot.net", remport: 2947, debug:6}
         //, AisMed : {info: "AIS MED GPSd feed"   , adapter: "AisProxyNmea" , hostname: "sinagot.net", remport: 2948}
+        
+        // Tracking service for Virtual Loup de Mer
         , VlmOpc : {info: "OpenCPN qtVLM in/out", adapter: "VlmOpcAisSim" , port: PortBase+22, distance:30, debug:8}
     }
 };
