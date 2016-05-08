@@ -20,7 +20,15 @@
  * should work with any chart system that can send it possition in NMEA on
  * the same channel as it read AIS.
  * 
- * ie: $GPRMC,171417,A,4737.1061,N,00245.6595,W,1.0969,58.544,080516,,*02
+ * Client may send either a GPRMC NMEA value or AIS/JSON data
+ * 
+ * $GPRMC,171417,A,4737.1061,N,00245.6595,W,1.0969,58.544,080516,,*02
+ * 
+ * {"aistype":24,"mmsi":163994842,"part":0,"shipname":"maitai"}
+ * {"aistype":24,"mmsi":163994842,"part":1,"callsign":"FG9196","cargo":95,"dimA":10,"dimB":2,"dimC":3,"dimD":3}
+ * {"aistype":18,"mmsi":163994842,"lon":-2.4529008333333334,"lat":47.273095000000003,"cog":1300,"sog":160,"dsc":false,"accuracy":true,"second":1}
+ *
+
  */
 
 'use strict';
@@ -169,55 +177,55 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
     } else {
         
         try {
-            var ais = JSON.parse (line);
+            var aismsg = JSON.parse (line);
         } catch(e) {
             socket.write ("Adapter: [" + this.info + "] Invalid JSON position --> " + line + '\n');
             return;            
         } 
         
         // Encode AIS/Json on AIS/NMEA binary
-        var aismsg = new AisEncode (ais);
-        if (! aismsg.valid) {
-            this.Debug (1, "Invalid JSON/AIS=%j", ais);
+        var aisnmea = new AisEncode (aismsg);
+        if (! aisnmea.valid) {
+            this.Debug (1, "Invalid JSON/AIS=%j", aismsg);
             return;
         }
-    
-        // Simulate an AIS input to broacast position to other vessels.
-        this.BroadcastAis(aismsg);
-                
-        switch (data.aistype) {
+
+        // implement a fake login at 1st AIS packet
+        if (!device.logged) {
+            data = 
+            {devid: socket.id
+            ,cmd  : TrackerCmd.GetFrom.LOGIN
+            ,name : socket.uid
+            };
+            device.ProcessData (data); 
+        }
+        
+        switch (aismsg.aistype) {
             case 3:
             case 18:
-                // Update Static
-                data.cmd = TrackerCmd.GetFrom.TRACK;
-                device.ProcessData (data);
+                // Update Static and include last known position of client vessel
+                aismsg.cmd = TrackerCmd.GetFrom.TRACK;
+                device.ProcessData (aismsg);
+                this.BroadcastAisData (aismsg, aisnmea.nmea); // Simulate an AIS input to broacast position to other vessels.
                 if (this.debug > 5) socket.write ('AIS Posi OK\n');               
                 break;
             
             case 5:
-            case 24:
-                if (!device.logged) { // if we have shipname update device even is unknown from DB
-                data = 
-                    {devid : ais.mmsi
-                    ,cmd  : TrackerCmd.GetFrom.LOGIN
-                    ,name : ais.shipname
-                    ,model: ais.cargo
-                    ,call : ais.callsign
-                    ,dimA : ais.dimA
-                    ,dimB : ais.dimB
-                    ,dimC : ais.dimC
-                    ,dimD : ais.dimD
-                };
-                // ask client to process login 
-                device.ProcessData (data);
+            case 24:                             
+                if (device.stamp) {
+                    aismsg.lat = device.stamp.lat;
+                    aismsg.lon = device.stamp.lon;
+                    this.BroadcastAisData (aismsg, aisnmea.nmea); // Simulate an AIS input to broacast position to other vessels.
+                }
+                
                 if (this.debug > 5) socket.write ('AIS Static OK\n');
                 break;
-            }
                 
             default:
                 // ignore any other data
                 return;               
         }
+        
         
     }
 };
