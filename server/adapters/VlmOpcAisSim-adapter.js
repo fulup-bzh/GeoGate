@@ -49,7 +49,6 @@ if  (process.env.GEOGATE !== 'dev')
      NmeaDecode = require('ggencoder').NmeaDecode;
 else NmeaDecode = require("../../encoder/ApiExport").NmeaDecode;
 
-
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
     this.id        = controller.svc;

@@ -197,7 +197,7 @@ Gateway.prototype.Gateway=function(opts) {
     // this.backend.connect (opts);
     this.backend = new dbBackend (this, opts);
     if (this.backend.error) {
-        this.Debug (0, "Fail conecting dbBackend: %s", this.backend.info);
+        this.Debug (0, "Fail connecting dbBackend: %s", this.backend.info);
         console.log ("Gateway aborted");
         process.exit(-1);
     }

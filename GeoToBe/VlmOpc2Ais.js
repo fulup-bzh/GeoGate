@@ -55,7 +55,7 @@ var GeoGateConfig = {
          */
 
         // Tracker devices are TCP servers & wait for clients to connect
-        , AisBzh : {info: "AIS BZH GPSd feed"   , adapter: "AisProxyNmea" , hostname: "sinagot.net", remport: 2947}
+        , AisBzh : {info: "AIS BZH GPSd feed"   , adapter: "AisProxyNmea" , hostname: "sinagot.net", remport: 2947, debug:6}
         //, AisMed : {info: "AIS MED GPSd feed"   , adapter: "AisProxyNmea" , hostname: "sinagot.net", remport: 2948}
         , VlmOpc : {info: "OpenCPN qtVLM in/out", adapter: "VlmOpcAisSim" , port: PortBase+22, distance:30, debug:8}
     }

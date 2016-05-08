@@ -30,10 +30,26 @@ if  (process.env.GEOGATE !== 'dev')
      AisDecode = require('ggencoder').AisDecode;
 else AisDecode = require("../../encoder/ApiExport").AisDecode;
 
-// small object to keep track of last position in ram
-function AisPositionObj (ais) {
 
+// this function scan active device table and remove dead one based on inactivity timeout
+function SetCrontab (proxy, inactivity) {
+    // let's call back ourself after inactivity*1000/4
+    proxy.Debug (4, "SetCrontab inactivity=%d", inactivity);
+    setTimeout (function(){SetCrontab (proxy, inactivity);}, inactivity*500);
+    
+    // let compute inactivity timeout limit
+    var timeout = new Date().getTime() - (inactivity *1000);
+    
+    for (var mmsi in proxy.vessels) {
+        var vessel = proxy.vessels[mmsi];
+        if (vessel.lastshow < timeout) {
+            proxy.Debug (5, "Removed Vessel mmsi=%s", mmsi);
+            delete proxy.vessels [mmsi];
+        }
+    }
+      
 };
+
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
@@ -42,6 +58,7 @@ function DevAdapter (controller) {
     this.info      = 'AisProxyNmea';
     this.control   = 'tcpfeed';          // this adapter connect onto a remote server 
     this.debug     = controller.svcopts.debug;    // inherit debug from controller
+    this.timeout   = controller.svcopts.timeout || 600;    // inherit debug from controller
     this.controller= controller;          // keep a link to device controller and TCP socket
     this.gateway   = controller.gateway;
     this.Debug (1,"uid=%s", this.uid);
@@ -49,6 +66,7 @@ function DevAdapter (controller) {
     this.vessels   = []; // cache for vessel positions
     
     this.event = controller.gateway.backend.event; // hook backend event handler
+    SetCrontab (this, this.timeout);
 };
 
 // Import debug method 
@@ -112,7 +130,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
             this.vessels[ais.mmsi] =
                 { lat: ais.lat
                 , lon: ais.lon
-                , age: new Date().getTime()
+                , lastshow: new Date().getTime()
                 };
             this.event.emit ("ais-data", ais, line);
             break;
