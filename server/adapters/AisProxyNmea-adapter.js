@@ -32,24 +32,23 @@ else AisDecode = require("../../encoder/ApiExport").AisDecode;
 
 
 // this function scan active device table and remove dead one based on inactivity timeout
-function SetCrontab (proxy, inactivity) {
-    // let's call back ourself after inactivity*1000/4
-    proxy.Debug (4, "SetCrontab inactivity=%d", inactivity);
-    setTimeout (function(){SetCrontab (proxy, inactivity);}, inactivity*500);
+function SetGarbage (proxy, timeout) {
+    // let's call back ourself after timeout*1000/4
+    proxy.Debug (4, "SetGarbage timeout=%d", timeout);
+    setTimeout (function(){SetGarbage (proxy, timeout);}, timeout*500);
     
-    // let compute inactivity timeout limit
-    var timeout = new Date().getTime() - (inactivity *1000);
+    // let compute timeout timeout limit
+    var lastshow = new Date().getTime() - (timeout *1000);
     
     for (var mmsi in proxy.vessels) {
         var vessel = proxy.vessels[mmsi];
-        if (vessel.lastshow < timeout) {
+        if (vessel.lastshow < lastshow) {
             proxy.Debug (5, "Removed Vessel mmsi=%s", mmsi);
             delete proxy.vessels [mmsi];
         }
     }
       
 };
-
 
 // Adapter is an object own by a given device controller that handle data connection
 function DevAdapter (controller) {
@@ -58,7 +57,7 @@ function DevAdapter (controller) {
     this.info      = 'AisProxyNmea';
     this.control   = 'tcpfeed';          // this adapter connect onto a remote server 
     this.debug     = controller.svcopts.debug;    // inherit debug from controller
-    this.timeout   = controller.svcopts.timeout || 600;    // inherit debug from controller
+    this.cleanup   = controller.svcopts.cleanup || 600;    // inherit debug from controller
     this.controller= controller;          // keep a link to device controller and TCP socket
     this.gateway   = controller.gateway;
     this.Debug (1,"uid=%s", this.uid);
@@ -66,7 +65,7 @@ function DevAdapter (controller) {
     this.vessels   = []; // cache for vessel positions
     
     this.event = controller.gateway.backend.event; // hook backend event handler
-    SetCrontab (this, this.timeout);
+    SetGarbage (this, this.cleanup);
 };
 
 // Import debug method 

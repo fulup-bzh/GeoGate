@@ -16,7 +16,6 @@ and write them on disk thought MySQL or MogoDB database backend.
 
 Install
 =======
-
     npm install ggserver
 
 Config

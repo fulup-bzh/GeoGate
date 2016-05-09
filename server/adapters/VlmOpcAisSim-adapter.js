@@ -58,7 +58,6 @@ function DevAdapter (controller) {
     this.gateway   =  controller.gateway;
     this.debug     =  controller.svcopts.debug; // inherit debug from controller
     this.controller=  controller;              // keep a link to device controller and TCP socket
-    this.clients   =  [];                       // array to keep track of client
     this.count     =  0;                        // index for incomming client
     this.distance  =  controller.svcopts.distance*1852 || 30*1852;
     this.Debug (1,"uid=%s distance=%dNM", this.uid, this.distance/1852);
@@ -127,10 +126,8 @@ DevAdapter.prototype.ClientConnect = function (socket) {
     socket.uid="opcvlm2ais://" +  socket.remoteAddress +':'+ socket.remotePort;
     this.Debug  (4, "New client [%s]=%s", socket.id, socket.uid);
     socket.device = new TcpClient (socket);
-    this.clients[socket.id] = socket;
     socket.lineidx   = 0;                       // index within buffer
     socket.linebuf   = new Buffer (256);        // intermediary buffer
-    socket.count     = 0;
     socket.write ("VlmOpc Ready\n");
 };
 
@@ -138,7 +135,6 @@ DevAdapter.prototype.ClientConnect = function (socket) {
 // aisproxy quit remove it from out list
 DevAdapter.prototype.ClientQuit = function (socket) {
     this.Debug (4, 'Quit aisproxy client: %s id=%j', socket.uid, socket.id);
-    delete this.clients[socket.id]; 
 };
 
 // browser talking, ignore data
