@@ -61,7 +61,7 @@ var GeoGateConfig = {
         //, AisMed : {info: "AIS MED GPSd feed"   , adapter: "AisProxyNmea" , hostname: "sinagot.net", remport: 2948}
         
         // Tracking service for Virtual Loup de Mer
-        , VlmOpc : {info: "OpenCPN qtVLM in/out", adapter: "VlmOpcAisSim" , port: PortBase+22, distance:30, debug:8}
+        , VlmOpc : {info: "OpenCPN qtVLM in/out", adapter: "VlmOpcAisSim" , port: PortBase+22, distance:30, maxclient: 3, debug:8}
     }
 };
 

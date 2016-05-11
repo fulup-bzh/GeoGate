@@ -54,12 +54,14 @@ function DevAdapter (controller) {
     this.id        = controller.svc;
     this.uid       = "//" + controller.svcopts.adapter + "/" + controller.svc + ":" +  controller.svcopts.port;;
     this.info      = 'ocpvlm';
-    this.control   = 'tcpsock';                 // this wait for AIS clients to connect via TCP  
+    this.control   = 'tcpsock';                // this wait for AIS clients to connect via TCP  
     this.gateway   =  controller.gateway;
-    this.debug     =  controller.svcopts.debug; // inherit debug from controller
+    this.debug     =  controller.svcopts.debug;// inherit debug from controller
     this.controller=  controller;              // keep a link to device controller and TCP socket
-    this.count     =  0;                        // index for incomming client
+    this.count     =  0;                       // index for incomming client
+    this.nbclient  =  0;
     this.distance  =  controller.svcopts.distance*1852 || 30*1852;
+    this.maxclient =  controller.svcopts.maxclient || 30;
     this.Debug (1,"uid=%s distance=%dNM", this.uid, this.distance/1852);
     
     HookBackendEvent(this, controller.gateway.backend);
@@ -110,7 +112,7 @@ DevAdapter.prototype.BroadcastAisData = function (aismsg, aisnmea) {
         if (!device.socket || !device.stamp) continue;
             
         // if target is close enough from device send vessel position
-        if (this.DistanceMove (device, aismsg) <= this.distance) try {
+        if (aismsg.vlm || this.DistanceMove (device, aismsg) <= this.distance) try {
             device.socket.write (msgbuf);          
         } catch (err) {
             this.Debug (1, '### Hoops BroadcastPos lost aisdevice: %s [err=%s]', device.uid, err);
@@ -122,6 +124,14 @@ DevAdapter.prototype.BroadcastAisData = function (aismsg, aisnmea) {
      
 // we got a new JsonAisClient add it to client list for broadcast
 DevAdapter.prototype.ClientConnect = function (socket) {
+    
+    // protect from deny of service by overloading service
+    if (this.nbclient ++ >= this.maxclient) {
+        socket.write ("VlmOpc Too Many Clients [please retry later]\n"); 
+        socket.end();
+        return;
+    } 
+    
     socket.id=this.count ++;
     socket.uid="opcvlm2ais://" +  socket.remoteAddress +':'+ socket.remotePort;
     this.Debug  (4, "New client [%s]=%s", socket.id, socket.uid);
@@ -131,10 +141,11 @@ DevAdapter.prototype.ClientConnect = function (socket) {
     socket.write ("VlmOpc Ready\n");
 };
 
-
 // aisproxy quit remove it from out list
 DevAdapter.prototype.ClientQuit = function (socket) {
     this.Debug (4, 'Quit aisproxy client: %s id=%j', socket.uid, socket.id);
+    this.nbclient --;
+    socket.device.LogoutDev ();
 };
 
 // browser talking, ignore data
@@ -188,7 +199,7 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
         // implement a fake login at 1st AIS packet
         if (!device.logged) {
             data = 
-            {devid: socket.id
+            {devid: aismsg.mmsi
             ,cmd  : TrackerCmd.GetFrom.LOGIN
             ,name : socket.uid
             };
@@ -207,21 +218,14 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
             
             case 5:
             case 24:                             
-                if (device.stamp) {
-                    aismsg.lat = device.stamp.lat;
-                    aismsg.lon = device.stamp.lon;
-                    this.BroadcastAisData (aismsg, aisnmea.nmea); // Simulate an AIS input to broacast position to other vessels.
-                }
-                
+                this.BroadcastAisData (aismsg, aisnmea.nmea); // Simulate an AIS input to broacast position to other vessels.                
                 if (this.debug > 5) socket.write ('AIS Static OK\n');
                 break;
                 
             default:
                 // ignore any other data
                 return;               
-        }
-        
-        
+        }               
     }
 };
 
