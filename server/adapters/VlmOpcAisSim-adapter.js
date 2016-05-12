@@ -126,12 +126,13 @@ DevAdapter.prototype.BroadcastAisData = function (aismsg, aisnmea) {
 DevAdapter.prototype.ClientConnect = function (socket) {
     
     // protect from deny of service by overloading service
-    if (this.nbclient ++ >= this.maxclient) {
-        socket.write ("VlmOpc Too Many Clients [please retry later]\n"); 
-        socket.end();
-        return;
+    if (this.nbclient >= this.maxclient) {
+        this.Debug (3, 'MaxClient==%d Reached', this.nbclient);
+        socket.write ("VlmOpc Too Many Clients [please retry later]\n");
+        return -1;
     } 
     
+    this.nbclient ++; 
     socket.id=this.count ++;
     socket.uid="opcvlm2ais://" +  socket.remoteAddress +':'+ socket.remotePort;
     this.Debug  (4, "New client [%s]=%s", socket.id, socket.uid);

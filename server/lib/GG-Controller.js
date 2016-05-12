@@ -42,7 +42,10 @@ function TcpConnect (socket) {
     socket.device = new TcpClient (socket);
     
     // notify adapter that it has a new client device connected
-    socket.adapter.ClientConnect (socket);
+    if (socket.adapter.ClientConnect (socket) === -1) {
+        socket.end();
+        return;
+    }
   
     // send any received data to device parser
     socket.on(this.evtname, function(buffer) {
