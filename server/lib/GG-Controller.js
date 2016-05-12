@@ -43,7 +43,7 @@ function TcpConnect (socket) {
     
     // notify adapter that it has a new client device connected
     if (socket.adapter.ClientConnect (socket) === -1) {
-        socket.end();
+        try {socket.end();} catch(e){};
         return;
     }
   
