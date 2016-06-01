@@ -111,9 +111,9 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
     this.Debug  (8, "line=[%s]", line);
 
     // send AIS message to parser
-    try {
+    //try {
         var ais= new AisDecode (line, this.session);
-    } catch(e) {return;}
+    // } catch(e) {return;}
     
     // check if message was valid
     if (!ais.valid) return;

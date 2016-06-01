@@ -113,9 +113,6 @@ TcpClient.prototype.LoginDev = function(data) {
     if (this.logged === false) {
         this.devid = data.devid;
         this.class = this.adapter.info;
-        this.model = data.model;
-        this.call  = data.call;
-        this.name  = data.name;
 
         //Update/Create device socket store by uid at this.gateway level
         this.gateway.activeClients [this.devid] = this;

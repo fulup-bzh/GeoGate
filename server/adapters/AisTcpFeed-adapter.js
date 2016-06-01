@@ -141,28 +141,39 @@ DevAdapter.prototype.ParseLine = function(socket, line) {
         // 1st time when we get a device static info we check its authentication
         case 5:  // static information class A
         case 24: // static information class B
+
             // if device is not in active list we force a new object to keep track of it
             if (!this.gateway.activeClients [ais.mmsi]) {
                 device = new TcpClient (socket);
                 this.gateway.activeClients [ais.mmsi] = device;
             } else device=this.gateway.activeClients [ais.mmsi];
+            
+            this.Debug (8, "24 static mmsi=%s name=%s callsign=%s cargo=%s dimA=%s dimB=%s", ais.mmsi, ais.shipname, ais.callsign, ais.cargo, ais.dimA, ais.dimB);
                  
             if (!device.logged) { // if we have shipname update device even is unknown from DB
-                if (ais.shipname)  device.name = ais.shipname;
+                
+            device.mmsi    = ais.mmsi;
+            if (ais.shipname) device.name = ais.shipname;
+            if (ais.callsign) {
+                device.callsign= ais.callsign;                 
+                device.cargo   = ais.cargo;
+                device.length  = Math.abs(ais.dimB - ais.dimA);
+                device.width   = Math.abs(ais.dimD - ais.dimC);
+            }
+            
+            // AIS loggin information arrive in two separated messages for (name & callsign)
+            if (device.name && device.callsign) {
+                this.Debug (4, "24 Loggin mmsi=%s name=%s cargo=%s callsign=%s", device.mmsi, device.name, device.cargo, device.callsign);
                 var data = 
                     {devid : ais.mmsi
                     ,cmd  : TrackerCmd.GetFrom.LOGIN
-                    ,name : ais.shipname
-                    ,model: ais.cargo
-                    ,call : ais.callsign
-                    ,dimA : ais.dimA
-                    ,dimB : ais.dimB
-                    ,dimC : ais.dimC
-                    ,dimD : ais.dimD
-                };
+                };                
                 // ask client to process login 
-                device.ProcessData (data);
+                device.ProcessData (data);                
             }
+            }
+
+
             break;
         case 25: // ping self
             if (device !== undefined && device.logged) { // device has sent its static info

@@ -30,6 +30,8 @@ function DeviceOnMap (map, data) {
     this.devid = data.devid;
     this.src   = data.src;
     this.name  = data.name;
+    this.cargo = data.cargo;
+    this.vessel= ' cargo-' + data.cargo;
     this.map=map;
     this.lastshow = new Date().getTime();
 } 
@@ -86,17 +88,17 @@ DeviceOnMap.prototype.CreateMarker= function (status) {
     var activeclass;
     
     if (!this.lat || !this.lon) return;
-    if (status) activeclass='active'; else activeclass='inactive';
+    if (status) activeclass='active '; else activeclass='inactive ';
 
     this.active=status;
     this.marker= L.marker([this.lat, this.lon],  
         { 
-           icon : L.divIcon({className:'vessel lonlat ' +activeclass +' ' +this.src, iconSize:[10,10]}),
+           icon : L.divIcon({className:'vessel lonlat ' + activeclass + this.src + this.vessel, iconSize:[10,10]}),
            clickable: true,
-           title: this.name + ' mmsi='+ this.devid+ '['+ activeclass +']'
+           title: this.name + ' mmsi='+ this.devid+ '['+ activeclass + ']' 
         }).addTo(this.map);
 
-    var info= "Nom=<b>" + this.name + "</b> mmsi=<b>" + this.devid + "</b> " +
+    var info= "Nom=<b>" + this.name + "</b> mmsi=<b>" + this.devid + '/' + this.cargo + "</b> " +
               "<br>Pos:<b>" + this.lat.toFixed(4) + "</b>,<b>" + this.lon.toFixed(4)  +
               "<br>LastShow=<b>" + this.LastShow() + "</b> ";
     this.marker.bindPopup("<center>"+info+"</center>");
@@ -132,7 +134,7 @@ DeviceOnMap.prototype.UpdatePos = function (data) {
         }
     }
     
-    var info= "Nom=<b>" + this.name + "</b> mmsi=<b>" + this.devid + "</b> " +
+    var info= "Nom=<b>" + this.name + "</b> mmsi=<b>" + this.devid + '/[' + this.cargo + "]</b> " +
               "<br>Pos:<b>" + this.lat.toFixed(4) + "</b>,<b>" + this.lon.toFixed(4)  +
               "</b> Sog:<b>" + this.sog.toFixed(2)+ "</b> Cog<b>:"+ this.cog.toFixed(2) + "</b>" +
               "<br>LastShow=<b>" + this.LastShow() + "</b> ";
@@ -143,11 +145,21 @@ DeviceOnMap.prototype.UpdatePos = function (data) {
 };
     
 DeviceOnMap.prototype.UpdateInfo= function(data) {
-
+    var updated = false;
+    
     // if AIS authent arrive after 1st position let's refresh VesselMaker
     if (!this.name && data.name) {
+        update =true;
+        this.name= data.name;        
+    }
+    
+    if (!this.cargo && data.cargo) {
+        update =true;
+        this.cargo= data.cargo;        
+    }
+    
+    if (updated) {
         if (this.marker) this.map.removeLayer (this.marker);
-        this.name= data.name;
         this.CreateMarker(true);
     }
 };
@@ -220,7 +232,7 @@ function AisWebsock (uri, callback) {
                     
                     // process AIS position returned by websocket
                     scope.DisplayCallback = function (message) {
-                        //console.log ('data=%s', message);
+                        console.log ('data=%s', message);
                         var data= JSON.parse (message);  
 
                         switch (data.type) {

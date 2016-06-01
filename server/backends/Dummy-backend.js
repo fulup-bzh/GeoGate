@@ -109,7 +109,7 @@ BackendStorage.prototype.TempryLoggin = function (device) {
 };
 
 BackendStorage.prototype.LoginDev = function (device) {
-    this.Debug (1,"Authentication accepted for device=%s name=%s", device.uid, device.name);
+    this.Debug (3,"Authentication accepted for device=%s name=%s", device.uid, device.name);
     device.logged   = true;
 
     // Create Ram storage array for tracking this.storesize positions

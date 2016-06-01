@@ -51,7 +51,6 @@ function HookBackendEvent (adapter, backend, socket) {
     
     // if no MMSI avaliable let's try to build a fakeone
     function EventDevAuth (device){
-        
         if (!device.mmsi)  device.mmsi = parseInt (device.devid);
         if (isNaN (device.mmsi)) device.mmsi=String2Hash(device.devid);
         adapter.BroadcastStatic (device);
@@ -65,14 +64,9 @@ function HookBackendEvent (adapter, backend, socket) {
     function EventDevPos (device){
          
         // force push of full device info every 20 positions update
-        if (device.aisproxy    >= 20) adapter.BroadcastStatic (device);
+        if (device.aisproxy >= 20) adapter.BroadcastStatic (device);
         if ((new Date().getTime() - device.laststatics) > 900000) adapter.BroadcastStatic (device); // force statics every 15mn
         adapter.BroadcastPos (device);
-    };
-    
-    function EventDevPng (device){
-        // Simple AisPing         
-        adapter.BroadcastPing (device);
     };
     
     backend.event.on("dev-auth",EventDevAuth);	
@@ -155,56 +149,14 @@ DevAdapter.prototype.BroadcastPos = function (device) {
     }   
 };
 
-DevAdapter.prototype.BroadcastPing = function (device) {
-    var aisOut;
-    
-    device.aisproxy++; // update counter for AIS static renewal
-    if (!device.stamp) return;
-    
-    // push back anything we got to AIS clients [if any]
-    var msg25= { // standard class B Position report
-        aistype    : 25,
-        mmsi       : device.mmsi
-    };
-    this.Debug (4, "AIS Ping=%j", msg25);
-
-    //var message=util.format ("\n18b %j\n", msg18);
-    //this.clients[sock].write (message);
-    aisOut = new AisEncode (msg25);
-    if (! aisOut.valid) {
-        this.Debug (1, "Invalid msg18=%j", msg25);
-        return;
-    }
-    
-    // transform AIS string into a buffer linefeed ended
-    var msgbuf = new Buffer (aisOut.nmea + "\n");
-    
-    // if UDP is defined send AISpos onto it
-    if (this.usock) {
-           this.usock.send(msgbuf, 0, msgbuf.length, this.uport, this.uhost, function(err, bytes) {
-           if (err) console.log ('### Hoops BroadcastPos : UDP Msg25 [err=%s]', err); 
-        });
-    }
-
-    // if we have AIS TCP client let's send a copy of AISpos to each of them
-    for (var sock in  this.clients) {
-        try {
-            this.clients[sock].write (msgbuf);          
-        } catch (err) {
-            this.Debug (1, '### Hoops BroadcastPos lost aisclient: %s [err=%s]', this.clients[sock].uid, err);
-            delete this.clients[sock]; 
-        }
-    }   
-};
-
 DevAdapter.prototype.BroadcastStatic = function (device) {
     
     var aisOutA, aisOutB;   
     device.aisproxy= 0; // reset counter to renew AIS static info
     device.laststatics=new Date().getTime();
     
+    this.Debug (1,"BroadcastStatic devid=%s mmsi=%s name=%s cargo=%s length=%s", device.devid, device.mmsi, device.name, device.cargo , device.length);
 
-    
     var msg24a= {// class B static info
         aistype    : 24,
         part       : 0,
@@ -220,10 +172,10 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
         mmsi       : device.mmsi,
         cargo      : device.cargo  || 0, 
         callsign   : device.callsign,
-        dimA       : device.dimA   || 0,
-        dimB       : device.dimB   || 7,
-        dimC       : device.dimC   || 0,
-        dimD       : device.dimD   || 2
+        dimA       : 0,
+        dimB       : Math.round(device.length),
+        dimC       : 0,
+        dimD       : Math.round(device.width)
     };
     aisOutB = new AisEncode (msg24b);
 
@@ -238,13 +190,14 @@ DevAdapter.prototype.BroadcastStatic = function (device) {
     
     // if UDP is defined send AISpos onto it
     if (this.usock) {
-            this.usock.send(msgbufA, 0, msgbufA.length, this.uport, this.uhost, function(err, bytes) {
-               if (err) console.log ('### Hoops BroadcastPos : UDP msg24a send [err=%s]', err); 
-             });
-           
-            this.usock.send(msgbufB, 0, msgbufB.length, this.uport, this.uhost, function(err, bytes) {
+        this.usock.send(msgbufA, 0, msgbufA.length, this.uport, this.uhost, function(err, bytes) {
+           if (err) console.log ('### Hoops BroadcastPos : UDP msg24a send [err=%s]', err); 
+        });
+
+        this.usock.send(msgbufB, 0, msgbufB.length, this.uport, this.uhost, function(err, bytes) {
                 if (err) console.log ('### Hoops BroadcastPos : UDP msg24b send [err=%s]', err); 
         });
+        
     }
     
     // send statics to every connected AIS clients

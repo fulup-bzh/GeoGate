@@ -45,13 +45,14 @@ function HookBackendEvent (adapter, backend, socket) {
                ,model: device.type
                ,name : device.name
                ,call : device.call
+               ,cargo: device.cargo
         };
         adapter.BroadcastJson (msg);
     };    
     
     function EventDevTmp (device){
         device.websock=0;   // special counter to repost full device every 20 positions
-        adapter.Debug (5, "EventDevAuth devid=%s name=%s", device.devid, device.name);
+        adapter.Debug (5, "EventDevTmp devid=%s name=%s", device.devid, device.name);
         var msg = 
         {type : 0
             ,devid: device.devid
@@ -183,6 +184,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
                ,model: device.type
                ,name : device.name
                ,call : device.call
+               ,cargo: device.cargo
                };
            } else {
             var msg =
@@ -191,6 +193,7 @@ DevAdapter.prototype.ClientConnect = function (socket) {
                ,devid: device.devid
                ,model: device.type
                ,name : device.name
+               ,cargo: device.cargo
                ,call : device.call
                ,img  : device.img
                ,lat  : device.stamp.lat

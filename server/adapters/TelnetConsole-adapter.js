@@ -349,22 +349,25 @@ DevAdapter.prototype.ParseBuffer = function(socket, buffer) {
         case "DEVINFO":  // print info avaliable from gateway activeClient array
               
             try {
-                var dev= gateway.activeClients [data.devid];
+                var dev=gateway.activeClients[data.devid];
+                var stamp=dev.stamp;
                 var elapse= parseInt((new Date().getTime()- dev.lastshow)/1000);
-                dev.lon   = dev.stamp.lon.toFixed (4);
-                dev.lat   = dev.stamp.lat.toFixed (4);
-                dev.sog   = dev.stamp.sog.toFixed (2);
-                dev.cog   = dev.stamp.cog.toFixed (2);
-                dev.alt   = dev.stamp.alt.toFixed (2);
+                var posi = {
+                    lon: stamp.lon.toFixed (4),
+                    lat: stamp.lat.toFixed (4),
+                    sog: stamp.sog.toFixed (2),
+                    cog: stamp.cog.toFixed (2),
+                    alt: stamp.alt.toFixed (2)
+                };
                 var info= util.format ("> --- devid/mmsi= %s Name= '%s' LastShow: %ss Adapter: %s\n"
                               , data.devid, dev.name, elapse, dev.adapter.info);
                 socket.write (info);
                 info=util.format (">    Lat:%s Lon:%s Speed:%s Alt:%s Crs:%s Time:%s\n"
-                             , dev.lat, dev.lon, dev.sog, dev.alt, dev.cog, dev.stamp.date.toJSON());
+                             , posi.lat, posi.lon, posi.sog, posi.alt, posi.cog, stamp.gpsdate);
                  socket.write (info);
             } catch(err) {
-                this.Debug (1,"Error: parsing DEVINFO:%s", err);
-                socket.write ("> - devid: " + data.devid + "No Stamp Info [try dev track] %s\n");
+                this.Debug (1,"Error: parsing Devid: %s Msg: %s", data.devid, err);
+                socket.write ("> - devid: " + data.devid + "No Stamp Info [try dev track]\n");
             }
             break;
         case "DEVOUT":  // force a device to close tcp socket

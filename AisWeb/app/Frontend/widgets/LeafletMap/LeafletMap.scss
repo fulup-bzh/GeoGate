@@ -22,64 +22,59 @@ ais-to-map {
         stroke: grey; // direction vector
         background-color: grey;
         border-color: black;
-        border-radius: 5px;
         border-style: solid;
-        border-width: 1px;
+        border-width: 1px;        
+        border-radius: 2px;
     }
     
     .Traccar {
         background-color: darkorchid;
         stroke:  darkorchid;
         border-color:  darkblue ;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
     }
-    
-    .Celltrac {
+        
+    .AisTrack {
         background-color: #ff7800;
         stroke: #ff7800;
         border-color: black;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
     }
     
     .AisFulup {
         background-color:   greenyellow;
         stroke:  greenyellow;
         border-color:  blue;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
     }
     
     .AisDomig {
         background-color: aqua;
         stroke:  aqua;
         border-color:  blue;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
     }
     
-    .AisPaul {
+    .AisPaull {
         background-color:   fuchsia;
         stroke:  fuchsia;
         border-color:  blueviolet;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
     }
     
-    
+    .AisArnod {
+        background-color:  deeppink;
+        stroke:  deeppink;
+        border-color:  blueviolet;
+    }
+        
     .SimuNmea {
         background-color: yellow;
         stroke: yellow;
         border-color: blue;
-        border-radius: 5px;
-        border-style: solid;
-        border-width: 1px;
+    }
+    
+    .vessel.cargo-36 {
+        border-radius: 3px;
+    }
+    
+    .vessel.cargo-37 {
+        border-radius: 4px;
     }
     
     .vessel.inactive {
