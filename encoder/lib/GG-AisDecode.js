@@ -172,7 +172,8 @@ function AisDecode (input, session) {
     var nmea = input.split (",");
 
     // make sure we are facing a supported AIS message
-    if (nmea [0] !== '!AIVDM') return;
+    // AIVDM for standard messages, AIVDO for messages from own ship AIS
+    if (nmea[0] !== '!AIVDM' || nmea[0] !== '!AIVDO') return;
 
     // the input string is part of a multipart message, make sure we were
     // passed a session object.
