@@ -173,7 +173,7 @@ function AisDecode (input, session) {
 
     // make sure we are facing a supported AIS message
     // AIVDM for standard messages, AIVDO for messages from own ship AIS
-    if (nmea[0] !== '!AIVDM' || nmea[0] !== '!AIVDO') return;
+    if (nmea[0] !== '!AIVDM' && nmea[0] !== '!AIVDO') return;
 
     // the input string is part of a multipart message, make sure we were
     // passed a session object.
@@ -183,7 +183,7 @@ function AisDecode (input, session) {
 
     if(message_count > 1) {
         if(Object.prototype.toString.call(session) !== "[object Object]") {
-            throw "A session object is required to maintain state for decoding multipart AIS messages.";
+           throw "A session object is required to maintain state for decoding multipart AIS messages.";
         }
 
         if(message_id > 1) {
@@ -210,30 +210,34 @@ function AisDecode (input, session) {
 
     // extract binary payload and other usefull information from nmea paquet
     this.payload  = new Buffer (nmea [5]);
-    this.length  = this.payload.length;
+    this.msglen   = this.payload.length;
 
     this.channel = nmea[4];  // vhf channel A/B
 
     if(message_count > 1) {
-        session[message_id] = {payload: this.payload, length: this.length};
+        session[message_id] = {payload: this.payload, length: this.msglen};
+
 
         // Not done building the session
         if(message_id < message_count) return;
+				
+		
 
         var payloads = [];
-        var length = 0;
+        var len = 0;
 
         for(var i = 1; i <= session.message_count; ++i) {
             payloads.push(session[i].payload);
-            length += session[i].length;
+            len += session[i].length;
         }
-
-        this.payload = Buffer.concat(payloads, length);
-        this.length = this.payload.length;
+		
+        this.payload = Buffer.concat(payloads, len);
+        this.msglen = this.payload.length;
     }
 
+	
     // decode printable 6bit AIS/IEC binary format
-    for(var i = 0; i < this.length; i++) {
+    for(var i = 0; i < this.msglen; i++) {
         var byte = this.payload[i];
 
         // check byte is not out of range
@@ -338,13 +342,52 @@ function AisDecode (input, session) {
                 this.cargo    = this.GetInt(40, 8 );
                 this.callsign = this.GetStr(90, 42);
 
-                this.dimA  = this.GetInt(132, 9 );
-                this.dimB  = this.GetInt(141, 9 );
-                this.dimC  = this.GetInt(150, 6 );
-                this.dimD  = this.GetInt(156, 6 );
-                this.valid = true;
+                this.dimA   = this.GetInt(132, 9 );
+                this.dimB   = this.GetInt(141, 9 );
+                this.dimC   = this.GetInt(150, 6 );
+                this.dimD   = this.GetInt(156, 6 );
+                this.length = this.dimA + this.dimB;
+                this.width  = this.dimC + this.dimD;
+                this.valid  = true;
             }
             break;
+        case 4: // base station
+            this.class      = '-';
+			
+            var lon = this.GetInt(79, 28);
+            if (lon & 0x08000000 ) lon |= 0xf0000000;
+            lon = parseFloat (lon / 600000);
+
+            var lat = this.GetInt(107, 27);
+            if( lat & 0x04000000 ) lat |= 0xf8000000;
+            lat = parseFloat (lat / 600000);
+
+            if( ( lon <= 180. ) && ( lat <= 90. ) ) {
+                this.lon = lon;
+                this.lat = lat;
+                this.valid = true;
+            } else this.valid = false;
+			break;
+        case 21: // aid to navigation 
+            this.class      = '-';
+			
+			this.aidtype = this.GetInt(38, 5);
+			this.shipname = this.GetStr(43, 120);
+			
+            var lon = this.GetInt(164, 28);
+            if (lon & 0x08000000 ) lon |= 0xf0000000;
+            lon = parseFloat (lon / 600000);
+
+            var lat = this.GetInt(192, 27);
+            if( lat & 0x04000000 ) lat |= 0xf8000000;
+            lat = parseFloat (lat / 600000);
+
+            if( ( lon <= 180. ) && ( lat <= 90. ) ) {
+                this.lon = lon;
+                this.lat = lat;
+                this.valid = true;
+            } else this.valid = false;
+			break;
         default:
     }
 }
