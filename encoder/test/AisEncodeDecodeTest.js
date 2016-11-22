@@ -85,33 +85,49 @@ function AisEncodeDecodeTest (args) {
         dimD       : 31,
         fixaistype    :  1,
         etamn      :  0,
-        etaho      : 16,
-        etaday     : 15,
-        etamonth   :  5,
-        draught    : 12.2
-        //destination: "NEW YORK  " Extention message not implemented
+        etaho      :  0,
+        etaday     :  0,
+        etamonth   :  0,
+        draught    : 19.6
     }
     ,msg5_2: { // class A static info
         aistype    : 5,
-        nmea       : ["!AIVDM,2,1,1,A,53P;lSh2ANCO8=0s<01<B0<Q8U=@Tp400000000O1@:6340Ht7`0000000000,0*29",
-                      "!AIVDM,2,2,1,A,0000000008,2*1D"],
+        nmea       : ["!AIVDM,2,1,3,B,59NWwC@2>6th7Q`7800858l8Dd00000000000018Cp:A:6a=0G@TQCADR0EQ,0*09",
+                      "!AIVDM,2,2,3,B,CP000000000,2*37"],
         mmsi       : 235074703,
         imo        : 12894435639,
-        callsign   : "2CPN3",
-        shipname   : "SD CHRISTINA",
-        cargo      : 31,
-        dimA       : 10,
+        callsign   : "A8ZA2",
+        shipname   : "BARMBEK",
+        destination: "BREMERHAVEN",
+        cargo      : 72,
+        dimA       : 159,
         dimB       : 10,
-        dimC       :  6,
-        dimD       :  3,
+        dimC       : 17,
+        dimD       : 10,
         fixaistype :  1,
-        etamn      : 60,
-        etaho      : 24,
-        etaday     :  0,
-        etamonth   :  0,
-        draught    :  3
-        //destination: "NEW YORK  " Extention message not implemented
+        etamn      :  0,
+        etaho      : 13,
+        etaday     : 18,
+        etamonth   : 10,
+        draught    : 9.3
     }
+    ,msg4: { // base station
+        aistype    : 4,
+        nmea       : "!AIVDM,1,1,,B,4@4k1EQutd87k:Etkmb:JM7P08Na,0*38",
+        mmsi       : 5030230,
+        lon        : 144.60521666666668,
+        lat        : -38.16343333333333
+    }
+    ,msg21: { // aid of navigation
+        aistype    : 21,
+        nmea       : "!AIVDM,1,1,,B,ENlt;J@aSqP0000000000000000E;WUdm7Mu800003vP10,4*46",
+        mmsi       : 995036009,
+        shipname   : "SG3",
+        aidtype    : 1,
+        lon        : 144.88636666666667,
+        lat        : -38.03993166666667
+    }
+	
 }}
 
 // compare input with decoded outputs
@@ -155,18 +171,24 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
             console.log ("[%s] invalid AIS payload", test);
         } else {
             switch (aisTest.aistype) {
+                case 4:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat']);
+                    break;
+                case 21:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'shipname', 'aidtype', 'lat', 'lon']);
+                    break;
                 case 18:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog"]);
                     break;
                 case 24:
                     switch (aisTest.part) {
-                        case 1: this.CheckResult(test, aisTest, aisDecoded, ["shipname"]); break;
-                        case 2: this.CheckResult(test, aisTest, aisDecoded, ['callsign', 'cargo', 'dimA', 'dimB', "dimC", 'dimD']); break;
+                        case 0: this.CheckResult(test, aisTest, aisDecoded, ["shipname"]); break;
+                        case 1: this.CheckResult(test, aisTest, aisDecoded, ['callsign', 'cargo', 'dimA', 'dimB', "dimC", 'dimD']); break;
                         default: console.log ("hoop test=[%s] message type=[%d] invalid part number [%s]", test, aisTest.type, aisDecoded.part);
                         }
                     break;
                 case  5:
-                    this.CheckResult (test, aisTest, aisDecoded, ["shipname", 'callsign', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
+                    this.CheckResult (test, aisTest, aisDecoded, ["shipname", 'callsign', 'destination', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
                     break;
                 default:
                     console.log ("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);

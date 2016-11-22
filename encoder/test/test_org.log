@@ -1,0 +1,35 @@
+hoop test=[msg24a] message type=[NaN] invalid part number [0]
+
+Checking: [msg24b] --> [!AIVDM,1,1,,A,H42O55lt0000000D3nink000?0500,0*70]
+--> OK (shipname) in:[undefined] == out:[undefined]
+## OK Test [msg24b] ##
+
+Checking: [msg18] --> [!AIVDM,1,1,,A,B69>7mh0?B<:>05B0`0e8TN000000,0*72]
+--> OK (mmsi) in:[412321751] == out:[412321751]
+--> OK (lon) in:[122.47338666666667] == out:[122.47338666666667]
+--> OK (lat) in:[36.91968] == out:[36.91968]
+--> OK (cog) in:[72.2] == out:[72.2]
+--> OK (sog) in:[6.1000000000000005] == out:[6.1000000000000005]
+## OK Test [msg18] ##
+
+Checking: [msg5] --> [!AIVDM,1,1,,A,55?MbV42;H;s<HtKR20EHE:0@T4@Dn2222222216L961O0000i000000000000000000000,0*2D]
+--> OK (shipname) in:[EVER DIADEM         ] == out:[EVER DIADEM         ]
+--> OK (callsign) in:[3FOF8  ] == out:[3FOF8  ]
+--> OK (cargo) in:[70] == out:[70]
+--> FX (draught) in:[12.2] != out:[19.6]
+--> OK (dimA) in:[225] == out:[225]
+--> OK (dimB) in:[70] == out:[70]
+--> OK (dimC) in:[1] == out:[1]
+--> OK (dimD) in:[31] == out:[31]
+** FX Test [msg5] Count=1 **
+
+Checking: [msg5_2] --> [!AIVDM,2,1,1,A,53P;lSh2ANCO8=0s<01<B0<Q8U=@Tp400000000O1@:6340Ht7`0000000000,0*29,!AIVDM,2,2,1,A,0000000008,2*1D]
+--> OK (shipname) in:[SD CHRISTINA] == out:[SD CHRISTINA]
+--> OK (callsign) in:[2CPN3] == out:[2CPN3]
+--> OK (cargo) in:[31] == out:[31]
+--> OK (draught) in:[3] == out:[3]
+--> OK (dimA) in:[10] == out:[10]
+--> OK (dimB) in:[10] == out:[10]
+--> OK (dimC) in:[6] == out:[6]
+--> OK (dimD) in:[3] == out:[3]
+## OK Test [msg5_2] ##
