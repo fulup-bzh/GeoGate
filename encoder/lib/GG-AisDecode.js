@@ -253,7 +253,8 @@ function AisDecode (input, session) {
 
     this.aistype   = this.GetInt (0,6);
     this.repeat    = this.GetInt (6,2);
-    this.mmsi      = this.GetInt (8,30);
+    var immsi      = this.GetInt (8,30);
+	this.mmsi      = ("000000000" + immsi).slice(-9);
 
     switch (this.aistype) {
         case 1:
