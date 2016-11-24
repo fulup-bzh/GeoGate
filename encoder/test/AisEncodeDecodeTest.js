@@ -41,7 +41,7 @@ function AisEncodeDecodeTest (args) {
         nmea       : "!AIVDM,1,1,,A,H42O55i18tMET00000000000000,0*6F",
         cargo      : 60,
         callsign   : "AB1234",
-        mmsi       : 271041815,
+        mmsi       : "271041815",
         shipname   : "PROGUY"
     }
 
@@ -49,7 +49,7 @@ function AisEncodeDecodeTest (args) {
         aistype    : 24,
         part       : 1,
         nmea       : "!AIVDM,1,1,,A,H42O55lt0000000D3nink000?0500,0*70",
-        mmsi       : 271041815,
+        mmsi       : "271041815",
         cargo      : 60,
         callsign   : "TC6163",
         dimA       : 0,
@@ -68,13 +68,13 @@ function AisEncodeDecodeTest (args) {
         lon        : 122.47338666666667,
         lat        : 36.91968,
         second     : 50,
-        mmsi       : 412321751
+        mmsi       : "412321751"
     }
     ,msg5: { // class A static info
         aistype    : 5,
         nmea       : "!AIVDM,1,1,,A,55?MbV42;H;s<HtKR20EHE:0@T4@Dn2222222216L961O0000i000000000000000000000,0*2D",
         // ,"!AIVDM,2,2,1,A,88888888880,2*25"], [extentions for destination not implemented]
-        mmsi       : 351759000,
+        mmsi       : "351759000",
         imo        : 9134270,
         callsign   : "3FOF8  ",
         shipname   : "EVER DIADEM         ",
@@ -94,7 +94,7 @@ function AisEncodeDecodeTest (args) {
         aistype    : 5,
         nmea       : ["!AIVDM,2,1,3,B,59NWwC@2>6th7Q`7800858l8Dd00000000000018Cp:A:6a=0G@TQCADR0EQ,0*09",
                       "!AIVDM,2,2,3,B,CP000000000,2*37"],
-        mmsi       : 235074703,
+        mmsi       : "235074703",
         imo        : 12894435639,
         callsign   : "A8ZA2",
         shipname   : "BARMBEK",
@@ -114,14 +114,14 @@ function AisEncodeDecodeTest (args) {
     ,msg4: { // base station
         aistype    : 4,
         nmea       : "!AIVDM,1,1,,B,4@4k1EQutd87k:Etkmb:JM7P08Na,0*38",
-        mmsi       : 5030230,
+        mmsi       : "005030230",
         lon        : 144.60521666666668,
         lat        : -38.16343333333333
     }
     ,msg21: { // aid of navigation
         aistype    : 21,
         nmea       : "!AIVDM,1,1,,B,ENlt;J@aSqP0000000000000000E;WUdm7Mu800003vP10,4*46",
-        mmsi       : 995036009,
+        mmsi       : "995036009",
         shipname   : "SG3",
         aidtype    : 1,
         lon        : 144.88636666666667,
