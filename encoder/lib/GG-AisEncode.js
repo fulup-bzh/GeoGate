@@ -154,7 +154,8 @@ function AisEncode (msg) {
     }
     
     // Make sure we finish on a byte boundary
-    var size= parseInt(this.payloadSize/6) +1;
+    var size= parseInt(this.payloadSize/6);
+    if (this.payloadSize%6 > 0) size++;
     for(var i = 0; i < size ; i++) {
         var chr = this.payload[i];
 
