@@ -276,10 +276,12 @@ function AisDecode (input, session) {
                 this.valid = true;
             } else this.valid = false;
 
-            this.sog = parseFloat (0.1 * this.GetInt(  50, 10 )); //speed over ground
-            this.cog = parseFloat (0.1 * this.GetInt( 116, 12));  //course over ground
-            this.hdg = parseFloat (this.GetInt( 128,  9));        //magnetic heading
+            this.rot = this.GetInt( 42, 8, true )                 // Rate of turn
+            this.sog = parseFloat (0.1 * this.GetInt(  50, 10 )); // speed over ground
+            this.cog = parseFloat (0.1 * this.GetInt( 116, 12));  // course over ground
+            this.hdg = parseFloat (this.GetInt( 128,  9));        // magnetic heading
             this.utc = this.GetInt( 137, 6 );
+            this.smi = this.GetInt( 143, 2 );                     // special maneuvre indicator
 
             break;
         case 18: // class B position report
@@ -394,7 +396,7 @@ function AisDecode (input, session) {
 }
 
 // Extract an integer sign or unsigned from payload
-AisDecode.prototype.GetInt= function (start, len) {
+AisDecode.prototype.GetInt= function (start, len, signed) {
     var acc = 0;
     var cp, cx,c0, cs;
 
@@ -405,8 +407,9 @@ AisDecode.prototype.GetInt= function (start, len) {
         cx = this.bitarray[cp];
         cs = 5 - ((start + i) % 6);
         c0 = (cx >> cs) & 1;
-        // if(i === 0 && signed && c0) // if signed value and first bit is 1, pad with 1's
-        //   acc = ~acc;
+        if (i === 0 && signed && c0) { // if signed value and first bit is 1, pad with 1's
+          acc = ~acc;
+        }
         acc |= c0;
 
         //console.log ('**** bitarray[%d]=cx=%s i=%d cs=%d  co=%s acc=%s'
@@ -475,6 +478,4 @@ if (process.argv[1] === __filename)  {
  }
 
 module.exports = AisDecode; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/
-
-
 
