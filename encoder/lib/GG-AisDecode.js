@@ -220,8 +220,8 @@ function AisDecode (input, session) {
 
         // Not done building the session
         if(message_id < message_count) return;
-				
-		
+                
+        
 
         var payloads = [];
         var len = 0;
@@ -230,12 +230,12 @@ function AisDecode (input, session) {
             payloads.push(session[i].payload);
             len += session[i].length;
         }
-		
+        
         this.payload = Buffer.concat(payloads, len);
         this.msglen = this.payload.length;
     }
 
-	
+    
     // decode printable 6bit AIS/IEC binary format
     for(var i = 0; i < this.msglen; i++) {
         var byte = this.payload[i];
@@ -254,7 +254,7 @@ function AisDecode (input, session) {
     this.aistype   = this.GetInt (0,6);
     this.repeat    = this.GetInt (6,2);
     var immsi      = this.GetInt (8,30);
-	this.mmsi      = ("000000000" + immsi).slice(-9);
+    this.mmsi      = ("000000000" + immsi).slice(-9);
 
     switch (this.aistype) {
         case 1:
@@ -277,13 +277,13 @@ function AisDecode (input, session) {
                 this.valid = true;
             } else this.valid = false;
 
-            this.rot = this.GetInt( 42, 8, true )                 	// Rate of turn
-            this.sog = this.GetInt(  50, 10) / 10; 					//speed over ground
-            this.cog = this.GetInt( 116, 12) / 10;  				//course over ground
-            this.hdg = parseFloat (this.GetInt( 128,  9));        	//magnetic heading
+            this.rot = this.GetInt( 42, 8, true )                   // Rate of turn
+            this.sog = this.GetInt(  50, 10) / 10;                  //speed over ground
+            this.cog = this.GetInt( 116, 12) / 10;                  //course over ground
+            this.hdg = parseFloat (this.GetInt( 128,  9));          //magnetic heading
             this.utc = this.GetInt( 137, 6 );
-			      this.smi = this.GetInt( 143, 2 );
-			
+                  this.smi = this.GetInt( 143, 2 );
+            
 
             break;
         case 18: // class B position report
@@ -303,16 +303,16 @@ function AisDecode (input, session) {
                 this.valid = true;
             } else this.valid = false;
 
-            this.sog = this.GetInt( 46, 10 ) / 10; 				//speed over ground
-            this.cog = this.GetInt( 112, 12) / 10; 				//course over ground
-            this.hdg = parseFloat (this.GetInt( 124,  9));		//magnetic heading
+            this.sog = this.GetInt( 46, 10 ) / 10;                //speed over ground
+            this.cog = this.GetInt( 112, 12) / 10;                //course over ground
+            this.hdg = parseFloat (this.GetInt( 124,  9));        //magnetic heading
             this.utc = this.GetInt( 134, 6 );
 
             break;
         case 19: // Extended class B position report 
             this.class  = 'B';
             this.status = -1;  // Class B targets have no status.  Enforce this...
-			
+            
             var lon = this.GetInt(57, 28 );
             if (lon & 0x08000000 ) lon |= 0xf0000000;
             lon = parseFloat (lon / 600000);
@@ -327,21 +327,21 @@ function AisDecode (input, session) {
                 this.valid = true;
             } else this.valid = false;
 
-            this.sog = this.GetInt( 46, 10 ) / 10; 				//speed over ground
-            this.cog = this.GetInt( 112, 12) / 10; 				//course over ground
-            this.hdg = parseFloat (this.GetInt( 124,  9));      //magnetic heading
+            this.sog = this.GetInt( 46, 10 ) / 10;                //speed over ground
+            this.cog = this.GetInt( 112, 12) / 10;                //course over ground
+            this.hdg = parseFloat (this.GetInt( 124,  9));        //magnetic heading
             this.utc = this.GetInt( 133, 6 );
 
-			this.shipname    = this.GetStr(143,120).trim();
-			this.cargo       = this.GetInt(263,8);
+            this.shipname    = this.GetStr(143,120).trim();
+            this.cargo       = this.GetInt(263,8);
 
-			this.dimA   = this.GetInt(271, 9 );
-			this.dimB   = this.GetInt(280, 9 );
-			this.dimC   = this.GetInt(289, 6 );
-			this.dimD   = this.GetInt(295, 6 );
-			this.length = this.dimA + this.dimB;
-			this.width  = this.dimC + this.dimD;
-			
+            this.dimA   = this.GetInt(271, 9 );
+            this.dimB   = this.GetInt(280, 9 );
+            this.dimC   = this.GetInt(289, 6 );
+            this.dimD   = this.GetInt(295, 6 );
+            this.length = this.dimA + this.dimB;
+            this.width  = this.dimC + this.dimD;
+            
             break;
         case 5:
             this.class  = 'A';
@@ -381,24 +381,24 @@ function AisDecode (input, session) {
                 this.cargo    = this.GetInt(40, 8 );
                 this.callsign = this.GetStr(90, 42).trim();
 
-				// 98 = auxiliary craft 
-				if (parseInt(immsi/10000000) === 98) {
-					var mothership  = this.GetInt (132, 30);
-					this.mothership = ("000000000" + mothership).slice(-9);
-				} else {
-					this.dimA   = this.GetInt(132, 9 );
-					this.dimB   = this.GetInt(141, 9 );
-					this.dimC   = this.GetInt(150, 6 );
-					this.dimD   = this.GetInt(156, 6 );
-					this.length = this.dimA + this.dimB;
-					this.width  = this.dimC + this.dimD;
-				}
+                // 98 = auxiliary craft 
+                if (parseInt(immsi/10000000) === 98) {
+                    var mothership  = this.GetInt (132, 30);
+                    this.mothership = ("000000000" + mothership).slice(-9);
+                } else {
+                    this.dimA   = this.GetInt(132, 9 );
+                    this.dimB   = this.GetInt(141, 9 );
+                    this.dimC   = this.GetInt(150, 6 );
+                    this.dimD   = this.GetInt(156, 6 );
+                    this.length = this.dimA + this.dimB;
+                    this.width  = this.dimC + this.dimD;
+                }
                 this.valid  = true;
             }
             break;
         case 4: // base station
             this.class      = '-';
-			
+            
             var lon = this.GetInt(79, 28);
             if (lon & 0x08000000 ) lon |= 0xf0000000;
             lon = parseFloat (lon / 600000);
@@ -412,12 +412,12 @@ function AisDecode (input, session) {
                 this.lat = lat;
                 this.valid = true;
             } else this.valid = false;
-			break;
+            break;
         case 9: // sar aircraft
             this.class      = '-';
-			
-			this.alt = this.GetInt(38, 12);
-			
+            
+            this.alt = this.GetInt(38, 12);
+            
             var lon = this.GetInt(61, 28);
             if (lon & 0x08000000 ) lon |= 0xf0000000;
             lon = parseFloat (lon / 600000);
@@ -431,17 +431,17 @@ function AisDecode (input, session) {
                 this.lat = lat;
                 this.valid = true;
             } else this.valid = false;
-			
-			this.sog = parseFloat (this.GetInt( 50, 10 )); //speed over ground
-            this.cog = this.GetInt( 116, 12) / 10; //course over ground
+            
+            this.sog = parseFloat (this.GetInt( 50, 10 ));  //speed over ground
+            this.cog = this.GetInt( 116, 12) / 10;          //course over ground
 
-			break;
+            break;
         case 21: // aid to navigation 
             this.class      = '-';
-			
-			this.aidtype = this.GetInt(38, 5);
-			this.shipname = this.GetStr(43, 120).trim();
-			
+            
+            this.aidtype = this.GetInt(38, 5);
+            this.shipname = this.GetStr(43, 120).trim();
+            
             var lon = this.GetInt(164, 28);
             if (lon & 0x08000000 ) lon |= 0xf0000000;
             lon = parseFloat (lon / 600000);
@@ -455,29 +455,29 @@ function AisDecode (input, session) {
                 this.lat = lat;
                 this.valid = true;
             } else this.valid = false;
-			
-			this.dimA   = this.GetInt(219, 9 );
+            
+            this.dimA   = this.GetInt(219, 9 );
             this.dimB   = this.GetInt(228, 9 );
             this.dimC   = this.GetInt(237, 6 );
             this.dimD   = this.GetInt(243, 6 );
             this.length = this.dimA + this.dimB;
             this.width  = this.dimC + this.dimD;
 
-			this.utc = this.GetInt(253, 6);
-			this.offpos = this.GetInt(259, 1);
+            this.utc = this.GetInt(253, 6);
+            this.offpos = this.GetInt(259, 1);
 
-			var len = parseInt(( ( this.bitarray.length - 272 /6 ) / 6 ) * 6)*6;
-			this.txt = this.GetStr(272 , len).trim();
-			
-			break;
+            var len = parseInt(( ( this.bitarray.length - 272 /6 ) / 6 ) * 6)*6;
+            this.txt = this.GetStr(272 , len).trim();
+            
+            break;
         case 14: // text msg
             this.class      = '-';
-			if (this.bitarray.length > 40/6) {
-				var len = parseInt(( ( this.bitarray.length - 40/6 ) / 6 ) * 6)*6;
-				this.txt = this.GetStr(40, len).trim();
-				this.valid = true;
-			}
-			break;
+            if (this.bitarray.length > 40/6) {
+                var len = parseInt(( ( this.bitarray.length - 40/6 ) / 6 ) * 6)*6;
+                this.txt = this.GetStr(40, len).trim();
+                this.valid = true;
+            }
+            break;
         default:
     }
 }
