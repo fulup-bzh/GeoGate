@@ -61,7 +61,7 @@ function AisEncodeDecodeTest (args) {
         aistype    : 18,
         nmea       : '!AIVDM,1,1,,A,B69>7mh0?B<:>05B0`0e8TN000000,0*72',
         cog        : 72.2,
-        sog        : 6.1000000000000005,
+        sog        : 6.1,
         dsc        : false,
         repeat     : false,
         accuracy   : true,
@@ -70,20 +70,33 @@ function AisEncodeDecodeTest (args) {
         second     : 50,
         mmsi       : "412321751"
     }
+    ,msg19: { // Extended class B Position report
+        aistype    : 19,
+        nmea       : ['!AIVDM,2,1,9,B,C43NbT0008VGWDVHNs0000N10PHb`NL00000,0*6D',
+					  '!AIVDM,2,2,9,B,00000000N0`90RPP,0*59'],
+        mmsi       : "272083600",
+        cog        : 0,
+        sog        : 0,
+        lon        : 33.527321666666666,
+        lat        : 44.61725333333333,
+        second     : 60,
+		shipname   : "PLUTON"		
+    }
     ,msg5: { // class A static info
         aistype    : 5,
         nmea       : "!AIVDM,1,1,,A,55?MbV42;H;s<HtKR20EHE:0@T4@Dn2222222216L961O0000i000000000000000000000,0*2D",
-        // ,"!AIVDM,2,2,1,A,88888888880,2*25"], [extentions for destination not implemented]
+                      //"!AIVDM,2,2,1,A,88888888880,2*25"], // [extentions for destination not implemented]
         mmsi       : "351759000",
         imo        : 9134270,
         callsign   : "3FOF8  ",
-        shipname   : "EVER DIADEM         ",
+        shipname   : "EVER DIADEM",
+		destination: "",
         cargo      : 70,
         dimA       : 225,
         dimB       : 70,
         dimC       :  1,
         dimD       : 31,
-        fixaistype    :  1,
+        fixaistype :  1,
         etamn      :  0,
         etaho      :  0,
         etaday     :  0,
@@ -125,7 +138,55 @@ function AisEncodeDecodeTest (args) {
         shipname   : "SG3",
         aidtype    : 1,
         lon        : 144.88636666666667,
-        lat        : -38.03993166666667
+        lat        : -38.03993166666667,
+		txt        : ""
+    }
+    ,msg21a: { // aid of navigation with extra text
+        aistype    : 21,
+        nmea       : "!AIVDM,1,1,,B,EvjO`>C2qHtq@8:W:0h9PW@1Pb0Paq`g;STu`10888N00313p12H31@hi@,4*0E,22.02.2017 15:57:02",
+        mmsi       : "992471097",
+        shipname   : "E2192 PUNTA SAN CATA",
+        aidtype    : 6,
+        lon        : 18.306638333333332,
+        lat        : 40.390795,
+		txt        : "LDO DI LECCE"
+    }
+    ,msg9: { // sar aircraft
+        aistype    : 9,
+        nmea       : "!AIVDM,1,1,,B,900048wwTiJamA6Eu>B7Pd@20<6M,0*66",
+        mmsi       : "000001059",
+        lon        : -74.747675,
+        lat        : 38.37196,
+		alt        : 4094,
+		sog        : 305,
+		cog        : 192.2
+    }	
+    ,msg1: { // position with rot
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,,A,13mM6l0uAGG8oR<JKRg3D2f20<0?,0*45",
+        mmsi       : "257378000",
+        lon        : -123.89193666666667,
+        lat        : 46.19039333333333,
+		sog        : 8.7,
+		cog        : 84.8,
+		navstatus  : 0,
+		rot        : -11
+    }
+    ,msg1_1: { // position for mob
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,,B,1>O5`4wP01:F?39b6mD>4?w81P00,0*0D",
+        mmsi       : "972122131",
+        lon        : 144.66747333333333,
+        lat        : -38.2612,
+		sog        : 0.1,
+		cog        : 360,
+		navstatus  : 15
+    }
+    ,msg14: { // text msg
+        aistype    : 14,
+        nmea       : "!AIVDM,1,1,,A,>>O5`4tlt:1@E=@,2*15",
+        mmsi       : "972122131",
+        txt        : "MOB TEST"
     }
 	
 }}
@@ -171,14 +232,29 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
             console.log ("[%s] invalid AIS payload", test);
         } else {
             switch (aisTest.aistype) {
+                case 1:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'sog', 'cog']);
+					break;
                 case 4:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat']);
                     break;
-                case 21:
-                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'shipname', 'aidtype', 'lat', 'lon']);
+                case 5:
+                    this.CheckResult (test, aisTest, aisDecoded, ["shipname", 'callsign', 'destination', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
+                    break;
+                case 9:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'alt', 'sog', 'cog']);
+                    break;
+				case 14:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'txt']);
                     break;
                 case 18:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog"]);
+                    break;
+                case 19:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog", 'shipname']);
+                    break;
+                case 21:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'shipname', 'aidtype', 'lat', 'lon', 'txt']);
                     break;
                 case 24:
                     switch (aisTest.part) {
@@ -187,12 +263,9 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                         default: console.log ("hoop test=[%s] message type=[%d] invalid part number [%s]", test, aisTest.type, aisDecoded.part);
                         }
                     break;
-                case  5:
-                    this.CheckResult (test, aisTest, aisDecoded, ["shipname", 'callsign', 'destination', 'cargo', 'draught', 'dimA', 'dimB', "dimC", 'dimD']);
-                    break;
                 default:
                     console.log ("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);
-            }
+            }			
         }
     }
 };

@@ -262,6 +262,10 @@ function AisDecode (input, session) {
         case 3: // class A position report
             this.class      = 'A';
             this.navstatus  = this.GetInt( 38, 4);
+			//this.rot        = this.GetInt( 42, 8)
+			//if( ( this.rot & 0x80 ) === 0x80 ) {
+            //    this.rot = this.rot - 256;   
+            //}		
             var lon         = this.GetInt(61, 28);
             if (lon & 0x08000000 ) lon |= 0xf0000000;
             lon = parseFloat (lon / 600000);
@@ -276,11 +280,13 @@ function AisDecode (input, session) {
                 this.valid = true;
             } else this.valid = false;
 
-            this.sog = parseFloat (0.1 * this.GetInt(  50, 10 )); //speed over ground
-            this.cog = parseFloat (0.1 * this.GetInt( 116, 12));  //course over ground
-            this.hdg = parseFloat (this.GetInt( 128,  9));        //magnetic heading
+            this.rot = this.GetInt( 42, 8, true )                 	// Rate of turn
+            this.sog = this.GetInt(  50, 10) / 10; 					//speed over ground
+            this.cog = this.GetInt( 116, 12) / 10;  				//course over ground
+            this.hdg = parseFloat (this.GetInt( 128,  9));        	//magnetic heading
             this.utc = this.GetInt( 137, 6 );
-
+			this.smi = this.GetInt( 143, 2 );
+			
             break;
         case 18: // class B position report
             this.class  = 'B';
@@ -299,11 +305,45 @@ function AisDecode (input, session) {
                 this.valid = true;
             } else this.valid = false;
 
-            this.sog = parseFloat (0.1 * this.GetInt( 46, 10 )); //speed over ground
-            this.cog = parseFloat (0.1 * this.GetInt( 112, 12)); //course over ground
-            this.hdg = parseFloat (this.GetInt( 124,  9));       //magnetic heading
+            this.sog = this.GetInt( 46, 10 ) / 10; 				//speed over ground
+            this.cog = this.GetInt( 112, 12) / 10; 				//course over ground
+            this.hdg = parseFloat (this.GetInt( 124,  9));		//magnetic heading
             this.utc = this.GetInt( 134, 6 );
 
+            break;
+        case 19: // Extended class B position report 
+            this.class  = 'B';
+            this.status = -1;  // Class B targets have no status.  Enforce this...
+			
+            var lon = this.GetInt(57, 28 );
+            if (lon & 0x08000000 ) lon |= 0xf0000000;
+            lon = parseFloat (lon / 600000);
+
+            var lat = this.GetInt(85, 27 );
+            if( lat & 0x04000000 ) lat |= 0xf8000000;
+            lat = parseFloat (lat / 600000);
+
+            if( ( lon <= 180. ) && ( lat <= 90. ) ) {
+                this.lon = lon;
+                this.lat = lat;
+                this.valid = true;
+            } else this.valid = false;
+
+            this.sog = this.GetInt( 46, 10 ) / 10; 				//speed over ground
+            this.cog = this.GetInt( 112, 12) / 10; 				//course over ground
+            this.hdg = parseFloat (this.GetInt( 124,  9));      //magnetic heading
+            this.utc = this.GetInt( 133, 6 );
+
+			this.shipname    = this.GetStr(143,120).trim();
+			this.cargo       = this.GetInt(263,8);
+
+			this.dimA   = this.GetInt(271, 9 );
+			this.dimB   = this.GetInt(280, 9 );
+			this.dimC   = this.GetInt(289, 6 );
+			this.dimD   = this.GetInt(295, 6 );
+			this.length = this.dimA + this.dimB;
+			this.width  = this.dimC + this.dimD;
+			
             break;
         case 5:
             this.class  = 'A';
@@ -315,7 +355,7 @@ function AisDecode (input, session) {
             if( AIS_version_indicator < 2 ) {
                 this.imo = this.GetInt(40,30);
                 this.callsign    = this.GetStr(70,42);
-                this.shipname    = this.GetStr(112,120);
+                this.shipname    = this.GetStr(112,120).trim();
                 this.cargo       = this.GetInt(232,8);
                 this.dimA        = this.GetInt(240,9);
                 this.dimB        = this.GetInt(249,9);
@@ -325,8 +365,8 @@ function AisDecode (input, session) {
                 this.etaDay      = this.GetInt(278,5);
                 this.etaHr       = this.GetInt(283,5);
                 this.etaMin      = this.GetInt(288,6);
-                this.draught     = parseFloat (this.GetInt(294, 8 ) / 10.0);
-                this.destination = this.GetStr(302, 120);
+                this.draught     = this.GetInt(294, 8 ) / 10.0;
+                this.destination = this.GetStr(302, 120).trim();
                 this.length      = this.dimA + this.dimB;
                 this.width       = this.dimC + this.dimD;
                 this.valid       = true;
@@ -337,18 +377,24 @@ function AisDecode (input, session) {
             this.class='B';
             this.part = this.GetInt(38, 2 );
             if (0 === this.part ) {
-                this.shipname = this.GetStr(40, 120);
+                this.shipname = this.GetStr(40, 120).trim();
                 this.valid    = true;
             } else if ( this.part === 1) {
                 this.cargo    = this.GetInt(40, 8 );
-                this.callsign = this.GetStr(90, 42);
+                this.callsign = this.GetStr(90, 42).trim();
 
-                this.dimA   = this.GetInt(132, 9 );
-                this.dimB   = this.GetInt(141, 9 );
-                this.dimC   = this.GetInt(150, 6 );
-                this.dimD   = this.GetInt(156, 6 );
-                this.length = this.dimA + this.dimB;
-                this.width  = this.dimC + this.dimD;
+				// 98 = auxiliary craft 
+				if (parseInt(immsi/10000000) === 98) {
+					var mothership  = this.GetInt (132, 30);
+					this.mothership = ("000000000" + mothership).slice(-9);
+				} else {
+					this.dimA   = this.GetInt(132, 9 );
+					this.dimB   = this.GetInt(141, 9 );
+					this.dimC   = this.GetInt(150, 6 );
+					this.dimD   = this.GetInt(156, 6 );
+					this.length = this.dimA + this.dimB;
+					this.width  = this.dimC + this.dimD;
+				}
                 this.valid  = true;
             }
             break;
@@ -369,11 +415,34 @@ function AisDecode (input, session) {
                 this.valid = true;
             } else this.valid = false;
 			break;
+        case 9: // sar aircraft
+            this.class      = '-';
+			
+			this.alt = this.GetInt(38, 12);
+			
+            var lon = this.GetInt(61, 28);
+            if (lon & 0x08000000 ) lon |= 0xf0000000;
+            lon = parseFloat (lon / 600000);
+
+            var lat = this.GetInt(89, 27);
+            if( lat & 0x04000000 ) lat |= 0xf8000000;
+            lat = parseFloat (lat / 600000);
+
+            if( ( lon <= 180. ) && ( lat <= 90. ) ) {
+                this.lon = lon;
+                this.lat = lat;
+                this.valid = true;
+            } else this.valid = false;
+			
+			this.sog = parseFloat (this.GetInt( 50, 10 )); //speed over ground
+            this.cog = this.GetInt( 116, 12) / 10; //course over ground
+
+			break;
         case 21: // aid to navigation 
             this.class      = '-';
 			
 			this.aidtype = this.GetInt(38, 5);
-			this.shipname = this.GetStr(43, 120);
+			this.shipname = this.GetStr(43, 120).trim();
 			
             var lon = this.GetInt(164, 28);
             if (lon & 0x08000000 ) lon |= 0xf0000000;
@@ -388,13 +457,35 @@ function AisDecode (input, session) {
                 this.lat = lat;
                 this.valid = true;
             } else this.valid = false;
+			
+			this.dimA   = this.GetInt(219, 9 );
+            this.dimB   = this.GetInt(228, 9 );
+            this.dimC   = this.GetInt(237, 6 );
+            this.dimD   = this.GetInt(243, 6 );
+            this.length = this.dimA + this.dimB;
+            this.width  = this.dimC + this.dimD;
+
+			this.utc = this.GetInt(253, 6);
+			this.offpos = this.GetInt(259, 1);
+
+			var len = parseInt(( ( this.bitarray.length - 272 /6 ) / 6 ) * 6)*6;
+			this.txt = this.GetStr(272 , len).trim();
+			
+			break;
+        case 14: // text msg
+            this.class      = '-';
+			if (this.bitarray.length > 40/6) {
+				var len = parseInt(( ( this.bitarray.length - 40/6 ) / 6 ) * 6)*6;
+				this.txt = this.GetStr(40, len).trim();
+				this.valid = true;
+			}
 			break;
         default:
     }
 }
 
 // Extract an integer sign or unsigned from payload
-AisDecode.prototype.GetInt= function (start, len) {
+AisDecode.prototype.GetInt= function (start, len, signed) {
     var acc = 0;
     var cp, cx,c0, cs;
 
@@ -405,8 +496,8 @@ AisDecode.prototype.GetInt= function (start, len) {
         cx = this.bitarray[cp];
         cs = 5 - ((start + i) % 6);
         c0 = (cx >> cs) & 1;
-        // if(i === 0 && signed && c0) // if signed value and first bit is 1, pad with 1's
-        //   acc = ~acc;
+        if(i === 0 && signed && c0) // if signed value and first bit is 1, pad with 1's
+			acc = ~acc;
         acc |= c0;
 
         //console.log ('**** bitarray[%d]=cx=%s i=%d cs=%d  co=%s acc=%s'
@@ -426,7 +517,7 @@ AisDecode.prototype.GetStr= function(start, len) {
     }
 
     //char temp_str[85];
-    var buffer = new Buffer(20);
+    var buffer = new Buffer(len/6);
     var cp, cx, cs,c0;
     var acc = 0;
     var k   = 0;
