@@ -262,10 +262,7 @@ function AisDecode (input, session) {
         case 3: // class A position report
             this.class      = 'A';
             this.navstatus  = this.GetInt( 38, 4);
-			//this.rot        = this.GetInt( 42, 8)
-			//if( ( this.rot & 0x80 ) === 0x80 ) {
-            //    this.rot = this.rot - 256;   
-            //}		
+
             var lon         = this.GetInt(61, 28);
             if (lon & 0x08000000 ) lon |= 0xf0000000;
             lon = parseFloat (lon / 600000);
