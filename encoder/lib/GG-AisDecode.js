@@ -282,8 +282,9 @@ function AisDecode (input, session) {
             this.cog = this.GetInt( 116, 12) / 10;  				//course over ground
             this.hdg = parseFloat (this.GetInt( 128,  9));        	//magnetic heading
             this.utc = this.GetInt( 137, 6 );
-			this.smi = this.GetInt( 143, 2 );
+			      this.smi = this.GetInt( 143, 2 );
 			
+
             break;
         case 18: // class B position report
             this.class  = 'B';
@@ -493,8 +494,10 @@ AisDecode.prototype.GetInt= function (start, len, signed) {
         cx = this.bitarray[cp];
         cs = 5 - ((start + i) % 6);
         c0 = (cx >> cs) & 1;
-        if(i === 0 && signed && c0) // if signed value and first bit is 1, pad with 1's
-			acc = ~acc;
+
+        if (i === 0 && signed && c0) { // if signed value and first bit is 1, pad with 1's
+          acc = ~acc;
+        }
         acc |= c0;
 
         //console.log ('**** bitarray[%d]=cx=%s i=%d cs=%d  co=%s acc=%s'
@@ -563,6 +566,4 @@ if (process.argv[1] === __filename)  {
  }
 
 module.exports = AisDecode; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/
-
-
 

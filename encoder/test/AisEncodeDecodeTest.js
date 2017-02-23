@@ -188,7 +188,26 @@ function AisEncodeDecodeTest (args) {
         mmsi       : "972122131",
         txt        : "MOB TEST"
     }
-	
+    ,msg1: {
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,,A,133REv0P00P=K?TMDH6P0?vN289>,0*46",
+        mmsi       : "205035000",
+        rot        : -128,
+        smi        : 0,
+        aidtype    : 1,
+        lon        : 2.9328833333333333,
+        lat        : 51.23759
+    }
+    ,msg1_2: {
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,,A,13u?etPv2;0n:dDPwUM1U1Cb069D,0*23",
+        mmsi       : "265547250",
+        rot        : -8,
+        smi        : 0,
+        aidtype    : 1,
+        lon        : 11.832976666666667,
+        lat        : 57.66035333333333
+    }
 }}
 
 // compare input with decoded outputs
@@ -234,7 +253,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
             switch (aisTest.aistype) {
                 case 1:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'sog', 'cog']);
-					break;
+
                 case 4:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat']);
                     break;
@@ -275,7 +294,7 @@ AisEncodeDecodeTest.prototype.CheckEncode = function () {
     // make sure we get expected output from reference messages
     for (var test in this.testSet) {
         var aisIn  = this.testSet [test];
-        
+
         if (aisIn.nmea.lenght === 1) {
             var aisOut = new AisEncode (aisIn);
 
