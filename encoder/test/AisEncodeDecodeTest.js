@@ -73,14 +73,14 @@ function AisEncodeDecodeTest (args) {
     ,msg19: { // Extended class B Position report
         aistype    : 19,
         nmea       : ['!AIVDM,2,1,9,B,C43NbT0008VGWDVHNs0000N10PHb`NL00000,0*6D',
-					  '!AIVDM,2,2,9,B,00000000N0`90RPP,0*59'],
+                      '!AIVDM,2,2,9,B,00000000N0`90RPP,0*59'],
         mmsi       : "272083600",
         cog        : 0,
         sog        : 0,
         lon        : 33.527321666666666,
         lat        : 44.61725333333333,
         second     : 60,
-		shipname   : "PLUTON"		
+        shipname   : "PLUTON"        
     }
     ,msg5: { // class A static info
         aistype    : 5,
@@ -90,7 +90,7 @@ function AisEncodeDecodeTest (args) {
         imo        : 9134270,
         callsign   : "3FOF8  ",
         shipname   : "EVER DIADEM",
-		destination: "",
+        destination: "",
         cargo      : 70,
         dimA       : 225,
         dimB       : 70,
@@ -139,7 +139,7 @@ function AisEncodeDecodeTest (args) {
         aidtype    : 1,
         lon        : 144.88636666666667,
         lat        : -38.03993166666667,
-		txt        : ""
+        txt        : ""
     }
     ,msg21a: { // aid of navigation with extra text
         aistype    : 21,
@@ -149,7 +149,7 @@ function AisEncodeDecodeTest (args) {
         aidtype    : 6,
         lon        : 18.306638333333332,
         lat        : 40.390795,
-		txt        : "LDO DI LECCE"
+        txt        : "LDO DI LECCE"
     }
     ,msg9: { // sar aircraft
         aistype    : 9,
@@ -157,56 +157,49 @@ function AisEncodeDecodeTest (args) {
         mmsi       : "000001059",
         lon        : -74.747675,
         lat        : 38.37196,
-		alt        : 4094,
-		sog        : 305,
-		cog        : 192.2
-    }	
-    ,msg1: { // position with rot
-        aistype    : 1,
-        nmea       : "!AIVDM,1,1,,A,13mM6l0uAGG8oR<JKRg3D2f20<0?,0*45",
-        mmsi       : "257378000",
-        lon        : -123.89193666666667,
-        lat        : 46.19039333333333,
-		sog        : 8.7,
-		cog        : 84.8,
-		navstatus  : 0,
-		rot        : -11
-    }
-    ,msg1_1: { // position for mob
-        aistype    : 1,
-        nmea       : "!AIVDM,1,1,,B,1>O5`4wP01:F?39b6mD>4?w81P00,0*0D",
-        mmsi       : "972122131",
-        lon        : 144.66747333333333,
-        lat        : -38.2612,
-		sog        : 0.1,
-		cog        : 360,
-		navstatus  : 15
-    }
-    ,msg14: { // text msg
-        aistype    : 14,
-        nmea       : "!AIVDM,1,1,,A,>>O5`4tlt:1@E=@,2*15",
-        mmsi       : "972122131",
-        txt        : "MOB TEST"
-    }
+        alt        : 4094,
+        sog        : 305,
+        cog        : 192.2
+    }    
     ,msg1: {
         aistype    : 1,
         nmea       : "!AIVDM,1,1,,A,133REv0P00P=K?TMDH6P0?vN289>,0*46",
         mmsi       : "205035000",
         rot        : -128,
         smi        : 0,
-        aidtype    : 1,
+        sog        : 0,
+        cog        : 0,
         lon        : 2.9328833333333333,
         lat        : 51.23759
     }
-    ,msg1_2: {
+    ,msg1_1: { // sample with rot
         aistype    : 1,
         nmea       : "!AIVDM,1,1,,A,13u?etPv2;0n:dDPwUM1U1Cb069D,0*23",
         mmsi       : "265547250",
         rot        : -8,
         smi        : 0,
-        aidtype    : 1,
+        sog        : 13.9,
+        cog        : 40.4,
         lon        : 11.832976666666667,
         lat        : 57.66035333333333
+    }
+    ,msg1_2: { // position for mob
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,,B,1>O5`4wP01:F?39b6mD>4?w81P00,0*0D",
+        mmsi       : "972122131",
+        lon        : 144.66747333333333,
+        lat        : -38.2612,
+        rot        : -128,
+        smi        : 0,
+        sog        : 0.1,
+        cog        : 360,
+        navstatus  : 15
+    }
+    ,msg14: { // text msg
+        aistype    : 14,
+        nmea       : "!AIVDM,1,1,,A,>>O5`4tlt:1@E=@,2*15",
+        mmsi       : "972122131",
+        txt        : "MOB TEST"
     }
 }}
 
@@ -252,8 +245,8 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
         } else {
             switch (aisTest.aistype) {
                 case 1:
-                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'sog', 'cog']);
-
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'sog', 'cog', 'rot', 'smi']);
+                    break;
                 case 4:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat']);
                     break;
@@ -263,7 +256,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                 case 9:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'alt', 'sog', 'cog']);
                     break;
-				case 14:
+                case 14:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'txt']);
                     break;
                 case 18:
@@ -284,7 +277,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                     break;
                 default:
                     console.log ("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);
-            }			
+            }            
         }
     }
 };
