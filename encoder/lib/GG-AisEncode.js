@@ -80,7 +80,7 @@ function AisEncode (msg) {
             this.PutInt (sog,  46, 10 );
 
             accuracy= parseInt (msg.accuracy);
-            this.PutInt(accuracy, 60, 1 );
+            this.PutInt(accuracy, 56, 1 );
 
             // move lat to integer and take care of negative value
             lon = parseInt (msg.lon * 600000); //Long 1/10000 minute
