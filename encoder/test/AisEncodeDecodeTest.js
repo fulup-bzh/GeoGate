@@ -124,6 +124,27 @@ function AisEncodeDecodeTest (args) {
         etamonth   : 10,
         draught    : 9.3
     }
+    ,msg5_3: { // class A static info version 2
+        aistype    : 5,
+        nmea       : ["!AIVDM,2,1,9,A,53Moi:81Qk8LLpQH000PD98T@D4r118Tp<E=<0153@f594ke07TSm21D,0*63",
+                      "!AIVDM,2,2,9,A,hF@000000000000,2*73"],
+        mmsi       : "235074703",
+        imo        : 6409351,
+        callsign   : "GNHV",
+        shipname   : "HEBRIDEAN PRINCESS",
+        destination: "ROTHESAY",
+        cargo      : 69,
+        dimA       : 26,
+        dimB       : 46,
+        dimC       : 5,
+        dimD       : 9,
+        fixaistype : 1,
+        etamn      : 0,
+        etaho      : 13,
+        etaday     : 7,
+        etamonth   : 3,
+        draught    : 3
+    }
     ,msg4: { // base station
         aistype    : 4,
         nmea       : "!AIVDM,1,1,,B,4@4k1EQutd87k:Etkmb:JM7P08Na,0*38",
@@ -322,13 +343,13 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
     var buffer = fs.readFileSync (filename, "utf-8");
     var line   = "";
     var count=0;
+    var session={}
     for (var idx=0; idx < buffer.length; idx++) {
         switch (buffer [idx]) {
             case '\n': // new line
                 count ++;
                 console.log ("line[%d]=%s", count,  line);
-
-                var ais= new AisDecode (line);
+                var ais= new AisDecode (line, session);
                 switch (ais.aistype) {
                     case 1:
                     case 2:

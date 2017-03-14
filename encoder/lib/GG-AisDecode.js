@@ -347,10 +347,12 @@ function AisDecode (input, session) {
             this.class  = 'A';
 //          Get the AIS Version indicator
 //          0 = station compliant with Recommendation ITU-R M.1371-1
-//          1 = station compliant with Recommendation ITU-R M.1371-3
-//          2-3 = station compliant with future editions
+//          1 = station compliant with Recommendation ITU-R M.1371-3 (or later)
+//          2 = station compliant with Recommendation ITU-R M.1371-5 (or later)
+//          3 = station compliant with future editions
             var AIS_version_indicator = this.GetInt(38,2);
-            if( AIS_version_indicator < 2 ) {
+            if( AIS_version_indicator < 3 )
+                {
                 this.imo = this.GetInt(40,30);
                 this.callsign    = this.GetStr(70,42);
                 this.shipname    = this.GetStr(112,120).trim();
