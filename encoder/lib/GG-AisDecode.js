@@ -171,6 +171,8 @@ function AisDecode (input, session) {
     // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
     var nmea = input.split (",");
 
+    if (nmea.length != 7 ) return;
+
     // make sure we are facing a supported AIS message
     // AIVDM for standard messages, AIVDO for messages from own ship AIS
     if (nmea[0] !== '!AIVDM' && nmea[0] !== '!AIVDO') return;
@@ -354,7 +356,7 @@ function AisDecode (input, session) {
             if( AIS_version_indicator < 3 )
                 {
                 this.imo = this.GetInt(40,30);
-                this.callsign    = this.GetStr(70,42);
+                this.callsign    = this.GetStr(70,42).trim();
                 this.shipname    = this.GetStr(112,120).trim();
                 this.cargo       = this.GetInt(232,8);
                 this.dimA        = this.GetInt(240,9);
@@ -515,7 +517,8 @@ AisDecode.prototype.GetStr= function(start, len) {
     // extended message are not supported
     if (this.bitarray.length < (start + len) /6) {
         //console.log ("AisDecode: ext msg not implemented GetStr(%d,%d)", start, len);
-        return;
+        len = parseInt(( ( this.bitarray.length - start/6 ) / 6 ) * 6)*6;
+        //return "";
     }
 
     //char temp_str[85];
