@@ -88,7 +88,7 @@ function AisEncodeDecodeTest (args) {
                       //"!AIVDM,2,2,1,A,88888888880,2*25"], // [extentions for destination not implemented]
         mmsi       : "351759000",
         imo        : 9134270,
-        callsign   : "3FOF8  ",
+        callsign   : "3FOF8",
         shipname   : "EVER DIADEM",
         destination: "",
         cargo      : 70,
@@ -366,6 +366,26 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
                         console.log (' -->msg-05 mmsi=%d shipname=%s callsign=%s cargo=%s/%s draught=%d length=%d width=%d'
                             , ais.mmsi,ais.shipname, ais.callsign, ais.cargo, ais.GetVesselType(),ais.draught, ais.length, ais.width);
                         break;
+                    case 14:
+                        console.log (' -->msg-14 mmsi=%d text=%s'
+                            , ais.mmsi,ais.txt);
+                        break;
+                    case 4:
+                        console.log (' -->msg-04 mmsi=%d Lon=%d Lat=%d'
+                            , ais.mmsi, ais.lon, ais.lat );
+                        break;
+                    case 9:
+                        console.log (' -->msg-09 mmsi=%d Lon=%d Lat=%d Alt=%d'
+                            , ais.mmsi, ais.lon, ais.lat, ais.alt );
+                        break;
+                    case 19:
+                        console.log (' -->msg-19 mmsi=%d Lon=%d Lat=%d Speed=%d Course=%d Name=%s'
+                            , ais.mmsi, ais.lon, ais.lat, ais.sog, ais.cog, ais.shipname );
+                        break;
+                    case 21:
+                        console.log (' -->msg-21 mmsi=%d Lon=%d Lat=%d Name=%s'
+                            , ais.mmsi, ais.lon, ais.lat, ais.shipname );
+                        break;
                     default:
                         console.log (" ### hoop Testing msg-%d ==> [%s] not implemented", ais.aistype, ais.Getaistype());
                 }
@@ -382,7 +402,10 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
 
 
 // if started as a main and not as module, then process test.
-if (process.argv[1] === __filename)  {
+if (process.argv[1] === __filename && process.argv.length === 3 ) {
+    var test= new AisEncodeDecodeTest ();
+    test.CheckFile (process.argv[2]);
+} else if (process.argv[1] === __filename)  {
     var test= new AisEncodeDecodeTest ();
     test.CheckDecode();
     test.CheckEncode();
