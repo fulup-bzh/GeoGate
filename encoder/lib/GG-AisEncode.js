@@ -126,6 +126,33 @@ function AisEncode (msg) {
             this.PutStr(msg.destination,302,120);
             this.payloadSize=422;
             break;
+      
+        case 21:
+            this.PutInt(msg.aid_type, 38, 5);
+            this.PutStr(msg.atonname, 43, 120);
+            accuracy= parseInt (msg.accuracy);
+            this.PutInt(accuracy,     163, 1);
+      
+            lon = parseInt (msg.lon * 600000); //Long 1/10000 minute
+            if (lon < 0) lon |= 0x08000000;
+            this.PutInt(lon, 164, 28 );
+      
+            lat = parseInt (msg.lat * 600000); //Lat 1/10000 minute
+            if (lat < 0) lat |= 0x04000000;
+            this.PutInt(lat, 192, 27 );
+
+            this.PutInt (msg.dimA     ,219, 9);
+            this.PutInt (msg.dimB     ,228, 9);
+            this.PutInt (msg.dimC     ,237, 6);
+            this.PutInt (msg.dimD     ,243, 6);
+
+            this.PutInt (60           ,253, 6 ); // 60 if time stamp is not available
+            this.PutInt (msg.off_position, 259, 1);
+            this.PutInt (msg.raim     ,268, 1);
+            this.PutInt (msg.virtual_aid, 269, 1);
+            this.PutInt (msg.assigned ,270, 1);
+            break;
+      
         case 24:  // Vesel static information
             this.class='B';
             this.PutInt(msg.part, 38, 2 );
