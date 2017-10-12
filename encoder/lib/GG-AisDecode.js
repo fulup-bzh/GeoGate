@@ -518,7 +518,11 @@ AisDecode.prototype.GetStr= function(start, len) {
     if (this.bitarray.length < (start + len) /6) {
         //console.log ("AisDecode: ext msg not implemented GetStr(%d,%d)", start, len);
         len = parseInt(( ( this.bitarray.length - start/6 ) / 6 ) * 6)*6;
-        //return "";
+    }
+    // messages in the wild sometimes produce a negative len which will cause a buffer range error
+    // exception, stating size argument must not be negative. This occurs in the new Buffer() below.
+    if (len < 0) {
+        return '';
     }
 
     //char temp_str[85];
