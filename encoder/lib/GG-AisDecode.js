@@ -21,6 +21,7 @@
  */
 'use strict';
 
+var DEBUG = false;
 
 var MSG_TYPE = {
     1:  "Position Report Class A",
@@ -255,8 +256,8 @@ function AisDecode (input, session) {
 
     this.aistype   = this.GetInt (0,6);
     this.repeat    = this.GetInt (6,2);
-    var immsi      = this.GetInt (8,30);
-    this.mmsi      = ("000000000" + immsi).slice(-9);
+    this.immsi     = this.GetInt (8,30);
+    this.mmsi      = ("000000000" + this.immsi).slice(-9);
 
     switch (this.aistype) {
         case 1:
@@ -284,7 +285,7 @@ function AisDecode (input, session) {
             this.cog = this.GetInt( 116, 12) / 10;                  //course over ground
             this.hdg = parseFloat (this.GetInt( 128,  9));          //magnetic heading
             this.utc = this.GetInt( 137, 6 );
-                  this.smi = this.GetInt( 143, 2 );
+            this.smi = this.GetInt( 143, 2 );
             
 
             break;
@@ -386,7 +387,7 @@ function AisDecode (input, session) {
                 this.callsign = this.GetStr(90, 42).trim();
 
                 // 98 = auxiliary craft 
-                if (parseInt(immsi/10000000) === 98) {
+                if (parseInt(this.immsi/10000000) === 98) {
                     var mothership  = this.GetInt (132, 30);
                     this.mothership = ("000000000" + mothership).slice(-9);
                 } else {
@@ -400,7 +401,8 @@ function AisDecode (input, session) {
                 this.valid  = true;
             }
             break;
-        case 4: // base station
+        case 4:  // base station
+        case 11: // UTC/Date Response
             this.class      = '-';
             
             var lon = this.GetInt(79, 28);
@@ -482,7 +484,48 @@ function AisDecode (input, session) {
                 this.valid = true;
             }
             break;
+        case 8: // Binary Broadcast Message
+                this.dac = this.GetInt(40, 10 );
+                this.fid = this.GetInt(50, 6 );
+                // Inland ship static and voyage related data
+                if (this.dac === 200 && this.fid === 10 ) {
+                    this.class       = '-';
+                    this.ENI         = this.GetStr(56,48).trim();
+                    this.length      = parseFloat(this.GetInt(104, 13 )) /10.;
+                    this.width       = parseFloat(this.GetInt(117, 10 )) /10.;
+                    this.draught     = parseFloat(this.GetInt(144, 11 )) / 100.0;
+                    this.shiptypeERI = this.GetInt(127, 14 );
+                    this.valid       = true;
+                } else {
+                    if (DEBUG) {
+                        console.log ('---- type=%d %s dac=%d fid=%d %s', this.aistype, this.mmsi, dac, fid, input);                
+                    }
+                }
+            break;
+        case 27: // Long Range AIS Broadcast message
+            this.class  = '-';
+            this.navstatus  = this.GetInt( 40, 4);     
+            
+            var lon = this.GetInt(44, 18 );
+            lon = parseFloat (lon) / 600;
+
+            var lat = this.GetInt(62, 17 );
+            lat = parseFloat (lat) / 600;
+
+            if( ( lon <= 180. ) && ( lat <= 90. ) ) {
+                this.lon = lon;
+                this.lat = lat;
+                this.valid = true;
+            } else this.valid = false;
+
+            this.sog = this.GetInt( 79, 6 ) ;                //speed over ground
+            this.cog = this.GetInt( 85, 9);                //course over ground
+            break;
         default:
+            if (DEBUG) {
+                console.log ('---- type=%d %s %s -> %s', this.aistype, this.Getaistype(this.aistype), this.mmsi, input);
+            }
+            break;
     }
 }
 
@@ -564,6 +607,92 @@ AisDecode.prototype.Getaistype =function () {
 AisDecode.prototype.GetVesselType =function () {
     return (VESSEL_TYPE [this.cargo]);
 };
+
+// map ERI Classification to other vessel types
+AisDecode.prototype.GetERIShiptype = function( shiptypeERI ) {
+	switch (shiptypeERI) {
+        case 8000: return 99; // Vessel, type unknown	
+        case 8010: return 79; // Motor freighter
+        case 8020: return 89; // Motor tanker
+        case 8021: return 80; // Motor tanker, liquid cargo, type N
+
+        case 8022: return 80; // Motor tanker, liquid cargo, type C
+
+        case 8023: return 89; // Motor tanker, dry cargo as if liquid (e.g. cement)
+
+        case 8030: return 79; // Container vessel
+
+        case 8040: return 80; // Gas tanker
+
+        case 8050: return 79; // Motor freighter, tug
+
+        case 8060: return 89; // Motor tanker, tug
+
+        case 8070: return 79; // Motor freighter with one or more ships alongside
+
+        case 8080: return 89; // Motor freighter with tanker
+
+        case 8090: return 79; // Motor freighter pushing one or more freighters
+
+        case 8100: return 89; // Motor freighter pushing at least one tank-ship
+
+        case 8110: return 79; // Tug, freighter
+
+        case 8120: return 89; // Tug, tanker
+
+        case 8130: return 31; // Tug freighter, coupled
+
+        case 8140: return 31; // Tug, freighter/tanker, coupled
+
+        case 8150: return 99; // Freightbarge
+
+        case 8160: return 99; // Tankbarge
+
+        case 8161: return 90; // Tankbarge, liquid cargo, type N
+
+        case 8162: return 90; // Tankbarge, liquid cargo, type C
+
+        case 8163: return 99; // Tankbarge, dry cargo as if liquid (e.g. cement)
+
+        case 8170: return 99; // Freightbarge with containers
+
+        case 8180: return 90; // Tankbarge, gas
+
+        case 8210: return 79; // Pushtow, one cargo barge
+
+        case 8220: return 79; // Pushtow, two cargo barges
+
+        case 8230: return 79; // Pushtow, three cargo barges
+
+        case 8240: return 79; // Pushtow, four cargo barges
+
+        case 8250: return 79; // Pushtow, five cargo barges
+
+        case 8260: return 79; // Pushtow, six cargo barges
+
+        case 8270: return 79; // Pushtow, seven cargo barges
+
+        case 8280: return 79; // Pushtow, eight cargo barges
+
+        case 8290: return 79; // Pushtow, nine or more barges
+
+        case 8310: return 80; // Pushtow, one tank/gas barge
+
+        case 8320: return 80; // Pushtow, two barges at least one tanker or gas barge
+
+        case 8330: return 80; // Pushtow, three barges at least one tanker or gas barge
+
+        case 8340: return 80; // Pushtow, four barges at least one tanker or gas barge
+
+        case 8350: return 80; // Pushtow, five barges at least one tanker or gas barge
+
+        case 8360: return 80; // Pushtow, six barges at least one tanker or gas barge
+
+        case 8370: return 80; // Pushtow, seven barges at least one tanker or gas barge
+    }
+	return shiptypeERI;
+};
+
 
 
 // if started as a main and not as module, then process test.

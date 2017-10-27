@@ -222,6 +222,26 @@ function AisEncodeDecodeTest (args) {
         mmsi       : "972122131",
         txt        : "MOB TEST"
     }
+    ,msg8_200_10: { // dac 200 fid 10 msg static inland ship
+        aistype    : 8,
+        nmea       : "!AIVDM,1,1,,A,85Mv070j2d>=<e<<=PQhhg`59P00,0*26",
+        mmsi       : "366968860",
+        length     : 27,
+        width      : 9.7,
+        draught    : 3.04,
+        shiptypeERI: 8000
+    }
+    ,msg27: { // position lon range
+        aistype    : 27,
+        nmea       : "!AIVDM,1,1,,B,K9TJi5H@o9jiPP2D,0*3E",
+        mmsi       : "642167061",
+        lon        : 23.531666666666666,
+        lat        : 37.86833333333333,
+        sog        : 0,
+        cog        : 37,
+        navstatus  : 1
+    }
+   
 }}
 
 // compare input with decoded outputs
@@ -296,6 +316,12 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                         default: console.log ("hoop test=[%s] message type=[%d] invalid part number [%s]", test, aisTest.type, aisDecoded.part);
                         }
                     break;
+                case 8:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'length', 'width', 'draught', 'shiptypeERI']);
+                    break;
+                case 27:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog", 'navstatus']);
+                    break;
                 default:
                     console.log ("hoop test=[%s] message type=[%d] not implemented", test, aisTest.type);
             }            
@@ -355,36 +381,45 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
                     case 2:
                     case 3:
                     case 18:
-                        console.log (' -->msg-18 mmsi=%d Lon=%d Lat=%d Speed=%d Course=%d, NavStatus=%s/%s'
+                        console.log (' -->msg-18 mmsi=%s Lon=%d Lat=%d Speed=%d Course=%d, NavStatus=%s/%s'
                             , ais.mmsi, ais.lon, ais.lat, ais.sog, ais.cog, ais.navstatus, ais.GetNavStatus());
                         break;
                     case 24:
-                        console.log (' -->msg-24 mmsi=%d shipname=%s callsign=%s cargo=%s/%s length=%d width=%d'
+                        console.log (' -->msg-24 mmsi=%s shipname=%s callsign=%s cargo=%s/%s length=%d width=%d'
                             , ais.mmsi,ais.shipname, ais.callsign, ais.cargo, ais.GetVesselType(),  ais.length, ais.width);
                         break;
                     case 5:
-                        console.log (' -->msg-05 mmsi=%d shipname=%s callsign=%s cargo=%s/%s draught=%d length=%d width=%d'
+                        console.log (' -->msg-05 mmsi=%s shipname=%s callsign=%s cargo=%s/%s draught=%d length=%d width=%d'
                             , ais.mmsi,ais.shipname, ais.callsign, ais.cargo, ais.GetVesselType(),ais.draught, ais.length, ais.width);
                         break;
                     case 14:
-                        console.log (' -->msg-14 mmsi=%d text=%s'
+                        console.log (' -->msg-14 mmsi=%s text=%s'
                             , ais.mmsi,ais.txt);
                         break;
                     case 4:
-                        console.log (' -->msg-04 mmsi=%d Lon=%d Lat=%d'
-                            , ais.mmsi, ais.lon, ais.lat );
+                    case 11:
+                        console.log (' -->msg-%d mmsi=%s Lon=%d Lat=%d'
+                            , ais.aistype, ais.mmsi, ais.lon, ais.lat );
                         break;
                     case 9:
-                        console.log (' -->msg-09 mmsi=%d Lon=%d Lat=%d Alt=%d'
+                        console.log (' -->msg-09 mmsi=%s Lon=%d Lat=%d Alt=%d'
                             , ais.mmsi, ais.lon, ais.lat, ais.alt );
                         break;
                     case 19:
-                        console.log (' -->msg-19 mmsi=%d Lon=%d Lat=%d Speed=%d Course=%d Name=%s'
+                        console.log (' -->msg-19 mmsi=%s Lon=%d Lat=%d Speed=%d Course=%d Name=%s'
                             , ais.mmsi, ais.lon, ais.lat, ais.sog, ais.cog, ais.shipname );
                         break;
                     case 21:
-                        console.log (' -->msg-21 mmsi=%d Lon=%d Lat=%d Name=%s'
+                        console.log (' -->msg-21 mmsi=%s Lon=%d Lat=%d Name=%s'
                             , ais.mmsi, ais.lon, ais.lat, ais.shipname );
+                        break;
+                    case 8:
+                        console.log (' -->msg-08 mmsi=%s length=%d width=%d draught=%d shiptype=%s/%s'
+                            , ais.mmsi, ais.length, ais.width, ais.draught, ais.shiptypeERI, ais.GetERIShiptype(ais.shiptypeERI) );
+                        break;
+                    case 27:
+                        console.log (' -->msg-27 mmsi=%s Lon=%d Lat=%d Speed=%d Course=%d state=%d/%s'
+                            , ais.mmsi, ais.lon, ais.lat, ais.sog, ais.cog, ais.navstatus, ais.GetNavStatus() );
                         break;
                     default:
                         console.log (" ### hoop Testing msg-%d ==> [%s] not implemented", ais.aistype, ais.Getaistype());
