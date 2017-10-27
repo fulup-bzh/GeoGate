@@ -484,7 +484,7 @@ function AisDecode (input, session) {
                 this.valid = true;
             }
             break;
-        case 8: // 
+        case 8: // Binary Broadcast Message
                 this.dac = this.GetInt(40, 10 );
                 this.fid = this.GetInt(50, 6 );
                 // Inland ship static and voyage related data
