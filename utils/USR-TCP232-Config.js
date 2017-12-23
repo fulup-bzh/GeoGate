@@ -5,17 +5,34 @@
 // Date     : June-2016
 // Licence  : What ever please you until you fixe bug by yourself
 // Object   : Configure USR-TCP232-Config (tested with USR-TCP232-2)
-// Reference: http://www.usrtechnology.com/sell-1676042-usr-tcp232-2-rs232-to-ethernet-server-tcp-ip-module-support-tcp-udp.html
 
-// usage: 
+// Prerequisite
+
+// make sure your are connected on the same physical network
+// stop your firewall (or open UDP port 1500)
+// leave config switch in gound (midle position, not serial, not UDP)
+
+
+// Usage: 
+
 //    1- update config to mach your need (factory config is config_index:1)
-//    2- node.js USR-TCP232-Config.js (will read and display all config before uploading new one
+//    2- type in a terminal "sudo node.js USR-TCP232-Config.js" (will read and display all config before uploading new one
 //    3- check your converter respond to ping.
+
+// Debug:
+
+// if you only see the discover message then your discovery command is sent but the adapteur cannot respond
+// typically this mean that you are not on the same physical network
+
+// Note:
+
+// while you need to get Linux box and adaptor on the same physical network for config,
+// the IP address does not have to match. If is possible to configure from one network for an other one.
 
 // Bugs: Does not discover multiple USR-TCP232-xx. Converter should be alone of LAN branche during configuration time
 
 // choose config index
-var config_index = 1;
+var config_index = 2;
 
 switch (config_index) {
     
@@ -36,6 +53,15 @@ switch (config_index) {
         var DST_PORT=2000;  
         var USR_ADDR="10.20.101.21"; 
         var USR_GATW="10.20.101.1"; 
+        var USR_SNET="255.255.255.0"; 
+        var USR_BAUD=38400;
+        break;
+
+    case 2:
+        var DST_ADDR="5.39.78.33"; 
+        var DST_PORT=56860;  
+        var USR_ADDR="192.168.1.9"; 
+        var USR_GATW="192.168.1.254"; 
         var USR_SNET="255.255.255.0"; 
         var USR_BAUD=38400;
         break;
@@ -77,7 +103,7 @@ client.on('listening', function () {
     console.log('\nUSR-TCP232-Config: Configurator listening on ' + listenaddr.address + ":" + listenaddr.port);
 
     // Broadcast packet to discover USR-TCP232-Config:
-    console.log ("USR-TCP232-Config: Configurator broadcast onto %s:%s for discovery", broadcastAddress, configport);
+    console.log ("USR-TCP232-Config: Configurator broadcast (%d bytes) onto %s:%s for discovery", discovery.length,broadcastAddress, configport);
     client.send(discovery, 0, discovery.length, configport, broadcastAddress);
 });
 
