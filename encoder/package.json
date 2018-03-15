@@ -23,7 +23,7 @@
        ],
        "main": "ApiExport.js",
        "home": "http://www.geotobe.org/geogate",
-       "dependencies": {
+       "devDependencies": {
               "jison": "*",
               "async": "*"
        },
