@@ -161,8 +161,9 @@ var VESSEL_TYPE= {
 // Ais payload is represented in a 6bits encoded string !(
 // This method is a direct transcription in nodejs of C++ ais-decoder code
 function AisDecode (input, session) {
-    this.bitarray=[];
-    this.valid= false; // will move to 'true' if parsing succeed
+    this.bitarray = [];
+    this.valid = false; // will move to 'true' if parsing succeed
+    this.error = "";    // for returning error message if not valid
     var nmea = "";
 
     if(Object.prototype.toString.call(input) !== "[object String]") {
@@ -191,17 +192,20 @@ function AisDecode (input, session) {
 
         if(message_id > 1) {
             if(nmea[0] !== session.formatter) {
-                console.log ("AisDecode: Sentence does not match formatter of current session");
+                this.valid = false;
+                this.error = "AisDecode: Sentence does not match formatter of current session.";
                 return;
             }
 
             if(session[message_id - 1] === undefined) {
-                console.log ("AisDecode: Session is missing prior message part, cannot parse partial AIS message.");
+                this.valid = false;
+                this.error = "AisDecode: Session is missing prior message part, cannot parse partial AIS message.";
                 return;
             }
 
             if(session.sequence_id !== sequence_id) {
-                console.log ("AisDecode: Session IDs do not match. Cannot recontruct AIS message.");
+                this.valid = false;
+                this.error = "AisDecode: Session IDs do not match. Cannot recontruct AIS message.";
                 return;
             }
         } else {
