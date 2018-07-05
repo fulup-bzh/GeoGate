@@ -164,20 +164,33 @@ function AisDecode (input, session) {
     this.bitarray = [];
     this.valid = false; // will move to 'true' if parsing succeed
     this.error = "";    // for returning error message if not valid
-    var nmea = "";
 
-    if(Object.prototype.toString.call(input) !== "[object String]") {
+    //check if string
+    if (Object.prototype.toString.call(input) !== "[object String]") {
+        this.error = "AisDecode: Sentence is not of type string.";
+        return;
+    } else {
+        input = input.trim();
+    }
+
+    if (input.length === 0) {
+        this.error = "AisDecode: Sentence is empty or spaces.";
+        return;
+    } else if (!validateChecksum(input)) {
+        this.error = "AisDecode: Sentence checksum is invalid.";
         return;
     }
 
     // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
-    var nmea = input.split (",");
+    var nmea = input.split(",");
 
-    if (nmea.length != 7 ) return;
-
-    // make sure we are facing a supported AIS message
-    // AIVDM for standard messages, AIVDO for messages from own ship AIS
-    if (nmea[0] !== '!AIVDM' && nmea[0] !== '!AIVDO') return;
+    if (nmea.length !== 7) {
+        this.error = "AisDecode: Sentence contains invalid number of parts.";
+        return;
+    } else if (nmea[0] !== '!AIVDM' && nmea[0] !== '!AIVDO') {   //AIVDM = standard, AIVDO = own ship
+        this.error = "AisDecode: Invalid message prefix.";
+        return;
+    }
 
     // the input string is part of a multipart message, make sure we were
     // passed a session object.
@@ -192,19 +205,16 @@ function AisDecode (input, session) {
 
         if(message_id > 1) {
             if(nmea[0] !== session.formatter) {
-                this.valid = false;
                 this.error = "AisDecode: Sentence does not match formatter of current session.";
                 return;
             }
 
             if(session[message_id - 1] === undefined) {
-                this.valid = false;
                 this.error = "AisDecode: Session is missing prior message part, cannot parse partial AIS message.";
                 return;
             }
 
             if(session.sequence_id !== sequence_id) {
-                this.valid = false;
                 this.error = "AisDecode: Session IDs do not match. Cannot recontruct AIS message.";
                 return;
             }
@@ -224,11 +234,8 @@ function AisDecode (input, session) {
     if(message_count > 1) {
         session[message_id] = {payload: this.payload, length: this.msglen};
 
-
         // Not done building the session
         if(message_id < message_count) return;
-                
-        
 
         var payloads = [];
         var len = 0;
@@ -556,7 +563,7 @@ AisDecode.prototype.GetInt= function (start, len, signed) {
     }
     //console.log ('---- start=%d len=%d acc=%s acc=%d', start, len ,  acc.toString(2), acc);
     return acc;
-}
+};
 
 // Extract a string from payload [1st bits is index 0]
 AisDecode.prototype.GetStr= function(start, len) {
@@ -697,7 +704,24 @@ AisDecode.prototype.GetERIShiptype = function( shiptypeERI ) {
 	return shiptypeERI;
 };
 
+function validateChecksum(msg) {
+    if (typeof msg === 'string') {
+        var loc1 = msg.indexOf('!');
+        var loc2 = msg.indexOf('*');
 
+        if (loc1 > -1 && loc2 > -1) {
+            var body = msg.substring(loc1 + 1, loc2);
+            var checksum = msg.substring(loc2 + 1);
+
+            for (var sum = 0, i = 0; i < body.length; i++) {
+                sum = sum ^ body.charCodeAt(i);                   //xor based checksum
+            }
+
+            return (checksum === sum.toString(16).toUpperCase());
+        }
+    }
+    return false;
+}
 
 // if started as a main and not as module, then process test.
 if (process.argv[1] === __filename)  {
