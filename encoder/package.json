@@ -1,7 +1,7 @@
 {
        "name": "ggencoder",
        "description": "GEOGATE-geojson handles AIS/NMEA encoding/decoding for GEOgate GPS/AIS/GTS framework",
-       "version": "0.1.20",
+       "version": "1.0.1",
        "author": {
               "name": "Fulup Ar Foll",
               "email": "fulup@breizhme.net",
