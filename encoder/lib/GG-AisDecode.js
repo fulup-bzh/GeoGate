@@ -552,8 +552,10 @@ AisDecode.prototype.validateChecksum = function(input) {
             for (var sum = 0, i = 0; i < body.length; i++) {
                 sum ^= body.charCodeAt(i);  //xor based checksum
             }
+            var hex = sum.toString(16).toUpperCase();
+            if (hex.length === 1) hex = '0' + hex;      //single digit hex needs preceding 0, '0F'
 
-            return (checksum === sum.toString(16).toUpperCase());
+            return (checksum === hex);
         }
     }
     return false;
