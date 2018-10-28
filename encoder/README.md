@@ -39,8 +39,8 @@ API Usage
 
       // encode AIS message
       var encMsg = new AisEncode ({// class AB static info
-            msgtype    : 24,
-            part       : 2,
+            aistype    : 24,
+            part       : 1,
             mmsi       : 271041815,
             cargo      : 60,
             callsign   : "TC6163",
@@ -56,7 +56,7 @@ API Usage
 
       // encode NMEA message
       encMsg = new NmeaEncode ({ // standard class B Position report
-             msgtype    : 18,
+             msgtype    : 2,
              cog        : 72.2,
              sog        : 6.1000000000000005,
              lon        : 122.47338666666667,

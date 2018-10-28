@@ -41,7 +41,7 @@ function NmeaEncode (msg) {
             this.EncodeDate();
 
             var packet =util.format ("$GPRMC,%s.00,A,%s,%s,%s,%s,%s,%s,%s,,,A"
-                , this.time, this.Dec2Min(msg.lat),lato, this.Dec2Min(msg.lon), lono, msg.sog, msg.cog, this.date);
+                , this.time, this.Dec2Min(msg.lat,2),lato, this.Dec2Min(msg.lon,3), lono, msg.sog, msg.cog, this.date);
 
             var checksum = 0; // http://rietman.wordpress.com/2008/09/25/how-to-calculate-the-nmea-checksum/
             for(var i = 1; i < packet.length; i++) {
@@ -61,14 +61,13 @@ function NmeaEncode (msg) {
 }
 
 // move from decimal notation to NMEA formating
-NmeaEncode.prototype.Dec2Min = function(cardinal){
-    // NMEA 4737.1024,N for 47°37'.1024
+NmeaEncode.prototype.Dec2Min = function(cardinal,degpadded){
+    // NMEA 4737.1024,N for 47°37'.1024 (degrees padded to 2 digits)
+    // NMEA 07620.7863,W for 76°20'.7863 W (degrees padded to 3 digits)
     if (cardinal<0) cardinal=cardinal*-1;
     var deg    = parseInt (cardinal);
     var mindec = (cardinal-deg)*60;
-    var min    = parseInt (mindec);
-    var secdec = mindec-min;
-    var card=deg*100+min+secdec;
+    var card=('00'+deg).slice(-degpadded) + ('0'+mindec.toFixed(4)).slice(-7);
 
     return (card);
 };

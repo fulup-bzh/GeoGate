@@ -59,10 +59,10 @@ function NmeaEncodeDecodeTest (args) {
         Track2: { // GPRMC from iphone
             cmd: 2,
             nmea: '$GPRMC,182816.26,A,4916.45,N,10342.0309,E,00.00,000.00,210115,0,0,A67',
-            lon: -123.18533333333335,
+            lon: 103.700515,
             lat: 49.274166666666666,
-            cog: 54.7,
-            sog: 0.2
+            cog: 0,
+            sog: 0
         }
 
     }
