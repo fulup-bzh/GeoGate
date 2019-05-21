@@ -186,7 +186,10 @@ function AisDecode (input, session) {
     if (nmea.length !== 7) {
         this.error = "AisDecode: Sentence contains invalid number of parts.";
         return;
-    } else if (nmea[0] !== "!AIVDM" && nmea[0] !== "!AIVDO") {   //AIVDM = standard, AIVDO = own ship
+    } else if (nmea[0] !== "!AIVDM" &&  // AIVDM: others
+        nmea[0] !== "!AIVDO" &&         // AIVDO: own AIS
+        nmea[0] !== "!BSVDM" &&         // BSVDM: from base stations
+        nmea[0] !== "!ABVDM" ) {        // ABVDM: from base stations
         this.error = "AisDecode: Invalid message prefix.";
         return;
     }
