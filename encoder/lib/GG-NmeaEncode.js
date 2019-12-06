@@ -77,7 +77,10 @@ NmeaEncode.prototype.EncodeDate= function () {
     var date= new Date();
     var stringDate= date.toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/\-/g, '').replace(/\:/g, '');
     var time=stringDate.split (" ");
-    this.date=time[0].substring (2,8);
+    // yyyymmdd
+    // 12345678
+    this.date=time[0].substring(6,8) + time[0].substring(4,6) + time[0].substring(2,4);
+    // hhmmss
     this.time=time[1];
 };
 

@@ -71,8 +71,8 @@ function NmeaDecode (inputpaquet) {
             this.lat  =[this.nmea[2], this.nmea[3]];
             this.lon  =[this.nmea[4], this.nmea[5]];
             this.valid= this.nmea[6];
-            this.sog= parseFloat (this.nmea[7] || 0);
-            this.cog  = parseFloat (this.nmea[8] || 0);
+            // nmea[7] is number of satellites
+            // nmea[8] is HDOP
             this.alt  = parseFloat (this.nmea[9] || 0);
             this.day  = undefined;   // only time in GPGGA
             break;
@@ -111,14 +111,19 @@ NmeaDecode.prototype.NormalizeData= function () {
     if (this.day === undefined) {
         this.date  = new Date().getTime();
     } else { 
-        // $GPRMC 100106=10-jan-2006 053740.000=5h37m40s
-        var d=this.day.substring (4,6);
-        var m=this.day.substring (2,4)-1;  //warning january=0 !!!
-        var y='20' + this.day.substring (0,2);
+        // sample GPRMC:
+        // $GPRMC,013248.00,A,3733.10101,N,07618.46766,W,0.233,24.51,041219,10.98,W,A*3E
+        // where: 
+        // 013248.00    is time hhmmss.ss utc
+        // 041219       is date ddmmyy
+        var d=this.day.substring (0,2);
+        var m=this.day.substring (2,4);
+        var y='20' + this.day.substring (4,6);
         var h=this.time.substring (0,2);
         var n=this.time.substring (2,4);
         var s=this.time.substring (4,6);
-        this.date = Date.UTC (y,m,d,h,n,s);
+        // note date.utc needs month as 0-11 not 1-12
+        this.date = Date.UTC (y,m-1,d,h,n,s);
     }
     
     // move speed from knts to m/s with one decimal
