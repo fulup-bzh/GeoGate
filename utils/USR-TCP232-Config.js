@@ -6,6 +6,9 @@
 // Licence  : What ever please you until you fixe bug by yourself
 // Object   : Configure USR-TCP232-Config (tested with USR-TCP232-2)
 
+// reference USR-TCP232-xx protocol USRIIOT
+// https://www.usriot.com/download/T24/USR-TCP232-T24%20Series%20Setting%20Protocol.pdf
+
 // Prerequisite
 
 // make sure your are connected on the same physical network
