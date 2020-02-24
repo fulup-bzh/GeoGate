@@ -186,10 +186,11 @@ function AisDecode (input, session) {
     if (nmea.length !== 7) {
         this.error = "AisDecode: Sentence contains invalid number of parts.";
         return;
-    } else if (nmea[0] !== "!AIVDM" &&  // AIVDM: others
-        nmea[0] !== "!AIVDO" &&         // AIVDO: own AIS
-        nmea[0] !== "!BSVDM" &&         // BSVDM: from base stations
-        nmea[0] !== "!ABVDM" ) {        // ABVDM: from base stations
+    } 
+    var command = nmea[0].substring(3,6);
+    if (command !== "VDM" &&  // AIVDM: others
+        command !== "VDO"     // AIVDO: own AIS
+        ) {
         this.error = "AisDecode: Invalid message prefix.";
         return;
     }
@@ -484,6 +485,7 @@ function AisDecode (input, session) {
 
             this.utc = this.GetInt(253, 6);
             this.offpos = this.GetInt(259, 1);
+            this.virtual = this.GetInt(269, 1);
 
             var len = parseInt(( ( this.bitarray.length - 272 /6 ) / 6 ) * 6)*6;
             this.txt = this.GetStr(272 , len).trim();

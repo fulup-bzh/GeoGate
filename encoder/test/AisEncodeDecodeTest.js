@@ -160,17 +160,21 @@ function AisEncodeDecodeTest (args) {
         aidtype    : 1,
         lon        : 144.88636666666667,
         lat        : -38.03993166666667,
-        txt        : ""
+        txt        : "",
+        virtual    : 1,
+        offpos     : 0
     }
     ,msg21a: { // aid of navigation with extra text
         aistype    : 21,
-        nmea       : "!AIVDM,1,1,,B,EvjO`>C2qHtq@8:W:0h9PW@1Pb0Paq`g;STu`10888N00313p12H31@hi@,4*0E,22.02.2017 15:57:02",
+        nmea       : "!AIVDM,1,1,,B,EvjO`>C2qHtq@8:W:0h9PW@1Pb0Paq`g;STu`10888N00313p12H31@hi@,4*0E",
         mmsi       : "992471097",
         shipname   : "E2192 PUNTA SAN CATA",
         aidtype    : 6,
         lon        : 18.306638333333332,
         lat        : 40.390795,
-        txt        : "LDO DI LECCE"
+        txt        : "LDO DI LECCE",
+        virtual    : 0,
+        offpos     : 0
     }
     ,msg9: { // sar aircraft
         aistype    : 9,
@@ -282,7 +286,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
         }
 
         if (aisDecoded.valid !== true) {
-            console.log ("[%s] invalid AIS payload", test);
+            console.log ("[%s] invalid AIS payload: %s", test, aisDecoded.error);
         } else {
             switch (aisTest.aistype) {
                 case 1:
@@ -307,7 +311,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog", 'shipname']);
                     break;
                 case 21:
-                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'shipname', 'aidtype', 'lat', 'lon', 'txt']);
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'shipname', 'aidtype', 'lat', 'lon', 'txt', 'offpos', 'virtual']);
                     break;
                 case 24:
                     switch (aisTest.part) {
