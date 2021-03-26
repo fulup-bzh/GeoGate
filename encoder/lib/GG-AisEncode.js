@@ -204,7 +204,7 @@ function AisEncode (msg) {
     // this.fragid  = nmea[3];  // fragment sequential index for multipart message
     // this.pading  = nmea[6].split ('*')[0];
     var nmea=[];
-    nmea [0] = '!AIVDM';  // ! is added after checksum
+    nmea [0] = (msg.own === true ? '!AIVDO' : '!AIVDM');  // ! is added after checksum
     nmea [1]  = '1';      // ignore multipart extention messages
     nmea [2]  = '1';
     nmea [3]  = '';
