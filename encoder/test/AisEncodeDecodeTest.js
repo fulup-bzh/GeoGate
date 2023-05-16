@@ -238,11 +238,12 @@ function AisEncodeDecodeTest (args) {
     ,msg8_001_31: { // dac 001 fid 31 meteorological and hydrographic data
         aistype    : 800131,
         nmea       : "!AIVDM,1,1,1,B,8>h8nkP0Glr=<hFI0D6??wvlFR06EuOwgwl?wnSwe7wvlOw?sAwwnSGmwvh0,0*17",
+        mmsi       : "990000846",
         lon        : 171.5985,
         lat        : 12.2283,
-        awgwindspd : 127,
+        avgwindspd : 127,
         winddir    : 360,
-        airtemp    : 1024, 
+        airtemp    : -1024,
         watertemp  : 501
     }
     ,msg27: { // position lon range
@@ -334,7 +335,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'length', 'width', 'draught', 'shiptypeERI']);
                     break;
                 case 800131:
-                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'awgwindspd', 'winddir', 'airtemp', 'watertemp']);
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'avgwindspd', 'winddir', 'airtemp', 'watertemp']);
                     break;
                 case 27:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog", 'navstatus']);
