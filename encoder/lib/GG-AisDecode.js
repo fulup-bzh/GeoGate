@@ -530,9 +530,9 @@ function AisDecode (input, session) {
                     this.windgust      = parseInt(this.GetInt(129, 7));
                     this.winddir       = parseInt(this.GetInt(136, 9));
                     this.windgustdir   = parseInt(this.GetInt(145, 9));
-                    this.airtemp       = parseInt(this.GetInt(154, 11));
+                    this.airtemp       = parseInt(this.GetInt(154, 11, 1));
                     this.relhumid      = parseInt(this.GetInt(165, 7));
-                    this.dewpoint      = parseInt(this.GetInt(172, 10));
+                    this.dewpoint      = parseInt(this.GetInt(172, 10, 1));
                     this.airpress      = parseInt(this.GetInt(182, 9));
                     this.airpressten   = parseInt(this.GetInt(191, 2));
                     this.horvisib      = parseInt(this.GetInt(193, 8));
@@ -547,7 +547,7 @@ function AisDecode (input, session) {
                     this.swellperiod   = parseInt(this.GetInt(307, 6));
                     this.swelldir      = parseInt(this.GetInt(313, 9));
                     this.seastate      = parseInt(this.GetInt(322, 4));
-                    this.watertemp     = parseInt(this.GetInt(326, 10));
+                    this.watertemp     = parseInt(this.GetInt(326, 10, 1));
                     this.precipitation = parseInt(this.GetInt(336, 3));
                     this.salinity      = parseInt(this.GetInt(339, 9));
                     this.ice           = parseInt(this.GetInt(348, 2));
