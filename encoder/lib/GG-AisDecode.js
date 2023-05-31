@@ -516,12 +516,12 @@ function AisDecode (input, session) {
                 else if (this.dac === 1 && this.fid === 31 ) {
                     this.class       = '-';
                     var lon = this.GetInt(56, 25);
-                    if (lon & 0x08000000 ) lon |= 0xf0000000;
-                    lon = parseFloat (lon / 60000); //Lon in 1/1,000 min
-        
+                    if (lon & 0x01000000) lon |= 0xfe000000;
+                    lon = parseFloat (lon / 60000);  //Lon in 1/1,000 min
+
                     var lat = this.GetInt(81, 24);
-                    if( lat & 0x04000000 ) lat |= 0xf8000000;
-                    lat = parseFloat (lat / 60000); //Lat in 1/1,000 min
+                    if (lat & 0x01000000) lat |= 0xff000000;
+                    lat = parseFloat (lat / 60000);  //Lat in 1/1,000 min
                             
                     this.utcday        = parseInt(this.GetInt(106, 5));
                     this.utchour       = parseInt(this.GetInt(111, 5));
