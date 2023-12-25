@@ -645,7 +645,7 @@ AisDecode.prototype.validateChecksum = function(input) {
 
         if (loc1 === 0 && loc2 > 0) {
             var body = input.substring(1, loc2);
-            var checksum = input.substring(loc2 + 1);
+            var checksum = input.substring(loc2 + 1).toUpperCase();
 
             for (var sum = 0, i = 0; i < body.length; i++) {
                 sum ^= body.charCodeAt(i);  //xor based checksum
