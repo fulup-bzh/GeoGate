@@ -557,7 +557,54 @@ function AisDecode (input, session) {
                         this.lat = lat;
                         this.valid = true;
                     } else this.valid = false;
-                } else {
+                }
+                // meteorological and hydrographic data (Deprecated)
+                else if (this.dac === 1 && this.fid === 11 ) {
+                    this.class       = '-';
+                    var lon = this.GetInt(80, 25);
+                    if (lon & 0x01000000) lon |= 0xfe000000;
+                    lon = parseFloat (lon / 60000);  //Lon in 1/1,000 min
+
+                    var lat = this.GetInt(56, 24);
+                    if (lat & 0x01000000) lat |= 0xff000000;
+                    lat = parseFloat (lat / 60000);  //Lat in 1/1,000 min
+                            
+                    this.utcday        = parseInt(this.GetInt(105, 5));
+                    this.utchour       = parseInt(this.GetInt(110, 5));
+                    this.utcminute     = parseInt(this.GetInt(115, 6));
+                    this.avgwindspd    = parseInt(this.GetInt(121, 7));
+                    this.windgust      = parseInt(this.GetInt(128, 7));
+                    this.winddir       = parseInt(this.GetInt(135, 9));
+                    this.windgustdir   = parseInt(this.GetInt(144, 9));
+                    this.airtemp       = parseInt(this.GetInt(153, 11, 1));
+                    this.relhumid      = parseInt(this.GetInt(164, 7));
+                    this.dewpoint      = parseInt(this.GetInt(171, 10, 1));
+                    this.airpress      = parseInt(this.GetInt(181, 9));
+                    this.airpressten   = parseInt(this.GetInt(190, 2));
+                    this.horvisib      = parseInt(this.GetInt(192, 8));
+                    this.waterlevel    = parseInt(this.GetInt(200, 9));
+                    this.waterlevelten = parseInt(this.GetInt(209, 2));
+                    this.surfcurrspd   = parseInt(this.GetInt(211, 8));
+                    this.surfcurrdir   = parseInt(this.GetInt(219, 9));
+                    this.signwavewhgt  = parseInt(this.GetInt(272, 8));
+                    this.waveperiod    = parseInt(this.GetInt(280, 6));
+                    this.wavedir       = parseInt(this.GetInt(286, 9));
+                    this.swellhgt      = parseInt(this.GetInt(295, 8));
+                    this.swellperiod   = parseInt(this.GetInt(303, 6));
+                    this.swelldir      = parseInt(this.GetInt(309, 9));
+                    this.seastate      = parseInt(this.GetInt(318, 4));
+                    this.watertemp     = parseInt(this.GetInt(322, 10, 1));
+                    this.precipitation = parseInt(this.GetInt(332, 3));
+                    this.salinity      = parseInt(this.GetInt(335, 9));
+                    this.ice           = parseInt(this.GetInt(344, 2));
+
+                    if( ( lon <= 180. ) && ( lat <= 90. ) ) {
+                        this.lon = lon;
+                        this.lat = lat;
+                        this.valid = true;
+                    } else this.valid = false;
+                }
+                else {
                     if (DEBUG) {
                         console.log ('---- type=%d %s dac=%d fid=%d %s', this.aistype, this.mmsi, dac, fid, input);                
                     }
