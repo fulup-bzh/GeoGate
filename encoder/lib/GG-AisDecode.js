@@ -229,7 +229,7 @@ function AisDecode (input, session) {
     }
 
     // extract binary payload and other usefull information from nmea paquet
-    this.payload  = new Buffer (nmea [5]);
+    this.payload  = Buffer.from(nmea [5]);
     this.msglen   = this.payload.length;
 
     this.channel = nmea[4];  // vhf channel A/B
@@ -514,6 +514,7 @@ function AisDecode (input, session) {
                 } 
                 // meteorological and hydrographic data
                 else if (this.dac === 1 && this.fid === 31 ) {
+                    // https://academy.iala-aism.org/asm/meteorological-hydrographic-data/
                     this.class       = '-';
                     var lon = this.GetInt(56, 25);
                     if (lon & 0x01000000) lon |= 0xfe000000;
@@ -526,31 +527,106 @@ function AisDecode (input, session) {
                     this.utcday        = parseInt(this.GetInt(106, 5));
                     this.utchour       = parseInt(this.GetInt(111, 5));
                     this.utcminute     = parseInt(this.GetInt(116, 6));
-                    this.avgwindspd    = parseInt(this.GetInt(122, 7));
-                    this.windgust      = parseInt(this.GetInt(129, 7));
-                    this.winddir       = parseInt(this.GetInt(136, 9));
-                    this.windgustdir   = parseInt(this.GetInt(145, 9));
-                    this.airtemp       = parseInt(this.GetInt(154, 11, 1));
-                    this.relhumid      = parseInt(this.GetInt(165, 7));
-                    this.dewpoint      = parseInt(this.GetInt(172, 10, 1));
-                    this.airpress      = parseInt(this.GetInt(182, 9));
-                    this.airpressten   = parseInt(this.GetInt(191, 2));
-                    this.horvisib      = parseInt(this.GetInt(193, 8));
-                    this.waterlevel    = parseInt(this.GetInt(201, 12));
-                    this.waterlevelten = parseInt(this.GetInt(213, 2));
-                    this.surfcurrspd   = parseInt(this.GetInt(215, 8));
-                    this.surfcurrdir   = parseInt(this.GetInt(223, 9));
-                    this.signwavewhgt  = parseInt(this.GetInt(276, 8));
-                    this.waveperiod    = parseInt(this.GetInt(284, 6));
-                    this.wavedir       = parseInt(this.GetInt(290, 9));
-                    this.swellhgt      = parseInt(this.GetInt(299, 8));
-                    this.swellperiod   = parseInt(this.GetInt(307, 6));
-                    this.swelldir      = parseInt(this.GetInt(313, 9));
-                    this.seastate      = parseInt(this.GetInt(322, 4));
-                    this.watertemp     = parseInt(this.GetInt(326, 10, 1));
-                    this.precipitation = parseInt(this.GetInt(336, 3));
-                    this.salinity      = parseInt(this.GetInt(339, 9));
-                    this.ice           = parseInt(this.GetInt(348, 2));
+                    var avgwindspd     = parseInt(this.GetInt(122, 7));
+                    if (avgwindspd != 127) {
+                        this.avgwindspd = avgwindspd;
+                    }
+                    var windgust       = parseInt(this.GetInt(129, 7));
+                    if (windgust != 127) {
+                        this.windgust = windgust;
+                    }
+                    var winddir        = parseInt(this.GetInt(136, 9));
+                    if (winddir < 360) {
+                        this.winddir = winddir;
+                    }
+                    var windgustdir    = parseInt(this.GetInt(145, 9));
+                    if (windgustdir < 360) {
+                        this.windgustdir = windgustdir;
+                    }
+                    var airtemp        = parseInt(this.GetInt(154, 11, 1));
+                    if (airtemp < 601 && airtemp > -601){
+                        this.airtemp = airtemp / 10.0;
+                    }
+                    var relhumid       = parseInt(this.GetInt(165, 7));
+                    if (relhumid < 101) {
+                        this.relhumid = relhumid;
+                    }
+                    var dewpoint       = parseInt(this.GetInt(172, 10, 1));
+                    if (dewpoint < 501 && dewpoint > -201){
+                        this.dewpoint = dewpoint / 10.0;
+                    }
+                    var airpress       = parseInt(this.GetInt(182, 9));
+                    if (airpress < 401) {
+                        this.airpress = airpress + 799;
+                    }
+                    var airpressten    = parseInt(this.GetInt(191, 2));
+                    if (airpressten < 3) {
+                        this.airpressten = airpressten;
+                    }
+                    var horvisib       = parseInt(this.GetInt(193, 8));
+                    if (horvisib != 127) {
+                        this.horvisib = horvisib / 10.0;;
+                    }
+                    var waterlevel     = parseInt(this.GetInt(201, 12));
+                    if (waterlevel < 4001) {
+                        this.waterlevel = (waterlevel - 1000) / 100.0;;
+                    }
+                    var waterlevelten  = parseInt(this.GetInt(213, 2));
+                    if (waterlevelten < 3) {
+                        this.waterlevelten = waterlevelten;
+                    }
+                    var surfcurrspd    = parseInt(this.GetInt(215, 8));
+                    if (surfcurrspd < 252) {
+                        this.surfcurrspd = surfcurrspd / 10.0;;
+                    }
+                    var surfcurrdir    = parseInt(this.GetInt(223, 9));
+                    if (surfcurrdir < 360) {
+                        this.surfcurrdir = surfcurrdir;
+                    }
+                    var signwavewhgt   = parseInt(this.GetInt(276, 8));
+                    if (signwavewhgt < 252) {
+                        this.signwavewhgt = signwavewhgt / 10.0;
+                    }
+                    var waveperiod     = parseInt(this.GetInt(284, 6));
+                    if (waveperiod < 61) {
+                        this.waveperiod = waveperiod;
+                    }
+                    var wavedir        = parseInt(this.GetInt(290, 9));
+                    if (wavedir < 360) {
+                        this.wavedir = wavedir;
+                    }
+                    var swellhgt       = parseInt(this.GetInt(299, 8));
+                    if (swellhgt < 252) {
+                        this.swellhgt = swellhgt / 10.0;
+                    }
+                    var swellperiod    = parseInt(this.GetInt(307, 6));
+                    if (swellperiod < 61) {
+                        this.swellperiod = swellperiod;
+                    }
+                    var swelldir       = parseInt(this.GetInt(313, 9));
+                    if (swelldir < 360) {
+                        this.swelldir = swelldir;
+                    }
+                    var seastate      = parseInt(this.GetInt(322, 4));
+                    if (seastate < 13) {
+                        this.seastate = seastate;
+                    }
+                    var watertemp      = parseInt(this.GetInt(326, 10, 1));
+                    if (watertemp < 501 && watertemp > -101){
+                        this.watertemp = watertemp / 10.0;
+                    }
+                    var precipitation  = parseInt(this.GetInt(336, 3));
+                    if (precipitation < 7) {
+                        this.precipitation = precipitation;
+                    }
+                    var salinity       = parseInt(this.GetInt(339, 9));
+                    if (salinity < 502) {
+                        this.salinity = salinity / 10.0;
+                    }
+                    var ice           = parseInt(this.GetInt(348, 2));
+                    if (ice < 2) {
+                        this.ice = ice;
+                    }
 
                     if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                         this.lon = lon;
@@ -560,6 +636,7 @@ function AisDecode (input, session) {
                 }
                 // meteorological and hydrographic data (Deprecated)
                 else if (this.dac === 1 && this.fid === 11 ) {
+                    // https://academy.iala-aism.org/asm/metreorological-hydrological-data-2/
                     this.class       = '-';
                     var lon = this.GetInt(80, 25);
                     if (lon & 0x01000000) lon |= 0xfe000000;
@@ -572,31 +649,106 @@ function AisDecode (input, session) {
                     this.utcday        = parseInt(this.GetInt(105, 5));
                     this.utchour       = parseInt(this.GetInt(110, 5));
                     this.utcminute     = parseInt(this.GetInt(115, 6));
-                    this.avgwindspd    = parseInt(this.GetInt(121, 7));
-                    this.windgust      = parseInt(this.GetInt(128, 7));
-                    this.winddir       = parseInt(this.GetInt(135, 9));
-                    this.windgustdir   = parseInt(this.GetInt(144, 9));
-                    this.airtemp       = parseInt(this.GetInt(153, 11, 1));
-                    this.relhumid      = parseInt(this.GetInt(164, 7));
-                    this.dewpoint      = parseInt(this.GetInt(171, 10, 1));
-                    this.airpress      = parseInt(this.GetInt(181, 9));
-                    this.airpressten   = parseInt(this.GetInt(190, 2));
-                    this.horvisib      = parseInt(this.GetInt(192, 8));
-                    this.waterlevel    = parseInt(this.GetInt(200, 9));
-                    this.waterlevelten = parseInt(this.GetInt(209, 2));
-                    this.surfcurrspd   = parseInt(this.GetInt(211, 8));
-                    this.surfcurrdir   = parseInt(this.GetInt(219, 9));
-                    this.signwavewhgt  = parseInt(this.GetInt(272, 8));
-                    this.waveperiod    = parseInt(this.GetInt(280, 6));
-                    this.wavedir       = parseInt(this.GetInt(286, 9));
-                    this.swellhgt      = parseInt(this.GetInt(295, 8));
-                    this.swellperiod   = parseInt(this.GetInt(303, 6));
-                    this.swelldir      = parseInt(this.GetInt(309, 9));
-                    this.seastate      = parseInt(this.GetInt(318, 4));
-                    this.watertemp     = parseInt(this.GetInt(322, 10, 1));
-                    this.precipitation = parseInt(this.GetInt(332, 3));
-                    this.salinity      = parseInt(this.GetInt(335, 9));
-                    this.ice           = parseInt(this.GetInt(344, 2));
+                    var avgwindspd     = parseInt(this.GetInt(121, 7));
+                    if (avgwindspd != 127) {
+                        this.avgwindspd = avgwindspd;
+                    }
+                    var windgust       = parseInt(this.GetInt(128, 7));
+                    if (windgust != 127) {
+                        this.windgust = windgust;
+                    }
+                    var winddir        = parseInt(this.GetInt(135, 9));
+                    if (winddir < 360) {
+                        this.winddir = winddir;
+                    }
+                    var windgustdir    = parseInt(this.GetInt(144, 9));
+                    if (windgustdir < 360) {
+                        this.windgustdir = windgustdir;
+                    }
+                    var airtemp        = parseInt(this.GetInt(153, 11, 1)) - 600;
+                    if (airtemp < 601 && airtemp > -601){
+                        this.airtemp = airtemp / 10.0;
+                    }
+                    var relhumid       = parseInt(this.GetInt(164, 7));
+                    if (relhumid < 101) {
+                        this.relhumid = relhumid;
+                    }
+                    var dewpoint       = parseInt(this.GetInt(171, 10, 1)) - 200;
+                    if (dewpoint < 501 && dewpoint > -201){
+                        this.dewpoint = dewpoint / 10.0;
+                    }
+                    var airpress       = parseInt(this.GetInt(181, 9));
+                    if (airpress < 401) {
+                        this.airpress = airpress + 799;
+                    }
+                    var airpressten    = parseInt(this.GetInt(190, 2));
+                    if (airpressten < 3) {
+                        this.airpressten = airpressten;
+                    }
+                    var horvisib       = parseInt(this.GetInt(192, 8));
+                    if (horvisib != 255) {
+                        this.horvisib = horvisib / 10.0;;
+                    }
+                    var waterlevel     = parseInt(this.GetInt(200, 9));
+                    if (waterlevel < 4001) {
+                        this.waterlevel = (waterlevel - 1000) / 100.0;;
+                    }
+                    var waterlevelten  = parseInt(this.GetInt(209, 2));
+                    if (waterlevelten < 3) {
+                        this.waterlevelten = waterlevelten;
+                    }
+                    var surfcurrspd    = parseInt(this.GetInt(211, 8));
+                    if (surfcurrspd < 252) {
+                        this.surfcurrspd = surfcurrspd / 10.0;;
+                    }
+                    var surfcurrdir    = parseInt(this.GetInt(219, 9));
+                    if (surfcurrdir < 360) {
+                        this.surfcurrdir = surfcurrdir;
+                    }
+                    var signwavewhgt   = parseInt(this.GetInt(272, 8));
+                    if (signwavewhgt < 252) {
+                        this.signwavewhgt = signwavewhgt / 10.0;
+                    }
+                    var waveperiod     = parseInt(this.GetInt(280, 6));
+                    if (waveperiod < 61) {
+                        this.waveperiod = waveperiod;
+                    }
+                    var wavedir        = parseInt(this.GetInt(286, 9));
+                    if (wavedir < 360) {
+                        this.wavedir = wavedir;
+                    }
+                    var swellhgt       = parseInt(this.GetInt(295, 8));
+                    if (swellhgt < 252) {
+                        this.swellhgt = swellhgt / 10.0;
+                    }
+                    var swellperiod   = parseInt(this.GetInt(303, 6));
+                    if (swellperiod < 61) {
+                        this.swellperiod = swellperiod;
+                    }
+                    var swelldir       = parseInt(this.GetInt(309, 9));
+                    if (swelldir < 360) {
+                        this.swelldir = swelldir;
+                    }
+                    var seastate       = parseInt(this.GetInt(318, 4));
+                    if (seastate < 13) {
+                        this.seastate = seastate;
+                    }
+                    var watertemp      = parseInt(this.GetInt(322, 10, 1));
+                    if (watertemp < 501 && watertemp > -101){
+                        this.watertemp = watertemp / 10.0;
+                    }
+                    var precipitation  = parseInt(this.GetInt(332, 3));
+                    if (precipitation < 7) {
+                        this.precipitation = precipitation;
+                    }
+                    var salinity       = parseInt(this.GetInt(335, 9));
+                    if (salinity < 502) {
+                        this.salinity = salinity / 10.0;
+                    }
+                    var ice            = parseInt(this.GetInt(344, 2));
+                    if (ice < 2) {
+                        this.ice = ice;
+                    }
 
                     if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                         this.lon = lon;
@@ -699,7 +851,7 @@ AisDecode.prototype.GetStr= function(start, len) {
     }
 
     //char temp_str[85];
-    var buffer = new Buffer(len/6);
+    var buffer = Buffer.alloc(len/6);
     var cp, cx, cs,c0;
     var acc = 0;
     var k   = 0;

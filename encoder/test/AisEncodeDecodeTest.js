@@ -235,16 +235,40 @@ function AisEncodeDecodeTest (args) {
         draught    : 3.04,
         shiptypeERI: 8000
     }
+    ,msg8_001_11: { // dac 001 fid 11 meteorological and hydrographic data
+        aistype    : 800111,
+        nmea       : "!AIVDM,1,1,,A,802R5Ph0BkCwP0E<>jGaPPTHS7wwwwwwwk6wwwwwwwwwwwwwwwwwwtPwwwt,2*72",
+        mmsi       : "002655619",
+        lon        : 11.573166666666667,
+        lat        : 57.88800,
+        avgwindspd : 2,
+        winddir    : 280,
+        airtemp    : undefined,
+        watertemp  : 13.1
+    }
     ,msg8_001_31: { // dac 001 fid 31 meteorological and hydrographic data
         aistype    : 800131,
         nmea       : "!AIVDM,1,1,1,B,8>h8nkP0Glr=<hFI0D6??wvlFR06EuOwgwl?wnSwe7wvlOw?sAwwnSGmwvh0,0*17",
         mmsi       : "990000846",
         lon        : 171.5985,
         lat        : 12.2283,
-        avgwindspd : 127,
-        winddir    : 360,
-        airtemp    : -1024,
-        watertemp  : 501
+        avgwindspd : undefined,
+        winddir    : undefined,
+        airtemp    : undefined,
+        watertemp  : undefined,
+        waterlevel : undefined
+    }
+    ,msg8_001_31_2: { // dac 001 fid 31 meteorological and hydrographic data
+        aistype    : 800131,
+        nmea       : "!AIVDM,1,1,,A,8@2R5Ph0GhEUJiaWPFkt4RqUdf06EuFPB22p1Pd3S@h>:WwwsAwwnS@vwvwt,0*57",
+        mmsi       : "002655619",
+        lon        : 11.7881,
+        lat        : 57.6811,
+        avgwindspd : 36,
+        winddir    : 203,
+        airtemp    : undefined,
+        watertemp  : 6.2,
+        waterlevel : 0.47
     }
     ,msg27: { // position lon range
         aistype    : 27,
