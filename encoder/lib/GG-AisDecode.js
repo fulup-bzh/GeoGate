@@ -229,7 +229,7 @@ function AisDecode (input, session) {
     }
 
     // extract binary payload and other usefull information from nmea paquet
-    this.payload  = new Buffer (nmea [5]);
+    this.payload  = Buffer.from(nmea [5]);
     this.msglen   = this.payload.length;
 
     this.channel = nmea[4];  // vhf channel A/B
@@ -699,7 +699,7 @@ AisDecode.prototype.GetStr= function(start, len) {
     }
 
     //char temp_str[85];
-    var buffer = new Buffer(len/6);
+    var buffer = Buffer.alloc(len/6);
     var cp, cx, cs,c0;
     var acc = 0;
     var k   = 0;
