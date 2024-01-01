@@ -519,11 +519,11 @@ function AisDecode (input, session) {
                     this.class       = '-';
                     var lon = this.GetInt(56, 25);
                     if (lon & 0x01000000) lon |= 0xfe000000;
-                    lon = parseFloat (lon / 60000);  //Lon in 1/1,000 min
+                    lon = parseFloat (lon / 60000);
 
                     var lat = this.GetInt(81, 24);
-                    if (lat & 0x01000000) lat |= 0xff000000;
-                    lat = parseFloat (lat / 60000);  //Lat in 1/1,000 min
+                    if (lat & 0x00800000) lat |= 0xff000000;
+                    lat = parseFloat (lat / 60000);
                             
                     this.utcday        = parseInt(this.GetInt(106, 5));
                     this.utchour       = parseInt(this.GetInt(111, 5));
@@ -644,11 +644,11 @@ function AisDecode (input, session) {
                     this.class       = '-';
                     var lon = this.GetInt(80, 25);
                     if (lon & 0x01000000) lon |= 0xfe000000;
-                    lon = parseFloat (lon / 60000);  //Lon in 1/1,000 min
+                    lon = parseFloat (lon / 60000);
 
                     var lat = this.GetInt(56, 24);
-                    if (lat & 0x01000000) lat |= 0xff000000;
-                    lat = parseFloat (lat / 60000);  //Lat in 1/1,000 min
+                    if (lat & 0x00800000) lat |= 0xff000000;
+                    lat = parseFloat (lat / 60000);
                             
                     this.utcday        = parseInt(this.GetInt(105, 5));
                     this.utchour       = parseInt(this.GetInt(110, 5));
