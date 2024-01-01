@@ -272,6 +272,7 @@ function AisDecode (input, session) {
     this.repeat    = this.GetInt (6,2);
     this.immsi     = this.GetInt (8,30);
     this.mmsi      = ("000000000" + this.immsi).slice(-9);
+    this.mmsikey   = this.mmsi;
 
     switch (this.aistype) {
         case 1:
@@ -631,6 +632,9 @@ function AisDecode (input, session) {
                     if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                         this.lon = lon;
                         this.lat = lat;
+                        var latPart = ("000000" + parseInt(("000" + (lat % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
+                        var lonPart = ("000000" + parseInt(("000" + (lon % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
+                        this.mmsikey = this.mmsi + '.' + latPart + lonPart;
                         this.valid = true;
                     } else this.valid = false;
                 }
@@ -753,6 +757,9 @@ function AisDecode (input, session) {
                     if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                         this.lon = lon;
                         this.lat = lat;
+                        var latPart = ("000000" + parseInt(("000" + (lat % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
+                        var lonPart = ("000000" + parseInt(("000" + (lon % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
+                        this.mmsikey = this.mmsi + '.' + latPart + lonPart;
                         this.valid = true;
                     } else this.valid = false;
                 }
