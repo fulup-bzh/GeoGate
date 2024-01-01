@@ -763,6 +763,114 @@ function AisDecode (input, session) {
                         this.valid = true;
                     } else this.valid = false;
                 }
+                // meteorological and hydrographic data
+                else if (this.dac === 367 && this.fid === 33 ) {
+                    // https://www.e-navigation.nl/sites/default/files/asm_files/em_version_release_3-23mar15_0.pdf
+                    this.class       = '-';
+                    var len = Math.floor((this.msglen * 6)/112);
+                    for(var i=0 ; i<len ; i++) {
+                        this.reporttype    = parseInt(this.GetInt(56 + (112*i), 4));
+                        this.utcday        = parseInt(this.GetInt(60, 5));
+                        this.utchour       = parseInt(this.GetInt(65, 5));
+                        this.utcminute     = parseInt(this.GetInt(70, 6));
+                        this.siteid        = parseInt(this.GetInt(76, 6));
+                        this.mmsikey       = this.mmsi + '.' + this.sideid;
+                        if (this.reporttype === 0) {
+                            var msgversion = parseInt(this.GetInt(56 + (112*i) + 27, 6));
+                            if (msgversion === 0 || msgversion > 15) break;
+                            var lon = this.GetInt(56 + (112*i) + 33, 28);
+                            if (lon & 0x08000000) lon |= 0xf0000000;
+                            lon = parseFloat (lon / 600000);
+                            var lat = this.GetInt(56 + (112*i) + 61, 27);
+                            if (lat & 0x04000000) lat |= 0xf8000000;
+                            lat = parseFloat (lat / 600000);
+
+                            if( ( lon <= 180. ) && ( lat <= 90. ) ) {
+                                this.lon = lon;
+                                this.lat = lat;
+                                this.valid = true;
+                            } else this.valid = false;
+                        }
+                        else if (this.reporttype === 1) {
+                            this.shipname = this.GetStr(56 + (112*i) + 27, 84).trim();
+                            this.valid = true;
+                        }
+                        else if (this.reporttype === 2) {
+                            var avgwindspd     = parseInt(this.GetInt(56 + (112*i) + 27, 7));
+                            if (avgwindspd < 122) {
+                                this.avgwindspd = avgwindspd;
+                            }
+                            var windgust       = parseInt(this.GetInt(56 + (112*i) + 34, 7));
+                            if (windgust < 122) {
+                                this.windgust = windgust;
+                            }
+                            var winddir        = parseInt(this.GetInt(56 + (112*i) + 41, 9));
+                            if (winddir < 360) {
+                                this.winddir = winddir;
+                            }
+                            var windgustdir    = parseInt(this.GetInt(56 + (112*i) + 50, 9));
+                            if (windgustdir < 360) {
+                                this.windgustdir = windgustdir;
+                            }
+                            this.valid = true;
+                        }
+                        else if (this.reporttype === 3) {
+                            var descr = parseInt(this.GetInt(56 + (112*i) + 50, 3));
+                            if (descr === 1 || descr === 2) {
+                                var waterlevel     = parseInt(this.GetInt(56 + (112*i) + 27, 16, 1));
+                                if (waterlevel > -32768) {
+                                    this.waterlevel = waterlevel / 100.0;;
+                                }
+                                var waterlevelten  = parseInt(this.GetInt(56 + (112*i) + 43, 2));
+                                if (waterlevelten < 3) {
+                                    this.waterlevelten = (waterlevelten === 0 ? 2 : (waterlevelten === 2 ? 0 : 1));
+                                }
+                                this.valid = true;
+                            }
+                        }
+                        else if (this.reporttype === 9) {
+                            var descr = parseInt(this.GetInt(56 + (112*i) + 38, 3));
+                            if (descr === 1 || descr === 2) {
+                                var airtemp        = parseInt(this.GetInt(56 + (112*i) + 27, 11, 1));
+                                if (airtemp < 601 && airtemp > -601){
+                                    this.airtemp = airtemp / 10.0;
+                                }
+                            }
+                            descr = parseInt(this.GetInt(56 + (112*i) + 61, 3));
+                            if (descr === 1 || descr === 2) {
+                                var horvisib       = parseInt(this.GetInt(56 + (112*i) + 43, 8));
+                                if (horvisib != 127) {
+                                    this.horvisib = horvisib / 10.0;;
+                                }
+                                console.log (' -->msg-08 horvisib ' + horvisib + '/' + this.horvisib);
+                                var dewpoint       = parseInt(this.GetInt(56 + (112*i) + 51, 10, 1));
+                                if (dewpoint < 501 && dewpoint > -201){
+                                    this.dewpoint = dewpoint / 10.0;
+                                }
+                            }
+                            descr = parseInt(this.GetInt(56 + (112*i) + 75, 3));
+                            if (descr === 1 || descr === 2) {
+                                var airpress       = parseInt(this.GetInt(56 + (112*i) + 64, 9));
+                                if (airpress < 401) {
+                                    this.airpress = airpress + 799;
+                                }
+                                var airpressten    = parseInt(this.GetInt(56 + (112*i) + 73, 2));
+                                if (airpressten < 3) {
+                                    this.airpressten = airpressten;
+                                }
+                            }
+                            var salinity       = parseInt(this.GetInt(56 + (112*i) + 78, 9));
+                            if (salinity < 502) {
+                                this.salinity = salinity / 10.0;
+                            }
+                            this.valid = true;
+                        }
+                        else {
+                            console.log (' -->msg-08 ' + i + ' report not found '+ this.reporttype);
+                        }
+                    }
+
+                }
                 else {
                     if (DEBUG) {
                         console.log ('---- type=%d %s dac=%d fid=%d %s', this.aistype, this.mmsi, dac, fid, input);                
