@@ -270,6 +270,22 @@ function AisEncodeDecodeTest (args) {
         watertemp  : 6.2,
         waterlevel : 0.47
     }
+    ,msg8_367_33_0: { // dac 367 fid 33 meteorological and hydrographic data location
+        aistype    : 836733,
+        nmea       : "!AIVDM,1,1,,A,8P3QiWAKp@dw8>5LlaB1aQkhCr@P,0*28",
+        mmsi       : "003699101",
+        siteid     : 3,
+        lon        : -122.954,
+        lat        : 46.106
+    }
+    ,msg8_367_33_2: { // dac 367 fid 33 meteorological and hydrographic data wind
+        aistype    : 836733,
+        nmea       : "!AIVDM,1,1,,B,8>k1oCQKpBdvs:750l;7mre0<N00,0*4C",
+        mmsi       : "993032014",
+        siteid     : 50,
+        avgwindspd : 7,
+        winddir    : 13
+    }
     ,msg27: { // position lon range
         aistype    : 27,
         nmea       : "!AIVDM,1,1,,B,K9TJi5H@o9jiPP2D,0*3E",
@@ -358,8 +374,14 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                 case 8:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'length', 'width', 'draught', 'shiptypeERI']);
                     break;
-                case 800131:
+                case 800111:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'avgwindspd', 'winddir', 'airtemp', 'watertemp']);
+                    break;
+                case 800131:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'avgwindspd', 'winddir', 'airtemp', 'watertemp', 'waterlevel']);
+                    break;
+                case 836733:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'siteid', 'lon', 'lat', 'avgwindspd', 'winddir']);
                     break;
                 case 27:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'cog', "sog", 'navstatus']);
@@ -456,8 +478,21 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
                             , ais.mmsi, ais.lon, ais.lat, ais.shipname );
                         break;
                     case 8:
-                        console.log (' -->msg-08 mmsi=%s length=%d width=%d draught=%d shiptype=%s/%s'
-                            , ais.mmsi, ais.length, ais.width, ais.draught, ais.shiptypeERI, ais.GetERIShiptype(ais.shiptypeERI) );
+                        if (ais.dac === 200 && ais.fid === 10) {
+                            console.log (' -->msg-08 mmsi=%s length=%d width=%d draught=%d shiptype=%s/%s'
+                                , ais.mmsi, ais.length, ais.width, ais.draught, ais.shiptypeERI, ais.GetERIShiptype(ais.shiptypeERI) );
+                        } else if ((ais.dac === 1 && ais.fid === 11) ||
+                                   (ais.dac === 1 && ais.fid === 31) ||
+                                   (ais.dac === 367 && ais.fid === 33)) {
+                            //console.log (' -->msg-08 mmsi=%s dac=%d fid=%d meteo winddir=%d avgwindspd=%d airtemp=%d watertemp=%d'
+                            //    , ais.mmsi, ais.dac, ais.fid, ais.winddir, ais.avgwindspd, ais.airtemp, ais.watertemp );
+                            ais.bitarray = undefined;                            
+                            ais.payload = undefined;                            
+                            console.log (' -->msg-meteo ' + JSON.stringify(ais) );
+                        } else {        
+                            console.log (' -->msg-08 mmsi=%s dac=%d fid=%d shiptype=%s/%s'
+                                , ais.mmsi, ais.dac, ais.fid, ais.width,ais.shiptypeERI, ais.GetERIShiptype(ais.shiptypeERI) );
+                        }
                         break;
                     case 27:
                         console.log (' -->msg-27 mmsi=%s Lon=%d Lat=%d Speed=%d Course=%d state=%d/%s'
