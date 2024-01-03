@@ -84,13 +84,15 @@ NmeaEncode.prototype.EncodeDate= function () {
     this.time=time[1];
 };
 
-
-// if started as a main and not as module, then process test.
-if (process.argv[1] === __filename)  {
-    var NmeaEncodeDecodeTest = require ('../test/NmeaEncodeDecodeTest');
-    var test= new NmeaEncodeDecodeTest ();
-    test.SetNmeaEncode (NmeaEncode);
-    test.CheckEncode();
+// support usage in browser
+if (typeof process !== 'undefined') {
+    // if started as a main and not as module, then process test.
+    if (process.argv[1] === __filename)  {
+        var NmeaEncodeDecodeTest = require ('../test/NmeaEncodeDecodeTest');
+        var test= new NmeaEncodeDecodeTest ();
+        test.SetNmeaEncode (NmeaEncode);
+        test.CheckEncode();
+    }
 }
 
 module.exports = NmeaEncode; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/

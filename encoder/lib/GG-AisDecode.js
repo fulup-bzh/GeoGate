@@ -1090,13 +1090,16 @@ AisDecode.prototype.GetERIShiptype = function( shiptypeERI ) {
 	return shiptypeERI;
 };
 
-// if started as a main and not as module, then process test.
-if (process.argv[1] === __filename)  {
-   var AisEncodeDecodeTest = require ('../test/AisEncodeDecodeTest');
-   var test= new AisEncodeDecodeTest ();
-   test.SetAisDecode(AisDecode); // force test loading this active dev class
-   test.CheckDecode();
- }
+// support usage in browser
+if (typeof process !== 'undefined') {
+    // if started as a main and not as module, then process test.
+    if (process.argv[1] === __filename)  {
+    var AisEncodeDecodeTest = require ('../test/AisEncodeDecodeTest');
+    var test= new AisEncodeDecodeTest ();
+    test.SetAisDecode(AisDecode); // force test loading this active dev class
+    test.CheckDecode();
+    }
+}
 
 module.exports = AisDecode; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/
 

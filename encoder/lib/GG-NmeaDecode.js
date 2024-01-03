@@ -132,12 +132,15 @@ NmeaDecode.prototype.NormalizeData= function () {
 };
 
 
-// if started as a main and not as module, then process test.
-if (process.argv[1] === __filename)  {
-    var NmeaEncodeDecodeTest = require ('../test/NmeaEncodeDecodeTest');
-    var test= new NmeaEncodeDecodeTest ();
-    test.SetNmeaDecode (NmeaDecode);
-    test.CheckDecode();
+// support usage in browser
+if (typeof process !== 'undefined') {
+    // if started as a main and not as module, then process test.
+    if (process.argv[1] === __filename)  {
+        var NmeaEncodeDecodeTest = require ('../test/NmeaEncodeDecodeTest');
+        var test= new NmeaEncodeDecodeTest ();
+        test.SetNmeaDecode (NmeaDecode);
+        test.CheckDecode();
+    }
 }
 
 module.exports = NmeaDecode; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/
