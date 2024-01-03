@@ -303,12 +303,15 @@ AisEncode.prototype.GetVesselType =function () {
 };
 
 
-// if started as a main and not as module, then process test.
-if (process.argv[1] === __filename)  {
-    var AisEncodeDecodeTest = require ('../test/AisEncodeDecodeTest');
-    var test= new AisEncodeDecodeTest ();
-    test.SetAisEncode(AisEncode); // force test loading this active dev class
-    test.CheckEncode();
+// support usage in browser
+if (typeof process !== 'undefined') {
+    // if started as a main and not as module, then process test.
+    if (process.argv[1] === __filename)  {
+        var AisEncodeDecodeTest = require ('../test/AisEncodeDecodeTest');
+        var test= new AisEncodeDecodeTest ();
+        test.SetAisEncode(AisEncode); // force test loading this active dev class
+        test.CheckEncode();
+    }
 }
 
 module.exports = AisEncode; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/
