@@ -774,7 +774,7 @@ function AisDecode (input, session) {
                         this.utchour       = parseInt(this.GetInt(65, 5));
                         this.utcminute     = parseInt(this.GetInt(70, 6));
                         this.siteid        = parseInt(this.GetInt(76, 6));
-                        this.mmsikey       = this.mmsi + '.' + this.sideid;
+                        this.mmsikey       = this.mmsi + '.' + this.siteid;
                         if (this.reporttype === 0) {
                             var msgversion = parseInt(this.GetInt(56 + (112*i) + 27, 6));
                             if (msgversion === 0 || msgversion > 15) break;
