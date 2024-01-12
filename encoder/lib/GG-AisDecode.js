@@ -634,7 +634,7 @@ function AisDecode (input, session) {
                         this.lat = lat;
                         var latPart = ("000000" + parseInt(("000" + (lat % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
                         var lonPart = ("000000" + parseInt(("000" + (lon % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
-                        this.mmsikey = this.mmsi + '.' + latPart + lonPart;
+                        this.mmsikey = this.mmsi + ':' + latPart + lonPart;
                         this.valid = true;
                     } else this.valid = false;
                 }
@@ -759,7 +759,7 @@ function AisDecode (input, session) {
                         this.lat = lat;
                         var latPart = ("000000" + parseInt(("000" + (lat % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
                         var lonPart = ("000000" + parseInt(("000" + (lon % 1).toFixed(3).slice(-3)).slice(-3), 10)).slice(-3);
-                        this.mmsikey = this.mmsi + '.' + latPart + lonPart;
+                        this.mmsikey = this.mmsi + ':' + latPart + lonPart;
                         this.valid = true;
                     } else this.valid = false;
                 }
@@ -774,7 +774,7 @@ function AisDecode (input, session) {
                         this.utchour       = parseInt(this.GetInt(65, 5));
                         this.utcminute     = parseInt(this.GetInt(70, 6));
                         this.siteid        = parseInt(this.GetInt(76, 6));
-                        this.mmsikey       = this.mmsi + '.' + this.siteid;
+                        this.mmsikey       = this.mmsi + ':' + this.siteid;
                         if (this.reporttype === 0) {
                             var msgversion = parseInt(this.GetInt(56 + (112*i) + 27, 6));
                             if (msgversion === 0 || msgversion > 15) break;
