@@ -564,10 +564,17 @@ function AisDecode (input, session) {
                     if (airpressten < 3) {
                         this.airpressten = airpressten;
                     }
-                    var horvisib       = parseInt(this.GetInt(193, 8));
+                    var horvisib       = parseInt(this.GetInt(194, 7));
                     if (horvisib < 127) {
                         this.horvisib = horvisib / 10.0;
-                    }                    
+			var horvisibrange  = parseInt(this.GetInt(193, 1));
+			    if (horvisibrange == 0){
+                                this.horvisibrange = "=";
+                            } 
+                            else if (horvisibrange == 1) {
+                                this.horvisibrange = ">";
+                            }
+                    }
                     var horvisibrange  = parseInt(this.GetInt(193, 1));
                     if (horvisibrange == 0){
                         this.horvisibrange = "=";
