@@ -575,13 +575,6 @@ function AisDecode (input, session) {
                                 this.horvisibrange = ">";
                             }
                     }
-                    var horvisibrange  = parseInt(this.GetInt(193, 1));
-                    if (horvisibrange == 0){
-                        this.horvisibrange = "=";
-                    } 
-                    else if (horvisibrange == 1) {
-                        this.horvisibrange = ">";
-                    }
                     var waterlevel     = parseInt(this.GetInt(201, 12));
                     if (waterlevel < 4001) {
                         this.waterlevel = (waterlevel - 1000) / 100.0;;
