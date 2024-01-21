@@ -846,10 +846,15 @@ function AisDecode (input, session) {
                             descr = parseInt(this.GetInt(56 + (112*i) + 61, 3));
                             if (descr === 1 || descr === 2) {
                                 var horvisib       = parseInt(this.GetInt(56 + (112*i) + 43, 8));
-                                if (horvisib != 127) {
+                                if (horvisib < 242) {
                                     this.horvisib = horvisib / 10.0;;
+                                    if (horvisib === 241){
+                                        this.horvisibrange = ">";
+                                    } 
+                                    else {
+                                        this.horvisibrange = "=";
+                                    }
                                 }
-                                console.log (' -->msg-08 horvisib ' + horvisib + '/' + this.horvisib);
                                 var dewpoint       = parseInt(this.GetInt(56 + (112*i) + 51, 10, 1));
                                 if (dewpoint < 501 && dewpoint > -201){
                                     this.dewpoint = dewpoint / 10.0;
