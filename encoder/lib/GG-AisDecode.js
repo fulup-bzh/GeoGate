@@ -564,9 +564,16 @@ function AisDecode (input, session) {
                     if (airpressten < 3) {
                         this.airpressten = airpressten;
                     }
-                    var horvisib       = parseInt(this.GetInt(193, 8));
-                    if (horvisib != 127) {
-                        this.horvisib = horvisib / 10.0;;
+                    var horvisib       = parseInt(this.GetInt(194, 7));
+                    if (horvisib < 127) {
+                        this.horvisib = horvisib / 10.0;
+			var horvisibrange  = parseInt(this.GetInt(193, 1));
+			    if (horvisibrange == 0){
+                                this.horvisibrange = "=";
+                            } 
+                            else if (horvisibrange == 1) {
+                                this.horvisibrange = ">";
+                            }
                     }
                     var waterlevel     = parseInt(this.GetInt(201, 12));
                     if (waterlevel < 4001) {
@@ -1102,4 +1109,3 @@ if (typeof process !== 'undefined') {
 }
 
 module.exports = AisDecode; // http://openmymind.net/2012/2/3/Node-Require-and-Exports/
-
