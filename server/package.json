@@ -22,7 +22,7 @@
     ,"traceback" : "*"
     ,"jison" : "*"
     ,"mysql" : "*"
-    ,"mongodb": "~2.0"
+    ,"mongodb": "~3.6"
     ,"sgeo" : "*"
     ,"xml2js" : "*"
     ,"ws"     : "*"
