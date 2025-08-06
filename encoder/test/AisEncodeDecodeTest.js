@@ -399,32 +399,25 @@ AisEncodeDecodeTest.prototype.CheckEncode = function () {
     for (var test in this.testSet) {
         var aisIn  = this.testSet [test];
 
-        //if (aisIn.nmea.lenght === 1) 
-        //if (typeof aisIn.nmea === 'string' || aisIn.nmea instanceof String) 
-        {
+        if (aisIn.nmea.lenght === 1) {
             var aisOut = new AisEncode (aisIn);
 
-            var error=0;
             // Warning: this test only to a string comparison on old result from www.maritec.co.za
             if (aisOut.valid) {
                 console.log("\nTEST=%s  --> http://www.maritec.co.za/ais", test);
                 console.log(" --in=%s", aisIn.nmea);
                 console.log(" --ou=%s", aisOut.nmea);
-
-                if (aisIn.nmea != aisOut.nmea) {
-                    error=1;
-                }
             } else  {
-                error=1;
                 console.log ("Ais Input message [%s] invalid", test);
             }
 
-//            for (var i=0; i< aisIn.nmea.length; i++) {
-//                if (aisIn.nmea [i] !== aisOut.nmea [i]) {
-//                    error=1;
-//                    console.log ('  ** idx=%d in:%s != out:%s', i, aisIn.nmea [i],  aisOut.nmea [i]);
-//                }
-//            }
+            var error=0;
+            for (var i=0; i< aisIn.nmea.length; i++) {
+                if (aisIn.nmea [i] !== aisOut.nmea [i]) {
+                    error=1;
+                    console.log ('  ** idx=%d in:%s != out:%s', i, aisIn.nmea [i],  aisOut.nmea [i]);
+                }
+            }
 
             if (error === 0 )console.log ("  ## OK ##");
             else console.log ("  ** ERROR **");
@@ -522,14 +515,11 @@ AisEncodeDecodeTest.prototype.CheckFile = function (filename) {
 
 // if started as a main and not as module, then process test.
 if (process.argv[1] === __filename && process.argv.length === 3 ) {
-    console.log("use file " + process.argv[2]);
     var test= new AisEncodeDecodeTest ();
     test.CheckFile (process.argv[2]);
 } else if (process.argv[1] === __filename)  {
     var test= new AisEncodeDecodeTest ();
-    console.log("test.CheckDecode():");
     test.CheckDecode();
-    console.log("test.CheckEncode():");
     test.CheckEncode();
     //test.CheckFile ('FeedSample/AisHubSample.nmea');
 }
