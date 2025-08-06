@@ -124,7 +124,7 @@ function AisEncode (msg) {
             var draught = parseInt (msg.draught*10);
             this.PutInt((parseInt(draught*10)), 294, 8);
             this.PutStr(msg.destination,302,120);
-            this.payloadSize=422;
+            this.payloadSize=424;
             break;
       
         case 21:
@@ -186,7 +186,11 @@ function AisEncode (msg) {
 
     // Make sure we finish on a byte boundary
     var size= parseInt(this.payloadSize/6);
-    if (this.payloadSize%6 > 0) size++;
+    var paddingBits = 0;
+    if (this.payloadSize%6 > 0) {
+        size++;
+        paddingBits = size * 6 - this.payloadSize;
+    }
     for(var i = 0; i < size ; i++) {
         var chr = this.payload[i];
 
@@ -210,7 +214,7 @@ function AisEncode (msg) {
     nmea [3]  = '';
     nmea [4]  = 'A';     // this is VHF channel and not AIS class
     nmea [5]  = this.payload.toString("utf8", 0, size);
-    nmea [6]  = 0;
+    nmea [6]  = paddingBits;
     var paquet = nmea.toString();
 
     var checksum = 0; // http://rietman.wordpress.com/2008/09/25/how-to-calculate-the-nmea-checksum/
