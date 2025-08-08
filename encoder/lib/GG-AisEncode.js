@@ -121,8 +121,7 @@ function AisEncode (msg) {
             this.PutInt (msg.etaDay  ,278, 5);
             this.PutInt (msg.etaHr   ,283, 5);
             this.PutInt (msg.etaMin  ,288, 6);
-            var draught = parseInt (msg.draught*10);
-            this.PutInt((parseInt(draught*10)), 294, 8);
+            this.PutInt((parseInt(msg.draught*10)), 294, 8);
             this.PutStr(msg.destination,302,120);
             this.payloadSize=424;
             break;
