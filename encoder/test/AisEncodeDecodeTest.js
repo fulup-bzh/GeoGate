@@ -337,7 +337,7 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
         }
 
         if (aisDecoded.valid !== true) {
-            console.log ("[%s] invalid AIS payload: %s", test, aisDecoded.error);
+            console.log ("\n[%s] invalid AIS payload: %s", test, aisDecoded.error);
         } else {
             switch (aisTest.aistype) {
                 case 1:
