@@ -199,7 +199,7 @@ function AisEncodeDecodeTest (args) {
     }
     ,msg1_1: { // sample with rot
         aistype    : 1,
-        nmea       : "!AIVDM,1,1,,A,13u?etPv2;0n:dDPwUM1U1Cb069D,0*23",
+        nmea       : "!AIVDM,1,1,,A,13u?etPv2;0n:dDPwUM1U1Cb069D,0*24",
         mmsi       : "265547250",
         rot        : -8,
         smi        : 0,
