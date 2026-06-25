@@ -324,7 +324,7 @@ function AisDecode (input, session) {
             this.sog = this.GetInt( 46, 10 ) / 10;                //speed over ground
             this.cog = this.GetInt( 112, 12) / 10;                //course over ground
             this.hdg = parseFloat (this.GetInt( 124,  9));        //magnetic heading
-            this.utc = this.GetInt( 134, 6 );
+            this.utc = this.GetInt( 133, 6 );
 
             break;
         case 19: // Extended class B position report 

@@ -29,7 +29,7 @@
  * Danish Maritime Authority AisLib encoding/decoding java library
  */
 function AisEncode (msg) {
-    this.payload = new Buffer(425); // make a buffer force it 6bit/zero
+    this.payload = Buffer.alloc(425); //new Buffer(425); // make a buffer force it 6bit/zero
     this.payload.fill (0x0);        // init to 6bits encoded zero value
     this.payloadSize =0;            // Payload size depend on messages
     this.nmea =[];
@@ -64,7 +64,7 @@ function AisEncode (msg) {
             cog=parseInt (msg.cog *10);  //course over ground
             this.PutInt (cog,  116, 12 );
 
-            hdg=parseInt (msg.hdg) || parseInt (msg.cog); //magnetic heading
+            hdg = (msg.hdg === undefined || msg.hdg === null) ? 511 : parseInt(msg.hdg);
             this.PutInt (hdg,  128, 9 );
 
             this.PutInt  (60,  137, 6 );  // 60 if time stamp is not available
@@ -94,7 +94,7 @@ function AisEncode (msg) {
             var cog=parseInt (msg.cog *10);  //course over ground
             this.PutInt (cog,  112, 12 );
 
-            hdg=parseInt (msg.hdg)|| parseInt (msg.cog);      //magnetic heading
+            hdg = (msg.hdg === undefined || msg.hdg === null) ? 511 : parseInt(msg.hdg);
             this.PutInt (hdg,  124, 9 );
 
             this.PutInt  (60,  133, 6 );  // 60 [time stamp is not available]
