@@ -37,7 +37,7 @@ function AisEncode (msg) {
     this.PutInt (msg.aistype  ,0,6);
     this.PutInt (msg.repeat   ,6,2);
     this.PutInt (msg.mmsi     ,8,30);
-    var lat; var lon; var sog; var hdg; var accuracy; var rot;
+    var lat; var lon; var sog; var cog; var hdg; var accuracy; var rot;
 
     switch (msg.aistype) {
         case 1:
@@ -58,10 +58,10 @@ function AisEncode (msg) {
             rot=parseInt (msg.rot);  //Rate of turn
             this.PutInt (rot,  42, 8 );
 
-            sog=parseInt (msg.sog *10);  //speed over ground
+            sog = (msg.sog === undefined || msg.sog === null) ? 1023 : parseInt (msg.sog *10);  //speed over ground
             this.PutInt (sog,  50, 10 );
 
-            cog=parseInt (msg.cog *10);  //course over ground
+            cog = (msg.cog === undefined || msg.cog === null) ? 3600 : parseInt (msg.cog *10);  //course over ground
             this.PutInt (cog,  116, 12 );
 
             hdg = (msg.hdg === undefined || msg.hdg === null) ? 511 : parseInt(msg.hdg);
@@ -76,7 +76,7 @@ function AisEncode (msg) {
         case 18: // class B position report
             this.class  = 'B';
 
-            sog=parseInt (msg.sog *10);  //speed over ground
+            sog = (msg.sog === undefined || msg.sog === null) ? 1023 : parseInt (msg.sog *10);  //speed over ground
             this.PutInt (sog,  46, 10 );
 
             accuracy= parseInt (msg.accuracy);
@@ -91,7 +91,7 @@ function AisEncode (msg) {
             if (lat < 0) lat |= 0x04000000;
             this.PutInt(lat, 85, 27 );
 
-            var cog=parseInt (msg.cog *10);  //course over ground
+            cog = (msg.cog === undefined || msg.cog === null) ? 3600 : parseInt (msg.cog *10);  //course over ground
             this.PutInt (cog,  112, 12 );
 
             hdg = (msg.hdg === undefined || msg.hdg === null) ? 511 : parseInt(msg.hdg);
