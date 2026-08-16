@@ -47,11 +47,11 @@ function AisEncode (msg) {
             this.PutInt(msg.navstatus, 38, 4 );
 
             // move lat to integer and take care of negative value
-            lon = parseInt (msg.lon * 600000);
+            lon = (msg.lon === undefined || msg.lon === null) ? 181 * 600000 : parseInt (msg.lon * 600000);
             if (lon < 0) lon |= 0x08000000;    // on 28 bits
             this.PutInt(lon, 61, 28 );
 
-            lat = parseInt (msg.lat * 600000); // on 27 bits
+            lat = (msg.lat === undefined || msg.lat === null) ?  91 * 600000 : parseInt (msg.lat * 600000); // on 27 bits
             if (lat < 0) lat |= 0x04000000;
             this.PutInt(lat, 89, 27 );
 
@@ -83,11 +83,11 @@ function AisEncode (msg) {
             this.PutInt(accuracy, 56, 1 );
 
             // move lat to integer and take care of negative value
-            lon = parseInt (msg.lon * 600000); //Long 1/10000 minute
+            lon = (msg.lon === undefined || msg.lon === null) ? 181 * 600000 : parseInt (msg.lon * 600000); //Long 1/10000 minute
             if (lon < 0) lon |= 0x08000000;
             this.PutInt(lon, 57, 28 );
 
-            lat = parseInt (msg.lat * 600000); //Lat 1/10000 minute
+            lat = (msg.lat === undefined || msg.lat === null) ?  91 * 600000 : parseInt (msg.lat * 600000); //Lat 1/10000 minute
             if (lat < 0) lat |= 0x04000000;
             this.PutInt(lat, 85, 27 );
 
@@ -132,11 +132,11 @@ function AisEncode (msg) {
             accuracy= parseInt (msg.accuracy);
             this.PutInt(accuracy,     163, 1);
       
-            lon = parseInt (msg.lon * 600000); //Long 1/10000 minute
+            lon = (msg.lon === undefined || msg.lon === null) ? 181 * 600000 : parseInt (msg.lon * 600000); //Long 1/10000 minute
             if (lon < 0) lon |= 0x08000000;
             this.PutInt(lon, 164, 28 );
       
-            lat = parseInt (msg.lat * 600000); //Lat 1/10000 minute
+            lat = (msg.lat === undefined || msg.lat === null) ?  91 * 600000 : parseInt (msg.lat * 600000); //Lat 1/10000 minute
             if (lat < 0) lat |= 0x04000000;
             this.PutInt(lat, 192, 27 );
 

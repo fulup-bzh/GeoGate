@@ -289,11 +289,14 @@ function AisDecode (input, session) {
             if( lat & 0x04000000 ) lat |= 0xf8000000;
             lat = parseFloat (lat / 600000);
 
+            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+            // The sentence parsed correctly, it simply carries no position, so
+            // leave this.lon / this.lat unset and keep the message valid.
             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                 this.lon = lon;
                 this.lat = lat;
-                this.valid = true;
-            } else this.valid = false;
+            }
+            this.valid = true;
 
             this.rot = this.GetInt( 42, 8, true )                   // Rate of turn
             this.sog = this.GetInt(  50, 10) / 10;                  //speed over ground
@@ -315,11 +318,14 @@ function AisDecode (input, session) {
             if( lat & 0x04000000 ) lat |= 0xf8000000;
             lat = parseFloat (lat / 600000);
 
+            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+            // The sentence parsed correctly, it simply carries no position, so
+            // leave this.lon / this.lat unset and keep the message valid.
             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                 this.lon = lon;
                 this.lat = lat;
-                this.valid = true;
-            } else this.valid = false;
+            }
+            this.valid = true;
 
             this.sog = this.GetInt( 46, 10 ) / 10;                //speed over ground
             this.cog = this.GetInt( 112, 12) / 10;                //course over ground
@@ -339,11 +345,14 @@ function AisDecode (input, session) {
             if( lat & 0x04000000 ) lat |= 0xf8000000;
             lat = parseFloat (lat / 600000);
 
+            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+            // The sentence parsed correctly, it simply carries no position, so
+            // leave this.lon / this.lat unset and keep the message valid.
             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                 this.lon = lon;
                 this.lat = lat;
-                this.valid = true;
-            } else this.valid = false;
+            }
+            this.valid = true;
 
             this.sog = this.GetInt( 46, 10 ) / 10;                //speed over ground
             this.cog = this.GetInt( 112, 12) / 10;                //course over ground
@@ -428,11 +437,14 @@ function AisDecode (input, session) {
             if( lat & 0x04000000 ) lat |= 0xf8000000;
             lat = parseFloat (lat / 600000);
 
+            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+            // The sentence parsed correctly, it simply carries no position, so
+            // leave this.lon / this.lat unset and keep the message valid.
             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                 this.lon = lon;
                 this.lat = lat;
-                this.valid = true;
-            } else this.valid = false;
+            }
+            this.valid = true;
             break;
         case 9: // sar aircraft
             this.class      = '-';
@@ -447,11 +459,14 @@ function AisDecode (input, session) {
             if( lat & 0x04000000 ) lat |= 0xf8000000;
             lat = parseFloat (lat / 600000);
 
+            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+            // The sentence parsed correctly, it simply carries no position, so
+            // leave this.lon / this.lat unset and keep the message valid.
             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                 this.lon = lon;
                 this.lat = lat;
-                this.valid = true;
-            } else this.valid = false;
+            }
+            this.valid = true;
             
             this.sog = parseFloat (this.GetInt( 50, 10 ));  //speed over ground
             this.cog = this.GetInt( 116, 12) / 10;          //course over ground
@@ -471,11 +486,14 @@ function AisDecode (input, session) {
             if( lat & 0x04000000 ) lat |= 0xf8000000;
             lat = parseFloat (lat / 600000);
 
+            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+            // The sentence parsed correctly, it simply carries no position, so
+            // leave this.lon / this.lat unset and keep the message valid.
             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                 this.lon = lon;
                 this.lat = lat;
-                this.valid = true;
-            } else this.valid = false;
+            }
+            this.valid = true;
             
             this.dimA   = this.GetInt(219, 9 );
             this.dimB   = this.GetInt(228, 9 );
@@ -787,11 +805,14 @@ function AisDecode (input, session) {
                             if (lat & 0x04000000) lat |= 0xf8000000;
                             lat = parseFloat (lat / 600000);
 
+                            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+                            // The sentence parsed correctly, it simply carries no position, so
+                            // leave this.lon / this.lat unset and keep the message valid.
                             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                                 this.lon = lon;
                                 this.lat = lat;
-                                this.valid = true;
-                            } else this.valid = false;
+                            }
+                            this.valid = true;
                         }
                         else if (this.reporttype === 1) {
                             this.shipname = this.GetStr(56 + (112*i) + 27, 84).trim();
@@ -894,11 +915,14 @@ function AisDecode (input, session) {
             var lat = this.GetInt(62, 17 );
             lat = parseFloat (lat) / 600;
 
+            // ITU-R M.1371 reserves lon=181 / lat=91 for "position not available".
+            // The sentence parsed correctly, it simply carries no position, so
+            // leave this.lon / this.lat unset and keep the message valid.
             if( ( lon <= 180. ) && ( lat <= 90. ) ) {
                 this.lon = lon;
                 this.lat = lat;
-                this.valid = true;
-            } else this.valid = false;
+            }
+            this.valid = true;
 
             this.sog = this.GetInt( 79, 6 ) ;                //speed over ground
             this.cog = this.GetInt( 85, 9);                //course over ground
