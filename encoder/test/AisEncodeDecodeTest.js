@@ -220,6 +220,17 @@ function AisEncodeDecodeTest (args) {
         cog        : 360,
         navstatus  : 15
     }
+    ,msg1_nopos: { // position not available: ITU-R M.1371 sentinels lon=181 / lat=91
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,,A,139>Jh@P00<tSF0l4Q@00?wp0000,0*0D",
+        mmsi       : "211000001",
+        lon        : undefined,
+        lat        : undefined,
+        rot        : -128,
+        smi        : 0,
+        sog        : 0,
+        cog        : 0
+    }
     ,msg14: { // text msg
         aistype    : 14,
         nmea       : "!AIVDM,1,1,,A,>>O5`4tlt:1@E=@,2*15",
