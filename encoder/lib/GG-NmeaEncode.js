@@ -85,7 +85,7 @@ NmeaEncode.prototype.EncodeDate= function () {
 };
 
 // support usage in browser
-if (typeof process !== 'undefined') {
+if (typeof process !== 'undefined' && typeof process.argv !== 'undefined') {
     // if started as a main and not as module, then process test.
     if (process.argv[1] === __filename)  {
         var NmeaEncodeDecodeTest = require ('../test/NmeaEncodeDecodeTest');
