@@ -157,6 +157,253 @@ var VESSEL_TYPE= {
     99: "Other Type, no additional information"
 };
 
+// Area notice description, IMO SN.1/Circ.289 table 11.11
+var AREA_NOTICE = {
+     0: "Caution Area: Marine mammals habitat",
+     1: "Caution Area: Marine mammals in area - reduce speed",
+     2: "Caution Area: Marine mammals in area - stay clear",
+     3: "Caution Area: Marine mammals in area - report sightings",
+     4: "Caution Area: Protected habitat - reduce speed",
+     5: "Caution Area: Protected habitat - stay clear",
+     6: "Caution Area: Protected habitat - no fishing or anchoring",
+     7: "Caution Area: Derelicts (drifting objects)",
+     8: "Caution Area: Traffic congestion",
+     9: "Caution Area: Marine event",
+    10: "Caution Area: Divers down",
+    11: "Caution Area: Swim area",
+    12: "Caution Area: Dredge operations",
+    13: "Caution Area: Survey operations",
+    14: "Caution Area: Underwater operation",
+    15: "Caution Area: Seaplane operations",
+    16: "Caution Area: Fishery - nets in water",
+    17: "Caution Area: Cluster of fishing vessels",
+    18: "Caution Area: Fairway closed",
+    19: "Caution Area: Harbour closed",
+    20: "Caution Area: Risk (define in Associated text field)",
+    21: "Caution Area: Underwater vehicle operation",
+    23: "Environmental Caution Area: Storm front (line squall)",
+    24: "Environmental Caution Area: Hazardous sea ice",
+    25: "Environmental Caution Area: Storm warning (storm cell or line of storms)",
+    26: "Environmental Caution Area: High wind",
+    27: "Environmental Caution Area: High waves",
+    28: "Environmental Caution Area: Restricted visibility (fog, rain, etc.)",
+    29: "Environmental Caution Area: Strong currents",
+    30: "Environmental Caution Area: Heavy icing",
+    32: "Restricted Area: Fishing prohibited",
+    33: "Restricted Area: No anchoring",
+    34: "Restricted Area: Entry approval required prior to transit",
+    35: "Restricted Area: Entry prohibited",
+    36: "Restricted Area: Active military OPAREA",
+    37: "Restricted Area: Firing - danger area",
+    38: "Restricted Area: Drifting Mines",
+    40: "Anchorage Area: Anchorage open",
+    41: "Anchorage Area: Anchorage closed",
+    42: "Anchorage Area: Anchoring prohibited",
+    43: "Anchorage Area: Deep draft anchorage",
+    44: "Anchorage Area: Shallow draft anchorage",
+    45: "Anchorage Area: Vessel transfer operations",
+    56: "Security Alert - Level 1",
+    57: "Security Alert - Level 2",
+    58: "Security Alert - Level 3",
+    64: "Distress Area: Vessel disabled and adrift",
+    65: "Distress Area: Vessel sinking",
+    66: "Distress Area: Vessel abandoning ship",
+    67: "Distress Area: Vessel requests medical assistance",
+    68: "Distress Area: Vessel flooding",
+    69: "Distress Area: Vessel fire/explosion",
+    70: "Distress Area: Vessel grounding",
+    71: "Distress Area: Vessel collision",
+    72: "Distress Area: Vessel listing/capsizing",
+    73: "Distress Area: Vessel under assault",
+    74: "Distress Area: Person overboard",
+    75: "Distress Area: SAR area",
+    76: "Distress Area: Pollution response area",
+    80: "Instruction: Contact VTS at this point/juncture",
+    81: "Instruction: Contact Port Administration at this point/juncture",
+    82: "Instruction: Do not proceed beyond this point/juncture",
+    83: "Instruction: Await instructions prior to proceeding beyond this point/juncture",
+    84: "Proceed to this location - await instructions",
+    85: "Clearance granted - proceed to berth",
+    88: "Information: Pilot boarding position",
+    89: "Information: Icebreaker waiting area",
+    90: "Information: Places of refuge",
+    91: "Information: Position of icebreakers",
+    92: "Information: Location of response units",
+    93: "VTS active target",
+    94: "Rogue or suspicious vessel",
+    95: "Vessel requesting non-distress assistance",
+    96: "Chart Feature: Sunken vessel",
+    97: "Chart Feature: Submerged object",
+    98: "Chart Feature: Semi-submerged object",
+    99: "Chart Feature: Shoal area",
+   100: "Chart Feature: Shoal area due north",
+   101: "Chart Feature: Shoal area due east",
+   102: "Chart Feature: Shoal area due south",
+   103: "Chart Feature: Shoal area due west",
+   104: "Chart Feature: Channel obstruction",
+   105: "Chart Feature: Reduced vertical clearance",
+   106: "Chart Feature: Bridge closed",
+   107: "Chart Feature: Bridge partially open",
+   108: "Chart Feature: Bridge fully open",
+   112: "Report from ship: Icing info",
+   114: "Report from ship: Miscellaneous information - define in Associated text field",
+   120: "Route: Recommended route",
+   121: "Route: Alternative route",
+   122: "Route: Recommended route through ice",
+   125: "Other - Define in associated text field",
+   126: "Cancellation - cancel area as identified by Message Linkage ID",
+   127: "Undefined (default)"
+   // missing values are reserved for future use
+};
+
+var AREA_SHAPE = ['circle', 'rectangle', 'sector', 'polyline', 'polygon', 'text'];
+
+// Bit layout of the area notice variants, offsets from start of message
+var AREA_NOTICE_IMO = {  // DAC 1 FI 22, IMO SN.1/Circ.289 tables 11.1-11.10
+    header    : 56,      // message linkage ID, first header field
+    subareas  : 111,     // first sub-area
+    subarealen: 87,
+    lonlen    : 25,
+    latlen    : 24,
+    posscale  : 60000,   // 1/1000 minute
+    distlen   : 10,      // polyline/polygon point distance
+    anglescale: 0.5,     // polyline/polygon point angle in half degrees
+    textlen   : 84       // 14 characters
+};
+
+// Geographic notice description, USCG DAC 367 FI 22 release 2 table 11
+// differs from the IMO table, e.g. values 20, 32, 33 and 96
+var GEOGRAPHIC_NOTICE = {
+     0: "Caution: Marine mammal habitat",
+     1: "Caution: Marine mammals in area - reduce speed",
+     2: "Caution: Marine mammals in area - stay clear",
+     3: "Caution: Marine mammals in area - report sightings",
+     4: "Caution: Protected Habitat - reduce speed",
+     5: "Caution: Protected habitat - stay clear",
+     6: "Caution: Protected habitat - no fishing or anchoring",
+     7: "Caution: Derelicts (drifting objects)",
+     8: "Caution: Traffic congestion",
+     9: "Caution: Marine event or regatta",
+    10: "Caution: Divers down",
+    11: "Caution: Swim area",
+    12: "Caution: Dredge operations",
+    13: "Caution: Survey operations",
+    14: "Caution: Underwater operation",
+    15: "Caution: Seaplane operations",
+    16: "Caution: Fishery - nets in water",
+    17: "Caution: Cluster of fishing vessels",
+    18: "Caution: Fairway closed",
+    19: "Caution: Harbor closed",
+    20: "Caution: Submerged pipeline or cable",
+    21: "Caution: Unmanned vehicle operation",
+    22: "Caution: other (define in associated text field)",
+    23: "Environmental Caution: Storm front (line squall)",
+    24: "Environmental Caution: Hazardous sea ice i.e. icebergs and growlers",
+    25: "Environmental Caution: Storm warning (storm cell or line of storms)",
+    26: "Environmental Caution: High wind",
+    27: "Environmental Caution: High waves",
+    28: "Environmental Caution: Restricted visibility (fog, rain, etc)",
+    29: "Environmental Caution: Strong currents",
+    30: "Environmental Caution: Heavy icing",
+    31: "Environmental Caution: Oil or other hazardous substance in area",
+    32: "Environmental Caution: other (define in associated text field)",
+    33: "Restriction: Fishing prohibited",
+    34: "Restriction: Entry approval required prior to transit",
+    35: "Restriction: Entry prohibited",
+    36: "Restriction: Active military OPAREA",
+    37: "Restriction: Firing - danger area",
+    38: "Restriction: Drifting mines",
+    39: "Restriction: other (define in associated text field)",
+    40: "Anchorage: Anchorage open",
+    41: "Anchorage: Anchorage closed",
+    42: "Anchorage: Anchoring prohibited",
+    43: "Anchorage: Deep draft anchorage",
+    44: "Anchorage: Shallow draft anchorage",
+    45: "Anchorage: Vessel transfer operations",
+    46: "Anchorage: other (define in associated text field)",
+    47: "Ice Report: Ice Edge",
+    48: "Ice Report: New Ice (<10cm ocean <5cm lake)",
+    49: "Ice Report: Young Ice (10-30cm)",
+    50: "Ice Report: Thin 1st year ice (30-70cm ocean, 5-15cm lake)",
+    51: "Ice Report: Medium 1st year ice (70-120cm ocean, 15-30cm lake)",
+    52: "Ice Report: Thick 1st year ice (120-200 cm ocean, 30-70cm lake)",
+    53: "Ice Report: Old /very thick ice (>200cm ocean, >70cm lake)",
+    54: "Ice Report: Undetermined or unknown thickness",
+    56: "Security Alert - Implement USA MARSEC Level 1",
+    57: "Security Alert - Implement USA MARSEC Level 2",
+    58: "Security Alert - Implement USA MARSEC Level 3",
+    64: "Distress: Vessel disabled and adrift",
+    65: "Distress: Vessel sinking",
+    66: "Distress: Vessel abandoning ship",
+    67: "Distress: Vessel requests medical assistance",
+    68: "Distress: Vessel flooding",
+    69: "Distress: Vessel fire/explosion",
+    70: "Distress: Vessel grounding",
+    71: "Distress: Vessel collision",
+    72: "Distress: Vessel listing/capsizing",
+    73: "Distress: Vessel under assault",
+    74: "Distress: Person overboard",
+    75: "Distress: SAR area",
+    76: "Distress: Pollution response area",
+    77: "Distress: other (define in associated text field)",
+    80: "Instruction: Contact VTS at this point/juncture",
+    81: "Instruction: Contact Port Administration at this point/juncture",
+    82: "Instruction: Do not proceed beyond this point/juncture",
+    83: "Instruction: Await instructions prior to proceeding beyond this point/juncture",
+    84: "Instruction: Proceed to this location - await instructions",
+    85: "Instruction: Clearance granted - proceed to berth/lock",
+    86: "Instruction: other (define in associated text field)",
+    88: "Information: Pilot boarding position",
+    89: "Information: Icebreaker waiting area",
+    90: "Information: Places of refuge",
+    91: "Information: Position of icebreakers",
+    92: "Information: Location of response units",
+    93: "Information: VTS active target",
+    94: "Information: Rogue or suspicious vessel",
+    95: "Information: Vessel requesting non-distress assistance",
+    96: "Information: other (define in associated text field)",
+    97: "Chart Feature: Submerged object / sunken vessel (describe in associated text field)",
+    98: "Chart Feature: Semi-submerged object",
+    99: "Chart Feature: Shoal area",
+   100: "Chart Feature: Shoal area due north",
+   101: "Chart Feature: Shoal area due east",
+   102: "Chart Feature: Shoal area due south",
+   103: "Chart Feature: Shoal area due west",
+   104: "Chart Feature: Channel obstruction",
+   105: "Chart Feature: Reduced vertical clearance",
+   106: "Chart Feature: Bridge/Gate/Lock/other closed",
+   107: "Chart Feature: Bridge/Gate/Lock/other partially open (opening)",
+   108: "Chart Feature: Bridge/Gate/Lock/other fully open",
+   109: "Chart Feature: Bridge/Gate/Lock/other partially closed (closing)",
+   110: "Chart Feature: Bridge/Gate/Lock/AtoN/other inoperative or not working properly",
+   111: "Chart Feature: other (define in associated text field)",
+   112: "Report from ship: Icing info",
+   113: "Report from ship: Intended route",
+   114: "Report from ship: other (define in associated text field)",
+   120: "Route: Recommended Route",
+   121: "Route: Alternative Route",
+   122: "Route: Recommended Route through ice",
+   123: "Route: other (define in associated text field)",
+   125: "Other - Define in associated text field",
+   126: "Cancellation - cancel area as identified by Message Linkage ID",
+   127: "Undefined (default)"
+   // missing values are reserved for future use
+};
+
+var AREA_NOTICE_USCG = { // DAC 367 FI 22, USCG Geographic Notice release 2 tables 1-10
+    version   : 56,      // message version, followed by the header
+    header    : 62,
+    action    : 117,     // advisement or directive, since release 2
+    subareas  : 120,
+    subarealen: 96,
+    lonlen    : 28,
+    latlen    : 27,
+    posscale  : 600000,  // 1/10000 minute
+    distlen   : 11,
+    anglescale: 0.5,
+    textlen   : 90       // 15 characters
+};
+
 
 // Ais payload is represented in a 6bits encoded string !(
 // This method is a direct transcription in nodejs of C++ ais-decoder code
@@ -658,6 +905,18 @@ function AisDecode (input, session) {
                         this.valid = true;
                     } else this.valid = false;
                 }
+                // area notice
+                else if (this.dac === 1 && this.fid === 22 ) {
+                    // IMO SN.1/Circ.289 section 11
+                    this.class       = '-';
+                    this.DecodeAreaNotice(AREA_NOTICE_IMO);
+                }
+                // geographic notice
+                else if (this.dac === 367 && this.fid === 22 ) {
+                    // https://www.e-navigation.nl/content/geographic-notice
+                    this.class       = '-';
+                    this.DecodeAreaNotice(AREA_NOTICE_USCG);
+                }
                 // meteorological and hydrographic data (Deprecated)
                 else if (this.dac === 1 && this.fid === 11 ) {
                     // https://academy.iala-aism.org/asm/metreorological-hydrological-data-2/
@@ -1022,6 +1281,97 @@ AisDecode.prototype.GetStr= function(start, len) {
          k++;
     }
     return (buffer.toString ('utf8',0, k));
+};
+
+// Decode an area notice header and its sub-areas, see AREA_NOTICE_* for the layout
+AisDecode.prototype.DecodeAreaNotice = function (layout) {
+    var nbits = this.bitarray.length * 6;
+    if (nbits < layout.subareas + layout.subarealen) return;
+
+    if (layout.version !== undefined) {
+        this.version = this.GetInt(layout.version, 6);
+        if (this.version >= 2) this.action = this.GetInt(layout.action, 1);   // 0 = advisement, 1 = directive
+    }
+
+    var start = layout.header;
+    this.linkid     = this.GetInt(start, 10);
+    this.noticetype = this.GetInt(start + 10, 7);
+    this.mmsikey    = this.mmsi + ':' + this.linkid;
+
+    var month    = this.GetInt(start + 17, 4);
+    var day      = this.GetInt(start + 21, 5);
+    var hour     = this.GetInt(start + 26, 5);
+    var minute   = this.GetInt(start + 31, 6);
+    var duration = this.GetInt(start + 37, 18);
+    if (month > 0 && month < 13) this.month  = month;
+    if (day > 0)                 this.day    = day;
+    if (hour < 24)               this.hour   = hour;
+    if (minute < 60)             this.minute = minute;
+    if (duration < 262143)       this.duration = duration;   // minutes, 0 = cancel
+
+    var scales = [1, 10, 100, 1000];
+    var count  = Math.floor((nbits - layout.subareas) / layout.subarealen);
+    var text   = '';
+    this.subareas = [];
+
+    for (var i = 0; i < count; i++) {
+        var s     = layout.subareas + i * layout.subarealen;
+        var shape = this.GetInt(s, 3);
+        var scale = scales[this.GetInt(s + 3, 2)];
+        var p     = s + 5 + layout.lonlen + layout.latlen;   // first bit after position
+        var area  = {shape: AREA_SHAPE[shape]};
+
+        switch (shape) {
+            case 0: // circle or point
+            case 1: // rectangle, position is south west corner
+            case 2: // sector
+                var lon = this.GetInt(s + 5, layout.lonlen, true) / layout.posscale;
+                var lat = this.GetInt(s + 5 + layout.lonlen, layout.latlen, true) / layout.posscale;
+                if (lon <= 180. && lat <= 90.) {
+                    area.lon = lon;
+                    area.lat = lat;
+                }
+                area.precision = this.GetInt(p, 3);
+                if (shape === 1) {
+                    area.east        = this.GetInt(p + 3, 8) * scale;
+                    area.north       = this.GetInt(p + 11, 8) * scale;
+                    area.orientation = this.GetInt(p + 19, 9);
+                } else {
+                    area.radius = this.GetInt(p + 3, 12) * scale;   // 0 = point
+                    if (shape === 2) {
+                        area.left  = this.GetInt(p + 15, 9);
+                        area.right = this.GetInt(p + 24, 9);
+                    }
+                }
+                break;
+            case 3: // polyline
+            case 4: // polygon
+                // points are relative to the previous point, starting at the preceding sub-area
+                area.points = [];
+                var pairlen = 10 + layout.distlen;
+                for (var j = 0; j < 4; j++) {
+                    var angle    = this.GetInt(s + 5 + j * pairlen, 10);
+                    var distance = this.GetInt(s + 15 + j * pairlen, layout.distlen) * scale;
+                    if (distance === 0 || angle * layout.anglescale >= 360) break;
+                    area.points.push({bearing: angle * layout.anglescale, distance: distance});
+                }
+                break;
+            case 5: // associated text, consecutive text sub-areas are concatenated
+                area.text = this.GetStr(s + 3, layout.textlen);
+                text += area.text;
+                break;
+            default: // reserved shape
+                return;
+        }
+        this.subareas.push(area);
+    }
+    if (text.length > 0) this.txt = text.trim();
+    this.valid = this.subareas.length > 0;
+};
+
+AisDecode.prototype.GetNoticeDescription =function () {
+    var table = (this.dac === 367) ? GEOGRAPHIC_NOTICE : AREA_NOTICE;
+    return (table [this.noticetype]);
 };
 
 AisDecode.prototype.GetNavStatus =function () {

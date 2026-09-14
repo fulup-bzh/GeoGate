@@ -281,6 +281,205 @@ function AisEncodeDecodeTest (args) {
         watertemp  : 6.2,
         waterlevel : 0.47
     }
+    ,msg8_001_22: { // dac 001 fid 22 area notice, NOAA right whale sighting
+        aistype    : 800122,
+        nmea       : "!AIVDM,1,1,0,B,803Ovrh0EPM0WB0h2l0MwJUi=6B4G9000aip8<2Bt2Hq2Qhp,0*01",
+        mmsi       : "003669739",
+        mmsikey    : "003669739:29",
+        linkid     : 29,
+        noticetype : 1,
+        month      : 3,
+        day        : 20,
+        hour       : 16,
+        minute     : 6,
+        duration   : 1440,
+        txt        : "NOAA RW SGHTNG",
+        subareas   : [{shape: "circle", lon: -70.2243, lat: 42.105866666666664, precision: 4, radius: 14810},
+                      {shape: "text", text: "NOAA RW SGHTNG"}]
+    }
+    ,msg8_001_22_2: { // dac 001 fid 22 area notice, NOAA dynamic management area polygon
+        aistype    : 800122,
+        nmea       : ["!AIVDM,2,1,1,A,803Ovrh0EPJ0Vvch00@=w52I9BK<00000VFHkP0>D>3,0*24",
+                      "!AIVDM,2,2,1,A,;J005>?11PBGP4=1PPP,0*3F"],
+        mmsi       : "003669739",
+        mmsikey    : "003669739:26",
+        linkid     : 26,
+        noticetype : 1,
+        month      : 3,
+        day        : 15,
+        hour       : 21,
+        minute     : 30,
+        duration   : 2,
+        txt        : "NOAA RW DMA",
+        subareas   : [{shape: "circle", lon: -70.40821666666666, lat: 40.02495, precision: 4, radius: 0},
+                      {shape: "polygon", points: [{bearing: 89.5, distance: 103000}, {bearing: 0, distance: 114000}, {bearing: 270, distance: 101000}]},
+                      {shape: "text", text: "NOAA RW DMA   "}]
+    }
+    ,msg8_001_22_3: { // dac 001 fid 22 area notice, concatenated text sub-areas
+        aistype    : 800122,
+        nmea       : ["!AIVDM,3,1,4,A,81mg=5@0EP:4R40807P>0<D1>MNt00000f>FNVfnw7>6>FNU=?B5PD5HDPD8,0*26",
+                      "!AIVDM,3,2,4,A,1Dd2J09jL08JArJH5P=E<D9@<5P<9>0`bMl42Q0d2Pc2T59CPCE@@?C54PD?,0*60",
+                      "!AIVDM,3,3,4,A,d0@d0IqhH:Pah:U54PD?75D85Bf00,0*03"],
+        mmsi       : "123456789",
+        mmsikey    : "123456789:10",
+        linkid     : 10,
+        noticetype : 9,
+        month      : 1,
+        day        : 1,
+        hour       : 0,
+        minute     : 1,
+        duration   : 60,
+        txt        : "12345678901234MORE TEXT THAT SPANS ACROSS MULTIPLE LINES.  THE TEXT IS SUPPOSED TO BE CONCATENATED TOGETHER.",
+        subareas   : [{shape: "circle", lon: -69.8, lat: 42.849983333333334, precision: 4, radius: 0},
+                      {shape: "text", text: "12345678901234"}, {shape: "text", text: "MORE TEXT THAT"},
+                      {shape: "text", text: " SPANS ACROSS"},  {shape: "text", text: " MULTIPLE LIN"},
+                      {shape: "text", text: "ES.  THE TEXT "}, {shape: "text", text: "IS SUPPOSED TO"},
+                      {shape: "text", text: " BE CONCATENAT"}, {shape: "text", text: "ED TOGETHER."}]
+    }
+    ,msg8_367_22: { // dac 367 fid 22 geographic notice, USCG right whale buoy
+        aistype    : 836722,
+        nmea       : "!AIVDM,1,1,,B,8h3Ovq1KmPA`08b8007P3ct5uAPmtlAkh000,0*2F",
+        mmsi       : "003669732",
+        mmsikey    : "003669732:104",
+        version    : 1,
+        action     : undefined,
+        linkid     : 104,
+        noticetype : 0,
+        month      : 4,
+        day        : 10,
+        hour       : 17,
+        minute     : 0,
+        duration   : 60,
+        txt        : undefined,
+        subareas   : [{shape: "circle", lon: -70.11843666666667, lat: 42.31134, precision: 2, radius: 9260}]
+    }
+    ,msg8_367_22_2: { // dac 367 fid 22 geographic notice, USCG ice polylines
+        aistype    : 836722,
+        nmea       : ["!ANVDM,2,1,0,B,8h3Ovq1KmP@N<95=`2l01=dN<b7pGeP00000LL8PSV8RQ8cTs5H0LTHh477P,0*36",
+                      "!ANVDM,2,2,0,B,Rpus@000,0*46"],
+        mmsi       : "003669732",
+        mmsikey    : "003669732:30",
+        version    : 1,
+        action     : undefined,
+        linkid     : 30,
+        noticetype : 24,
+        month      : 4,
+        day        : 17,
+        hour       : 9,
+        minute     : 45,
+        duration   : 1440,
+        txt        : undefined,
+        subareas   : [{shape: "circle", lon: -175.829165, lat: 59.367221666666666, precision: 4, radius: 0},
+                      {shape: "polyline", points: [{bearing: 112.5, distance: 13000}, {bearing: 115, distance: 27300}, {bearing: 132.5, distance: 17400}, {bearing: 157.5, distance: 17200}]},
+                      {shape: "polyline", points: [{bearing: 145.5, distance: 19200}, {bearing: 131.5, distance: 24000}, {bearing: 139.5, distance: 24700}]}]
+    }
+    ,msg8_367_22_4: { // dac 367 fid 22 geographic notice, USCG spec sample polyline and text
+        aistype    : 836722,
+        nmea       : ["!AIVDM,2,1,0,A,85M:Ih1KmPA`tBAs85`01cON31N;U`P00000H;Gl1gfp52tjFq20H3r9P000,0*64",
+                      "!AIVDM,2,2,0,A,00000000bPbJT1Q9hd680000,0*03"],
+        mmsi       : "366123456",
+        mmsikey    : "366123456:104",
+        version    : 1,
+        action     : undefined,
+        linkid     : 104,
+        noticetype : 120,
+        month      : 9,
+        day        : 4,
+        hour       : 15,
+        minute     : 25,
+        duration   : 2880,
+        txt        : "TEST LINE 1",
+        subareas   : [{shape: "circle", lon: -71.68166666666667, lat: 41.14833333333333, precision: 4, radius: 0},
+                      {shape: "polyline", points: [{bearing: 45, distance: 2000}, {bearing: 55.5, distance: 1500}, {bearing: 20, distance: 755}, {bearing: 75, distance: 1825}]},
+                      {shape: "polyline", points: [{bearing: 15.5, distance: 550}]},
+                      {shape: "text", text: "TEST LINE 1"}]
+    }
+    ,msg8_367_22_5: { // dac 367 fid 22 geographic notice, USCG test text, start time not available
+        aistype    : 836722,
+        nmea       : "!AIVDM,1,1,,A,803Ow2iKmPFJwP37P000bbHHsrPbJP000000,0*6E",
+        mmsi       : "003669771",
+        mmsikey    : "003669771:410",
+        version    : 1,
+        action     : undefined,
+        linkid     : 410,
+        noticetype : 127,
+        month      : undefined,
+        day        : undefined,
+        hour       : undefined,
+        minute     : undefined,
+        duration   : 0,
+        txt        : "USCG_TEST",
+        subareas   : [{shape: "text", text: "USCG_TEST"}]
+    }
+    ,msg8_367_22_6: { // dac 367 fid 22 geographic notice, USCG spec sample rectangle
+        aistype    : 836722,
+        nmea       : "!AIVDM,1,1,0,A,85M:Ih1KmPAVhjAs80e0;cKBN1N:W8Q@:2`0,0*0C",
+        mmsi       : "366123456",
+        mmsikey    : "366123456:102",
+        version    : 1,
+        action     : undefined,
+        linkid     : 102,
+        noticetype : 97,
+        month      : 9,
+        day        : 4,
+        hour       : 15,
+        minute     : 25,
+        duration   : 360,
+        txt        : undefined,
+        subareas   : [{shape: "rectangle", lon: -71.91, lat: 41.141666666666666, precision: 4, east: 400, north: 200, orientation: 42}]
+    }
+    ,msg8_367_22_7: { // dac 367 fid 22 geographic notice, USCG spec sample sector
+        aistype    : 836722,
+        nmea       : "!AIVDM,1,1,0,A,85M:Ih1KmPAW5BAs80e0EcN<11N6th@6BgL8,0*13",
+        mmsi       : "366123456",
+        mmsikey    : "366123456:103",
+        version    : 1,
+        action     : undefined,
+        linkid     : 103,
+        noticetype : 10,
+        month      : 9,
+        day        : 4,
+        hour       : 15,
+        minute     : 25,
+        duration   : 360,
+        txt        : undefined,
+        subareas   : [{shape: "sector", lon: -71.75166666666667, lat: 41.11666666666667, precision: 2, radius: 5000, left: 175, right: 225}]
+    }
+    ,msg8_367_22_8: { // dac 367 fid 22 geographic notice release 2 with action, synthetic from msg8_367_22
+        aistype    : 836722,
+        nmea       : "!AIVDM,1,1,,B,8h3Ovq1KmPQ`08b8007T3ct5uAPmtlAkh000,0*3B",
+        mmsi       : "003669732",
+        mmsikey    : "003669732:104",
+        version    : 2,
+        action     : 1,
+        linkid     : 104,
+        noticetype : 0,
+        month      : 4,
+        day        : 10,
+        hour       : 17,
+        minute     : 0,
+        duration   : 60,
+        txt        : undefined,
+        subareas   : [{shape: "circle", lon: -70.11843666666667, lat: 42.31134, precision: 2, radius: 9260}]
+    }
+    ,msg8_367_22_3: { // dac 367 fid 22 geographic notice, USCG right whale polygon
+        aistype    : 836722,
+        nmea       : "!SAVDO,1,1,1,B,8h3Ovq1KmPHw08aTp?IH1chmi1Md2p@00000T02v8LGle2v;@000,0*2D",
+        mmsi       : "003669732",
+        mmsikey    : "003669732:575",
+        version    : 1,
+        action     : undefined,
+        linkid     : 575,
+        noticetype : 0,
+        month      : 4,
+        day        : 10,
+        hour       : 12,
+        minute     : 39,
+        duration   : 7883,
+        txt        : undefined,
+        subareas   : [{shape: "circle", lon: -70.733, lat: 40.933, precision: 2, radius: 0},
+                      {shape: "polygon", points: [{bearing: 0, distance: 76000}, {bearing: 270, distance: 76200}, {bearing: 180, distance: 76000}]}]
+    }
     ,msg8_367_33_0: { // dac 367 fid 33 meteorological and hydrographic data location
         aistype    : 836733,
         nmea       : "!AIVDM,1,1,,A,8P3QiWAKp@dw8>5LlaB1aQkhCr@P,0*28",
@@ -317,7 +516,10 @@ AisEncodeDecodeTest.prototype.CheckResult = function (test, aisin, aisout, contr
     console.log ("\nChecking: [%s] --> [%s]", test, aisin.nmea);
     for (var element in controls){
         slot = controls[element];
-        if (aisout[slot] !== aisin[slot]) {
+        var differ = (typeof aisin[slot] === 'object')
+            ? JSON.stringify(aisout[slot]) !== JSON.stringify(aisin[slot])
+            : aisout[slot] !== aisin[slot];
+        if (differ) {
             count ++;
             console.log ("--> FX (%s) in:[%s] != out:[%s]", slot, aisin[slot], aisout [slot]);
         } else {
@@ -341,8 +543,9 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
         // anything else.
         if(aisTest.nmea instanceof Object) {
             var session={};
-            var aisDecoded = new AisDecode(aisTest.nmea[0], session);
-            var aisDecoded = new AisDecode(aisTest.nmea[1], session);
+            for (var part = 0; part < aisTest.nmea.length; part++) {
+                var aisDecoded = new AisDecode(aisTest.nmea[part], session);
+            }
         } else {
             var aisDecoded = new AisDecode(aisTest.nmea);
         }
@@ -390,6 +593,12 @@ AisEncodeDecodeTest.prototype.CheckDecode = function () {
                     break;
                 case 800131:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'lon', 'lat', 'avgwindspd', 'winddir', 'airtemp', 'watertemp', 'waterlevel']);
+                    break;
+                case 800122:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'mmsikey', 'linkid', 'noticetype', 'month', 'day', 'hour', 'minute', 'duration', 'txt', 'subareas']);
+                    break;
+                case 836722:
+                    this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'mmsikey', 'version', 'action', 'linkid', 'noticetype', 'month', 'day', 'hour', 'minute', 'duration', 'txt', 'subareas']);
                     break;
                 case 836733:
                     this.CheckResult (test, aisTest, aisDecoded, ["mmsi", 'siteid', 'lon', 'lat', 'avgwindspd', 'winddir']);
