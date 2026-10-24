@@ -430,7 +430,7 @@ function AisDecode (input, session) {
     // split nmea message !AIVDM,1,1,,B,B69>7mh0?J<:>05B0`0e;wq2PHI8,0*3D'
     var nmea = input.split(",");
 
-    if (nmea.length !== 7) {
+    if (nmea.length < 7) {
         this.error = "AisDecode: Sentence contains invalid number of parts.";
         return;
     } 
