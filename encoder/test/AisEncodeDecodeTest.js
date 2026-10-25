@@ -231,6 +231,28 @@ function AisEncodeDecodeTest (args) {
         sog        : 0,
         cog        : 0
     }
+    ,msg1_7fields: { // msg with 7 fields
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,1,,13aI8e?P00PGpU:NR6s00?vT2000,0*00",
+        mmsi       : "244730036",
+        lon        : 5.217555,
+        lat        : 53.36018,
+        rot        : -128,
+        smi        : 0,
+        sog        : 0,
+        cog        : 0
+    }
+    ,msg1_8fields: { // msg with more than 7 fields
+        aistype    : 1,
+        nmea       : "!AIVDM,1,1,1,A,13aI8e?P00PGpU:NR6s00?vT2000,0,0*5D",
+        mmsi       : "244730036",
+        lon        : 5.217555,
+        lat        : 53.36018,
+        rot        : -128,
+        smi        : 0,
+        sog        : 0,
+        cog        : 0
+    }
     ,msg14: { // text msg
         aistype    : 14,
         nmea       : "!AIVDM,1,1,,A,>>O5`4tlt:1@E=@,2*15",
