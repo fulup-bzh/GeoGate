@@ -405,6 +405,15 @@ var AREA_NOTICE_USCG = { // DAC 367 FI 22, USCG Geographic Notice release 2 tabl
 };
 
 
+// A VDM/VDO sentence numbers its fragments with a single digit, so a multipart
+// message has at most 9 of them. They are kept in session[1..9] while the
+// message is being assembled.
+var MAX_FRAGMENTS = 9;
+
+function clearFragments (session) {
+    for (var i = 1; i <= MAX_FRAGMENTS; i++) delete session[i];
+}
+
 // Ais payload is represented in a 6bits encoded string !(
 // This method is a direct transcription in nodejs of C++ ais-decoder code
 function AisDecode (input, session) {
@@ -453,6 +462,14 @@ function AisDecode (input, session) {
            throw "A session object is required to maintain state for decoding multipart AIS messages.";
         }
 
+        // Without this check every sentence with a new fragment number adds an
+        // entry to the session that is never released.
+        if(!Number.isInteger(message_count) || message_count > MAX_FRAGMENTS ||
+           !Number.isInteger(message_id) || message_id < 1 || message_id > message_count) {
+            this.error = "AisDecode: Invalid fragment count or fragment number.";
+            return;
+        }
+
         if(message_id > 1) {
             if(nmea[0] !== session.formatter) {
                 this.error = "AisDecode: Sentence does not match formatter of current session.";
@@ -468,7 +485,14 @@ function AisDecode (input, session) {
                 this.error = "AisDecode: Session IDs do not match. Cannot recontruct AIS message.";
                 return;
             }
+
+            if(session.message_count !== message_count) {
+                this.error = "AisDecode: Fragment count does not match the first fragment.";
+                return;
+            }
         } else {
+            // a new message starts: drop whatever an unfinished one left behind
+            clearFragments(session);
             session.formatter = nmea[0];
             session.message_count = message_count;
             session.sequence_id = sequence_id;
@@ -497,6 +521,7 @@ function AisDecode (input, session) {
         
         this.payload = Buffer.concat(payloads, len);
         this.msglen = this.payload.length;
+        clearFragments(session);
     }
 
     
